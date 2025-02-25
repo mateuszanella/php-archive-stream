@@ -1,0 +1,18 @@
+{
+    "name": "mateuszanella/laravel-file-stream",
+    "description": "File Stream for Zip and Tar for Laravel application",
+    "type": "library",
+    "require": {
+        "illuminate/support": "^12.0"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "mateuszanella",
+            "email": "mateusblk1@gmail.com"
+        }
+    ],
+    "require-dev": {
+        "phpunit/phpunit": "^12.0"
+    }
+}
