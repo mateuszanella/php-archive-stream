@@ -1,6 +1,6 @@
 <?php
 
-namespace LaravelFileStream\Writers;
+namespace Tests\Unit;
 
 use Illuminate\Contracts\Foundation\Application;
 use InvalidArgumentException;

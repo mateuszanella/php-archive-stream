@@ -2,8 +2,8 @@
 
 namespace LaravelFileStream\Writers\Tar;
 
+use Generator;
 use LaravelFileStream\Exceptions\CouldNotOpenStreamException;
-use LaravelFileStream\Exceptions\CouldNotWriteToStreamException;
 
 class InputStream
 {
@@ -25,26 +25,21 @@ class InputStream
         return new self($stream);
     }
 
-    public function write(string $s): void
+    public function close(): void
     {
-        $bytesWritten = fwrite($this->stream, $s);
-        if ($bytesWritten === false) {
-            throw new CouldNotWriteToStreamException;
-        }
-
-        $this->pad($bytesWritten);
+        fclose($this->stream);
     }
 
-    public function pad(int $bytesWritten): void
+    public function read(): Generator
     {
-        $remainder = $bytesWritten % 512;
-        if ($remainder) {
-            $padding = 512 - $remainder;
-            $bytesWritten = fwrite($this->stream, str_repeat("\0", $padding));
+        while (! feof($this->stream)) {
+            $chunk = fread($this->stream, 512);
 
-            if ($bytesWritten === false) {
-                throw new CouldNotWriteToStreamException;
+            if ($chunk === false) {
+                break;
             }
+
+            yield $chunk;
         }
     }
 }

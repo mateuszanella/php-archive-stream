@@ -1,41 +1,62 @@
 <?php
 
-use LaravelFileStream\Writers\Tar\InputStream;
-use PHPUnit\Framework\TestCase;
+namespace Tests\Unit;
 
+use PHPUnit\Framework\TestCase;
+use LaravelFileStream\Exceptions\CouldNotOpenStreamException;
+use LaravelFileStream\Writers\Tar\InputStream;
+
+/**
+ * @covers \LaravelFileStream\Writers\Tar\InputStream
+ */
 class TarInputStreamTest extends TestCase
 {
-    public function testWriteDoesNotPadWhenMultipleOf512()
+    private $testFilePath;
+
+    protected function setUp(): void
     {
-        $stream = fopen('php://memory', 'wb');
-        $inputStream = new InputStream($stream);
-
-        $inputStream->write(str_repeat('a', 512));
-        fseek($stream, 0);
-        $content = fread($stream, 512);
-
-        $this->assertEquals(512, strlen($content));
-        $this->assertEquals(str_repeat('a', 512), $content);
+        $this->testFilePath = tempnam(sys_get_temp_dir(), 'test');
+        file_put_contents($this->testFilePath, str_repeat('A', 1024)); // Create a test file with 1024 'A' characters
     }
 
-    public function testWritePadsMultipleWritesCorrectly()
+    protected function tearDown(): void
     {
-        $stream = fopen('php://memory', 'wb');
-        $inputStream = new InputStream($stream);
-
-        $inputStream->write(str_repeat('a', 500));
-        $inputStream->write(str_repeat('b', 20));
-        fseek($stream, 0);
-        $content = fread($stream, 1024);
-
-        $this->assertEquals(1024, strlen($content));
-        $this->assertEquals(str_repeat('a', 500) . str_repeat("\0", 12) . str_repeat('b', 20) . str_repeat("\0", 492), $content);
+        if (file_exists($this->testFilePath)) {
+            unlink($this->testFilePath);
+        }
     }
 
-    public function testOpenSuccessfullyOpensFile()
+    public function testOpen()
     {
-        $inputStream = InputStream::open('php://memory');
-
+        $inputStream = InputStream::open($this->testFilePath);
         $this->assertInstanceOf(InputStream::class, $inputStream);
+        $inputStream->close();
+    }
+
+    public function testOpenThrowsException()
+    {
+        $this->expectException(CouldNotOpenStreamException::class);
+        InputStream::open('/invalid/path/to/file');
+    }
+
+    public function testClose()
+    {
+        $inputStream = InputStream::open($this->testFilePath);
+        $inputStream->close();
+        $this->assertTrue(true); // If no exception is thrown, the test passes
+    }
+
+    public function testRead()
+    {
+        $inputStream = InputStream::open($this->testFilePath);
+        $chunks = iterator_to_array($inputStream->read());
+        $inputStream->close();
+
+        // Filter out any empty chunks that might be read at the end
+        $chunks = array_filter($chunks, fn($chunk) => !empty($chunk));
+
+        $this->assertCount(2, $chunks); // 1024 bytes / 512 bytes per chunk = 2 chunks
+        $this->assertEquals(str_repeat('A', 512), $chunks[0]);
+        $this->assertEquals(str_repeat('A', 512), $chunks[1]);
     }
 }

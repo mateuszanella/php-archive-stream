@@ -2,14 +2,13 @@
 
 namespace LaravelFileStream\Writers\Tar;
 
-use Exception;
 use LaravelFileStream\Writers\Writer;
 
 class Tar implements Writer
 {
     public readonly string $outputPath;
 
-    protected $outputStream;
+    protected ?OutputStream $outputStream;
 
     public function __construct(string $path)
     {
@@ -18,43 +17,35 @@ class Tar implements Writer
         $this->start($path);
     }
 
-    public function addFile(string $path): void {}
-
-    public function save(): void {}
-
-    /**
-     * Everything from down here should be a different Stream class.
-     *
-     * A TarStream should be resposible for reading, writing and padding the tar file.
-     *
-     * The Tar file should be responsible for generating headers, adding files and saving the file itself.
-     */
-
-
-    protected function start(string $outputPath): void
+    public function addFile(string $path): void
     {
-        $this->outputStream = fopen($outputPath, 'wb');
+        $inputStream = InputStream::open($path);
 
-        if ($this->outputStream === false) {
-            throw new Exception('Could not open file for writing');
+        $this->writeFileDataBlock($inputStream, $path);
+
+        $inputStream->close();
+    }
+
+    public function save(): void
+    {
+        if ($this->outputStream) {
+            $this->outputStream->close();
+            $this->outputStream = null;
         }
     }
 
-    protected function writeFileDataBlock($inputStream, string $outputFilePath): void
+    protected function start(string $outputPath): void
+    {
+        $this->outputStream = OutputStream::open($outputPath);
+    }
+
+    protected function writeFileDataBlock(InputStream $inputStream, string $outputFilePath): void
     {
         $this->writeHeaderBlock($outputFilePath);
 
-        while (!feof($inputStream)) {
-            $data = fread($inputStream, 512);
-
-            if ($data === false) {
-                throw new Exception('Could not read from input stream');
-            }
-
-            $this->writeChunk($data);
+        foreach ($inputStream->read() as $chunk) {
+            $this->write($chunk);
         }
-
-        $this->writeTrailerBlock();
     }
 
     protected function writeHeaderBlock(string $outputFilePath): void
@@ -69,32 +60,11 @@ class Tar implements Writer
             $fileSize
         );
 
-        $this->writeChunks($header);
-    }
-
-    protected function writeChunks(string $data): void
-    {
-        $length = strlen($data);
-
-        for ($offset = 0; $offset < $length; $offset += 512) {
-            $chunk = substr($data, $offset, 512);
-            $this->write($chunk);
-        }
-    }
-
-    protected function pad(int $size): void
-    {
-        $paddingSize = 512 - ($size % 512);
-
-        fwrite($this->outputStream, str_repeat("\0", $paddingSize));
+        $this->write($header);
     }
 
     protected function write(string $data): void
     {
-        fwrite($this->outputStream, $data);
-
-        if (strlen($data) < 512) {
-            $this->pad(strlen($data));
-        }
+        $this->outputStream->write($data);
     }
 }
