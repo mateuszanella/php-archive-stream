@@ -28,6 +28,8 @@ class Tar implements Writer
 
     public function save(): void
     {
+        $this->writeTrailerBlock();
+
         if ($this->outputStream) {
             $this->outputStream->close();
             $this->outputStream = null;
@@ -61,6 +63,11 @@ class Tar implements Writer
         );
 
         $this->write($header);
+    }
+
+    protected function writeTrailerBlock(): void
+    {
+        $this->write(str_repeat("\0", 1024));
     }
 
     protected function write(string $data): void
