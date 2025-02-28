@@ -33,6 +33,24 @@ class TarInputStreamTest extends TestCase
         $inputStream->close();
     }
 
+    public function testFromString()
+    {
+        $contents = "Hello, World!";
+        $inputStream = InputStream::fromString($contents);
+
+        $reflection = new \ReflectionClass($inputStream);
+        $property = $reflection->getProperty('stream');
+        $property->setAccessible(true);
+        $stream = $property->getValue($inputStream);
+
+        rewind($stream);
+        $readContents = stream_get_contents($stream);
+
+        $this->assertEquals($contents, $readContents);
+
+        $inputStream->close();
+    }
+
     public function testOpenThrowsException()
     {
         $this->expectException(CouldNotOpenStreamException::class);

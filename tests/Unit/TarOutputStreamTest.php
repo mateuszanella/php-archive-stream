@@ -36,7 +36,7 @@ class TarOutputStreamTest extends TestCase
     public function testOpenThrowsException()
     {
         $this->expectException(CouldNotOpenStreamException::class);
-        OutputStream::open('/invalid/path/to/file');
+        OutputStream::open($this->testFilePath . '/invalid.txt');
     }
 
     public function testClose()

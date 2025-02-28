@@ -26,6 +26,13 @@ class Tar implements Writer
         $inputStream->close();
     }
 
+    public function addFile(string $fileName, string $fileContents): void
+    {
+        $inputStream = InputStream::fromString($fileContents);
+
+        $this->writeFileDataBlock($inputStream, $fileName);
+    }
+
     public function save(): void
     {
         $this->writeTrailerBlock();

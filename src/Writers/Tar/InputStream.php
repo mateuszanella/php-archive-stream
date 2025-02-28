@@ -25,6 +25,17 @@ class InputStream
         return new self($stream);
     }
 
+    public static function fromString(string $contents): self
+    {
+        $stream = fopen('php://memory', 'r+');
+
+        fwrite($stream, $contents);
+
+        rewind($stream);
+
+        return new self($stream);
+    }
+
     public function close(): void
     {
         fclose($this->stream);
