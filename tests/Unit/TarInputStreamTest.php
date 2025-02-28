@@ -59,4 +59,13 @@ class TarInputStreamTest extends TestCase
         $this->assertEquals(str_repeat('A', 512), $chunks[0]);
         $this->assertEquals(str_repeat('A', 512), $chunks[1]);
     }
+
+    public function testSize()
+    {
+        $inputStream = InputStream::open($this->testFilePath);
+        $size = $inputStream->size();
+        $inputStream->close();
+
+        $this->assertEquals(1024, $size); // The test file has 1024 'A' characters
+    }
 }

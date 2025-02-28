@@ -2,7 +2,6 @@
 
 namespace Tests\Unit;
 
-use PhpArchiveStream\Writers\Tar\InputStream;
 use PhpArchiveStream\Writers\Tar\OutputStream;
 use PhpArchiveStream\Writers\Tar\Tar;
 use PHPUnit\Framework\TestCase;
@@ -61,8 +60,8 @@ class TarTest extends TestCase
 
     public function testAddMultipleFiles()
     {
-        $this->tar->addFile($this->inputPath1);
-        $this->tar->addFile($this->inputPath2);
+        $this->tar->addFileFromPath($this->inputPath1, 'input1.txt');
+        $this->tar->addFileFromPath($this->inputPath2, 'input2.txt');
 
         $reflection = new \ReflectionClass($this->tar);
         $property = $reflection->getProperty('outputStream');
@@ -90,7 +89,7 @@ class TarTest extends TestCase
 
     public function testOutputFileExistsAfterSave()
     {
-        $this->tar->addFile($this->inputPath1);
+        $this->tar->addFileFromPath($this->inputPath1, 'input1.txt');
         $this->tar->save();
 
         $this->assertFileExists($this->outputPath);

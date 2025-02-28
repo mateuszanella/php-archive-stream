@@ -42,4 +42,11 @@ class InputStream
             yield $chunk;
         }
     }
+
+    public function size(): int
+    {
+        $stat = fstat($this->stream);
+
+        return $stat['size'];
+    }
 }

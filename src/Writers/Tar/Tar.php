@@ -17,11 +17,11 @@ class Tar implements Writer
         $this->start($path);
     }
 
-    public function addFile(string $path): void
+    public function addFileFromPath(string $filePath, string $targetPath): void
     {
-        $inputStream = InputStream::open($path);
+        $inputStream = InputStream::open($filePath);
 
-        $this->writeFileDataBlock($inputStream, $path);
+        $this->writeFileDataBlock($inputStream, $targetPath);
 
         $inputStream->close();
     }
@@ -43,23 +43,24 @@ class Tar implements Writer
 
     protected function writeFileDataBlock(InputStream $inputStream, string $outputFilePath): void
     {
-        $this->writeHeaderBlock($outputFilePath);
+        $sourceFileSize = $inputStream->size();
+
+        $this->writeHeaderBlock($outputFilePath, $sourceFileSize);
 
         foreach ($inputStream->read() as $chunk) {
             $this->write($chunk);
         }
     }
 
-    protected function writeHeaderBlock(string $outputFilePath): void
+    protected function writeHeaderBlock(string $outputFilePath, int $sourceFileSize): void
     {
         $baseFileName = basename($outputFilePath);
         $folderPrefix = dirname($outputFilePath);
-        $fileSize = filesize($outputFilePath);
 
         $header = Header::get(
             $baseFileName,
             $folderPrefix,
-            $fileSize
+            $sourceFileSize
         );
 
         $this->write($header);
