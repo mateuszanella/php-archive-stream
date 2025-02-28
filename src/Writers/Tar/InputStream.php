@@ -3,6 +3,7 @@
 namespace PhpArchiveStream\Writers\Tar;
 
 use Generator;
+use InvalidArgumentException;
 use PhpArchiveStream\Exceptions\CouldNotOpenStreamException;
 
 class InputStream
@@ -20,6 +21,15 @@ class InputStream
 
         if ($stream === false) {
             throw new CouldNotOpenStreamException($path);
+        }
+
+        return new self($stream);
+    }
+
+    public static function fromStream($stream): self
+    {
+        if (! is_resource($stream)) {
+            throw new InvalidArgumentException('Argument must be a valid resource');
         }
 
         return new self($stream);

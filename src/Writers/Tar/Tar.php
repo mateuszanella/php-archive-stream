@@ -17,11 +17,20 @@ class Tar implements Writer
         $this->start($path);
     }
 
-    public function addFileFromPath(string $filePath, string $targetPath): void
+    public function addFileFromPath(string $fileName, string $filePath): void
     {
         $inputStream = InputStream::open($filePath);
 
-        $this->writeFileDataBlock($inputStream, $targetPath);
+        $this->writeFileDataBlock($inputStream, $fileName);
+
+        $inputStream->close();
+    }
+
+    public function addFileFromStream(string $fileName, $stream): void
+    {
+        $inputStream = InputStream::fromStream($stream);
+
+        $this->writeFileDataBlock($inputStream, $fileName);
 
         $inputStream->close();
     }

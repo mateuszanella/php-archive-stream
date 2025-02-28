@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use PhpArchiveStream\Exceptions\CouldNotOpenStreamException;
 use PhpArchiveStream\Writers\Tar\InputStream;
@@ -49,6 +50,20 @@ class TarInputStreamTest extends TestCase
         $this->assertEquals($contents, $readContents);
 
         $inputStream->close();
+    }
+
+    public function testFromStreamWithValidResource()
+    {
+        $resource = fopen('php://memory', 'r+');
+        $inputStream = InputStream::fromStream($resource);
+        $this->assertInstanceOf(InputStream::class, $inputStream);
+        fclose($resource);
+    }
+
+    public function testFromStreamWithInvalidResource()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        InputStream::fromStream('invalid resource');
     }
 
     public function testOpenThrowsException()

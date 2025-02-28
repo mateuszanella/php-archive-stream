@@ -60,8 +60,8 @@ class TarTest extends TestCase
 
     public function testAddMultipleFiles()
     {
-        $this->tar->addFileFromPath($this->inputPath1, 'input1.txt');
-        $this->tar->addFileFromPath($this->inputPath2, 'input2.txt');
+        $this->tar->addFileFromPath('input1.txt', $this->inputPath1);
+        $this->tar->addFileFromPath('input2.txt', $this->inputPath2);
 
         $reflection = new \ReflectionClass($this->tar);
         $property = $reflection->getProperty('outputStream');
@@ -89,7 +89,7 @@ class TarTest extends TestCase
 
     public function testOutputFileExistsAfterSave()
     {
-        $this->tar->addFileFromPath($this->inputPath1, 'input1.txt');
+        $this->tar->addFileFromPath('input1.txt', $this->inputPath1);
         $this->tar->save();
 
         $this->assertFileExists($this->outputPath);
