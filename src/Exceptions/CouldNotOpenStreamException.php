@@ -1,6 +1,6 @@
 <?php
 
-namespace LaravelFileStream\Exceptions;
+namespace PhpArchiveStream\Exceptions;
 
 use Exception;
 

@@ -1,8 +1,8 @@
 <?php
 
-namespace LaravelFileStream\Writers\Zip;
+namespace PhpArchiveStream\Writers\Zip;
 
-use LaravelFileStream\Writers\Writer;
+use PhpArchiveStream\Writers\Writer;
 
 class Zip implements Writer
 {

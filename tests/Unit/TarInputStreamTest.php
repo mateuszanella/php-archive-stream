@@ -3,11 +3,11 @@
 namespace Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
-use LaravelFileStream\Exceptions\CouldNotOpenStreamException;
-use LaravelFileStream\Writers\Tar\InputStream;
+use PhpArchiveStream\Exceptions\CouldNotOpenStreamException;
+use PhpArchiveStream\Writers\Tar\InputStream;
 
 /**
- * @covers \LaravelFileStream\Writers\Tar\InputStream
+ * @covers \PhpArchiveStream\Writers\Tar\InputStream
  */
 class TarInputStreamTest extends TestCase
 {

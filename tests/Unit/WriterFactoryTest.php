@@ -2,9 +2,8 @@
 
 namespace Tests\Unit;
 
-use Illuminate\Contracts\Foundation\Application;
 use InvalidArgumentException;
-use LaravelFileStream\Writers\WriterFactory;
+use PhpArchiveStream\Writers\WriterFactory;
 use PHPUnit\Framework\TestCase;
 
 class WriterFactoryTest extends TestCase
@@ -34,8 +33,6 @@ class WriterFactoryTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Writer for extension unknown not found');
 
-        $app = $this->createMock(Application::class);
-
-        WriterFactory::to('file.unknown', $app);
+        WriterFactory::to('file.unknown');
     }
 }

@@ -2,13 +2,13 @@
 
 namespace Tests\Unit;
 
-use LaravelFileStream\Writers\Tar\OutputStream;
-use LaravelFileStream\Exceptions\CouldNotOpenStreamException;
-use LaravelFileStream\Exceptions\CouldNotWriteToStreamException;
+use PhpArchiveStream\Writers\Tar\OutputStream;
+use PhpArchiveStream\Exceptions\CouldNotOpenStreamException;
+use PhpArchiveStream\Exceptions\CouldNotWriteToStreamException;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \LaravelFileStream\Writers\Tar\OutputStream
+ * @covers \PhpArchiveStream\Writers\Tar\OutputStream
  */
 class TarOutputStreamTest extends TestCase
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace LaravelFileStream\Writers;
+namespace PhpArchiveStream\Writers;
 
 interface Writer
 {

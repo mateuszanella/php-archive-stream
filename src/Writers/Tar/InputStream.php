@@ -1,9 +1,9 @@
 <?php
 
-namespace LaravelFileStream\Writers\Tar;
+namespace PhpArchiveStream\Writers\Tar;
 
 use Generator;
-use LaravelFileStream\Exceptions\CouldNotOpenStreamException;
+use PhpArchiveStream\Exceptions\CouldNotOpenStreamException;
 
 class InputStream
 {

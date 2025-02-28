@@ -2,7 +2,7 @@
 
 require 'vendor/autoload.php';
 
-use LaravelFileStream\Writers\Tar\Tar;
+use PhpArchiveStream\Writers\Tar\Tar;
 
 try {
     if (file_exists('./archive.tar')) {

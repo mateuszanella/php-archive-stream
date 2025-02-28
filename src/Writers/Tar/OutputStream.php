@@ -1,9 +1,9 @@
 <?php
 
-namespace LaravelFileStream\Writers\Tar;
+namespace PhpArchiveStream\Writers\Tar;
 
-use LaravelFileStream\Exceptions\CouldNotOpenStreamException;
-use LaravelFileStream\Exceptions\CouldNotWriteToStreamException;
+use PhpArchiveStream\Exceptions\CouldNotOpenStreamException;
+use PhpArchiveStream\Exceptions\CouldNotWriteToStreamException;
 
 class OutputStream
 {

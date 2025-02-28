@@ -2,9 +2,9 @@
 
 namespace Tests\Unit;
 
-use LaravelFileStream\Writers\Tar\InputStream;
-use LaravelFileStream\Writers\Tar\OutputStream;
-use LaravelFileStream\Writers\Tar\Tar;
+use PhpArchiveStream\Writers\Tar\InputStream;
+use PhpArchiveStream\Writers\Tar\OutputStream;
+use PhpArchiveStream\Writers\Tar\Tar;
 use PHPUnit\Framework\TestCase;
 
 class TarTest extends TestCase

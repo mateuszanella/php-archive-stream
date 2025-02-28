@@ -1,11 +1,10 @@
 <?php
 
-namespace LaravelFileStream\Writers;
+namespace PhpArchiveStream\Writers;
 
-use Illuminate\Contracts\Foundation\Application;
 use InvalidArgumentException;
-use LaravelFileStream\Writers\Tar\Tar;
-use LaravelFileStream\Writers\Zip\Zip;
+use PhpArchiveStream\Writers\Tar\Tar;
+use PhpArchiveStream\Writers\Zip\Zip;
 
 class WriterFactory
 {
@@ -14,7 +13,7 @@ class WriterFactory
         'tar' => Tar::class
     ];
 
-    public static function to(string $path, Application $app)
+    public static function to(string $path)
     {
         $extension = pathinfo($path, PATHINFO_EXTENSION);
 
@@ -22,6 +21,6 @@ class WriterFactory
             throw new InvalidArgumentException("Writer for extension {$extension} not found");
         }
 
-        return $app->make(self::$registeredWriters[$extension]);
+        return new self::$registeredWriters[$extension]($path);
     }
 }

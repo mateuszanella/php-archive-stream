@@ -1,8 +1,8 @@
 <?php
 
-namespace LaravelFileStream\Writers\Tar;
+namespace PhpArchiveStream\Writers\Tar;
 
-use LaravelFileStream\Writers\Writer;
+use PhpArchiveStream\Writers\Writer;
 
 class Tar implements Writer
 {

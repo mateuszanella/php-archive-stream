@@ -1,8 +1,8 @@
 <?php
 
-namespace LaravelFileStream\Writers\Tar;
+namespace PhpArchiveStream\Writers\Tar;
 
-use LaravelFileStream\Utils;
+use PhpArchiveStream\Utils;
 
 class Header
 {

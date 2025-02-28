@@ -1,6 +1,6 @@
 <?php
 
-namespace LaravelFileStream;
+namespace PhpArchiveStream;
 
 class FileStream
 {
