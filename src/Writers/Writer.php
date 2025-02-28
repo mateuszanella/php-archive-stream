@@ -8,7 +8,7 @@ interface Writer
 
     public function addFileFromStream(string $fileName, $stream): void;
 
-    public function addFile(string $fileName, string $fileContents): void;
+    public function addFileFromContentString(string $fileName, string $fileContents): void;
 
     public function save(): void;
 }

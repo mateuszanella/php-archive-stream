@@ -6,7 +6,7 @@ use PhpArchiveStream\Writers\Writer;
 
 class Zip implements Writer
 {
-    public function addFile(string $path): void
+    public function addFileFromContentString(string $path): void
     {
 
     }

@@ -11,8 +11,8 @@ try {
 
     $tar = new Tar('./archive.tar');
 
-    $tar->addFile('./file1.txt');
-    $tar->addFile('./file2.txt');
+    $tar->addFileFromContentString('./file1.txt');
+    $tar->addFileFromContentString('./file2.txt');
 
     $tar->save();
 
