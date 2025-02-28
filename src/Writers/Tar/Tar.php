@@ -40,6 +40,8 @@ class Tar implements Writer
         $inputStream = InputStream::fromString($fileContents);
 
         $this->writeFileDataBlock($inputStream, $fileName);
+
+        $inputStream->close();
     }
 
     public function save(): void
