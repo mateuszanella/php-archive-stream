@@ -1,5 +1,5 @@
 {
-    "name": "mateuszanella/php-file-stream",
+    "name": "mateuszanella/php-archive-stream",
     "description": "File Stream for Zip and Tar archives",
     "type": "library",
     "require": {},
