@@ -2,13 +2,13 @@
 
 namespace Tests\Unit;
 
-use PhpArchiveStream\Writers\Tar\OutputStream;
+use PhpArchiveStream\Writers\Tar\IO\OutputStream;
 use PhpArchiveStream\Exceptions\CouldNotOpenStreamException;
 use PhpArchiveStream\Exceptions\CouldNotWriteToStreamException;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \PhpArchiveStream\Writers\Tar\OutputStream
+ * @covers \PhpArchiveStream\Writers\Tar\IO\OutputStream
  */
 class TarOutputStreamTest extends TestCase
 {

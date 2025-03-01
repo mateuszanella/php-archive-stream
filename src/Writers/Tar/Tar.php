@@ -2,6 +2,8 @@
 
 namespace PhpArchiveStream\Writers\Tar;
 
+use PhpArchiveStream\Writers\Tar\IO\InputStream;
+use PhpArchiveStream\Writers\Tar\IO\OutputStream;
 use PhpArchiveStream\Writers\Writer;
 
 class Tar implements Writer

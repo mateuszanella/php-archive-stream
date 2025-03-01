@@ -5,10 +5,10 @@ namespace Tests\Unit;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use PhpArchiveStream\Exceptions\CouldNotOpenStreamException;
-use PhpArchiveStream\Writers\Tar\InputStream;
+use PhpArchiveStream\Writers\Tar\IO\InputStream;
 
 /**
- * @covers \PhpArchiveStream\Writers\Tar\InputStream
+ * @covers \PhpArchiveStream\Writers\Tar\IO\InputStream
  */
 class TarInputStreamTest extends TestCase
 {

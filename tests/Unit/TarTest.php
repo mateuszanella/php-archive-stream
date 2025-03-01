@@ -2,7 +2,7 @@
 
 namespace Tests\Unit;
 
-use PhpArchiveStream\Writers\Tar\OutputStream;
+use PhpArchiveStream\Writers\Tar\IO\OutputStream;
 use PhpArchiveStream\Writers\Tar\Tar;
 use PHPUnit\Framework\TestCase;
 

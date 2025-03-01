@@ -1,6 +1,6 @@
 <?php
 
-namespace PhpArchiveStream\Writers\Tar;
+namespace PhpArchiveStream\Writers\Tar\IO;
 
 use PhpArchiveStream\Exceptions\CouldNotOpenStreamException;
 use PhpArchiveStream\Exceptions\CouldNotWriteToStreamException;
