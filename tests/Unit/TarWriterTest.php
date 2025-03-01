@@ -2,13 +2,14 @@
 
 namespace Tests\Unit;
 
+use PhpArchiveStream\Writers\Tar\TarWriter;
+use PhpArchiveStream\Writers\Tar\IO\InputStream;
 use PhpArchiveStream\Writers\Tar\IO\OutputStream;
-use PhpArchiveStream\Writers\Tar\Tar;
 use PHPUnit\Framework\TestCase;
 
-class TarTest extends TestCase
+class TarWriterTest extends TestCase
 {
-    protected Tar $tar;
+    protected TarWriter $tarWriter;
     protected string $outputPath = './output.tar';
     protected string $inputPath1 = './input1.txt';
     protected string $inputPath2 = './input2.txt';
@@ -27,7 +28,7 @@ class TarTest extends TestCase
             unlink($this->inputPath2);
         }
 
-        $this->tar = new Tar($this->outputPath);
+        $this->tarWriter = new TarWriter($this->outputPath);
 
         file_put_contents($this->inputPath1, 'Hello World 1');
         file_put_contents($this->inputPath2, 'Hello World 2');
@@ -48,49 +49,42 @@ class TarTest extends TestCase
         }
     }
 
-    public function testConstructorAndStart()
+    public function testConstructor()
     {
-        $this->assertEquals($this->outputPath, $this->tar->outputPath);
-
-        $reflection = new \ReflectionClass($this->tar);
+        $reflection = new \ReflectionClass($this->tarWriter);
         $property = $reflection->getProperty('outputStream');
         $property->setAccessible(true);
-        $this->assertInstanceOf(OutputStream::class, $property->getValue($this->tar));
+        $this->assertInstanceOf(OutputStream::class, $property->getValue($this->tarWriter));
     }
 
-    public function testAddMultipleFiles()
+    public function testAddFile()
     {
-        $this->tar->addFileFromPath('input1.txt', $this->inputPath1);
-        $this->tar->addFileFromPath('input2.txt', $this->inputPath2);
+        $inputStream = InputStream::open($this->inputPath1);
+        $this->tarWriter->addFile($inputStream, 'input1.txt');
 
-        $reflection = new \ReflectionClass($this->tar);
+        $reflection = new \ReflectionClass($this->tarWriter);
         $property = $reflection->getProperty('outputStream');
         $property->setAccessible(true);
-        $outputStream = $property->getValue($this->tar);
+        $outputStream = $property->getValue($this->tarWriter);
 
         $this->assertNotNull($outputStream);
     }
 
-    public function testSave()
+    public function testFinish()
     {
-        $reflection = new \ReflectionClass($this->tar);
+        $this->tarWriter->finish();
+
+        $reflection = new \ReflectionClass($this->tarWriter);
         $property = $reflection->getProperty('outputStream');
         $property->setAccessible(true);
-        $outputStream = $property->getValue($this->tar);
-
-        $outputStreamClass = new \ReflectionClass($outputStream);
-        $method = $outputStreamClass->getMethod('close');
-        $method->setAccessible(true);
-        $method->invoke($outputStream);
-
-        $property->setValue($this->tar, null);
-        $this->assertNull($property->getValue($this->tar));
+        $this->assertNull($property->getValue($this->tarWriter));
     }
 
-    public function testOutputFileExistsAfterSave()
+    public function testOutputFileExistsAfterFinish()
     {
-        $this->tar->addFileFromPath('input1.txt', $this->inputPath1);
-        $this->tar->save();
+        $inputStream = InputStream::open($this->inputPath1);
+        $this->tarWriter->addFile($inputStream, 'input1.txt');
+        $this->tarWriter->finish();
 
         $this->assertFileExists($this->outputPath);
     }

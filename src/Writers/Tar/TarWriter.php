@@ -4,49 +4,29 @@ namespace PhpArchiveStream\Writers\Tar;
 
 use PhpArchiveStream\Writers\Tar\IO\InputStream;
 use PhpArchiveStream\Writers\Tar\IO\OutputStream;
-use PhpArchiveStream\Writers\Writer;
 
-class Tar implements Writer
+class TarWriter
 {
-    public readonly string $outputPath;
-
     protected ?OutputStream $outputStream;
 
-    public function __construct(string $path)
+    public function __construct(string $outputPath)
     {
-        $this->outputPath = $path;
-
-        $this->start($path);
+        $this->outputStream = OutputStream::open($outputPath);
     }
 
-    public function addFileFromPath(string $fileName, string $filePath): void
+    public static function create(string $outputPath): self
     {
-        $inputStream = InputStream::open($filePath);
-
-        $this->writeFileDataBlock($inputStream, $fileName);
-
-        $inputStream->close();
+        return new self($outputPath);
     }
 
-    public function addFileFromStream(string $fileName, $stream): void
+    public function addFile(InputStream $stream, string $fileName): void
     {
-        $inputStream = InputStream::fromStream($stream);
+        $this->writeFileDataBlock($stream, $fileName);
 
-        $this->writeFileDataBlock($inputStream, $fileName);
-
-        $inputStream->close();
+        $stream->close();
     }
 
-    public function addFileFromContentString(string $fileName, string $fileContents): void
-    {
-        $inputStream = InputStream::fromString($fileContents);
-
-        $this->writeFileDataBlock($inputStream, $fileName);
-
-        $inputStream->close();
-    }
-
-    public function save(): void
+    public function finish(): void
     {
         $this->writeTrailerBlock();
 
@@ -54,11 +34,6 @@ class Tar implements Writer
             $this->outputStream->close();
             $this->outputStream = null;
         }
-    }
-
-    protected function start(string $outputPath): void
-    {
-        $this->outputStream = OutputStream::open($outputPath);
     }
 
     protected function writeFileDataBlock(InputStream $inputStream, string $outputFilePath): void
@@ -91,7 +66,7 @@ class Tar implements Writer
         $this->write(str_repeat("\0", 1024));
     }
 
-    protected function write(string $data): void
+    private function write(string $data): void
     {
         $this->outputStream->write($data);
     }

@@ -10,5 +10,5 @@ interface Writer
 
     public function addFileFromContentString(string $fileName, string $fileContents): void;
 
-    public function save(): void;
+    public function finish(): void;
 }
