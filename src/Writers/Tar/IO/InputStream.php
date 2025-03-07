@@ -4,9 +4,10 @@ namespace PhpArchiveStream\Writers\Tar\IO;
 
 use Generator;
 use InvalidArgumentException;
+use PhpArchiveStream\Contracts\ReadStream;
 use PhpArchiveStream\Exceptions\CouldNotOpenStreamException;
 
-class InputStream
+class InputStream implements ReadStream
 {
     protected $stream;
 

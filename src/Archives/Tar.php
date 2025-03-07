@@ -4,9 +4,8 @@ namespace PhpArchiveStream\Archives;
 
 use PhpArchiveStream\Writers\Tar\IO\InputStream;
 use PhpArchiveStream\Writers\Tar\TarWriter;
-use PhpArchiveStream\Writers\Writer;
 
-class Tar implements Writer
+class Tar
 {
     public readonly string $outputPath;
 

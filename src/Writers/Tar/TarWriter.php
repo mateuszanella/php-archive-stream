@@ -2,10 +2,12 @@
 
 namespace PhpArchiveStream\Writers\Tar;
 
+use PhpArchiveStream\Contracts\ReadStream;
+use PhpArchiveStream\Contracts\Writer;
 use PhpArchiveStream\Writers\Tar\IO\InputStream;
 use PhpArchiveStream\Writers\Tar\IO\OutputStream;
 
-class TarWriter
+class TarWriter implements Writer
 {
     protected ?OutputStream $outputStream;
 
@@ -19,7 +21,7 @@ class TarWriter
         return new self($outputPath);
     }
 
-    public function addFile(InputStream $stream, string $fileName): void
+    public function addFile(ReadStream $stream, string $fileName): void
     {
         $this->writeFileDataBlock($stream, $fileName);
 

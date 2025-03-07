@@ -2,10 +2,11 @@
 
 namespace PhpArchiveStream\Writers\Tar\IO;
 
+use PhpArchiveStream\Contracts\WriteStream;
 use PhpArchiveStream\Exceptions\CouldNotOpenStreamException;
 use PhpArchiveStream\Exceptions\CouldNotWriteToStreamException;
 
-class OutputStream
+class OutputStream implements WriteStream
 {
     protected $stream;
 

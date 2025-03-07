@@ -1,0 +1,9 @@
+i am a laravel developer, and i am creating a library for compressed archive streams. I plan on utilizing PHP streams to make this streaming really memory efficient, and plan on adding support for tar, targz, zip and rar.
+
+i dont have much experience writing libraries, but i am comfortable with laravel libraries and their methods (manager patterns and facades).
+
+i would like to add functionallities to this library similar to a Manager in laravel, allowing users to use a config file (laravels default configs) to set desired behaviours to a given type of file, and add a manager, to allow for the user to add their custom implementations, or to override my implementations if desired.
+
+problem is, i do know how to implement theese with laravel inside a package, but i dont want to necessarily include laravel and illuminate packages into the library dependancies, i want it to make it as lightwait as possible.
+
+my question is: how can i achieve this behaviour without all the additional baggage from laravel, and can i add conditional logic to my composer file to register this manager and config file if the user that installs my library also has laravel as a dependancy of their project?
