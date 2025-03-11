@@ -1,22 +1,33 @@
 <?php
 
+use PhpArchiveStream\Writers\Zip\Records\EndOfCentralDirectoryRecord;
+
 require 'vendor/autoload.php';
 
-use PhpArchiveStream\Writers\Tar\Tar;
-
 try {
-    if (file_exists('./archive.tar')) {
-        unlink('./archive.tar');
+    if (file_exists('./archive.zip')) {
+        unlink('./archive.zip');
     }
 
-    $tar = new Tar('./archive.tar');
+    $stream = fopen('./archive.zip', 'w');
 
-    $tar->addFileFromContentString('./file1.txt');
-    $tar->addFileFromContentString('./file2.txt');
+    $EOCDR = EndOfCentralDirectoryRecord::generate(
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        'eoijdod2ijo2iojd2jiij'
+    );
 
-    $tar->save();
+    fwrite($stream, $EOCDR);
 
-    echo "Tar archive created successfully.";
+    fclose($stream);
+
+    echo "Archive created successfully!";
 } catch (Exception $e) {
     echo "An error occurred: " . $e->getMessage();
+
+    @unlink('./archive.zip');
 }
