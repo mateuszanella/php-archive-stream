@@ -2,12 +2,12 @@
 
 namespace PhpArchiveStream\Writers\Zip;
 
-use DateTime;
-use DateTimeImmutable;
-use PhpArchiveStream\Contracts\ReadStream;
-use PhpArchiveStream\Writers\Tar\IO\OutputStream;
+use PhpArchiveStream\Hashers\CRC32;
+use PhpArchiveStream\Writers\Zip\IO\OutputStream;
 use PhpArchiveStream\Writers\Zip\Compressors\Compressor;
 use PhpArchiveStream\Writers\Zip\Compressors\StoreCompressor;
+use PhpArchiveStream\Writers\Zip\IO\InputStream;
+use PhpArchiveStream\Writers\Zip\Records\DataDescriptor;
 use PhpArchiveStream\Writers\Zip\Records\Fields\GeneralPurposeBitFlag;
 use PhpArchiveStream\Writers\Zip\Records\Fields\Version;
 use PhpArchiveStream\Writers\Zip\Records\LocalFileHeader;
@@ -38,7 +38,7 @@ class ZipWriter
         return new self($outputPath);
     }
 
-    public function addFile(ReadStream $stream, string $fileName): void
+    public function addFile(InputStream $stream, string $fileName): void
     {
         $generalPurposeBitFlag = GeneralPurposeBitFlag::create()
             ->setZeroHeader(true)
@@ -57,11 +57,31 @@ class ZipWriter
             $fileName
         );
 
-        // Add local header
+        $this->outputStream->write($localFileHeader);
 
-        // Add file data
+        $crc32 = CRC32::init();
+        $compressedSize = 0;
+        $uncompressedSize = 0;
 
-        // Add data descriptor
+        foreach($stream->read() as $chunk) {
+            $crc32->update($chunk);
+            $uncompressedSize += strlen($chunk);
+
+            $compressedChunk = $this->compressor->compress($chunk);
+            $compressedSize += strlen($compressedChunk);
+
+            $this->outputStream->write($compressedChunk);
+        }
+
+        $crc32Value = $crc32->finish();
+
+        $dataDescriptor = DataDescriptor::generate(
+            $crc32Value,
+            $compressedSize,
+            $uncompressedSize
+        );
+
+        $this->outputStream->write($dataDescriptor);
     }
 
     public function finish(): void
