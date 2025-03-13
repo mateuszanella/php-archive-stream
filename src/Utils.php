@@ -18,4 +18,23 @@ class Utils
 
         return $checksum;
     }
+
+    public static function convertUnixToDosTime(int $unixTime): int
+    {
+        $time = getdate($unixTime);
+
+        $year = $time['year'] - 1980;
+        $month = $time['mon'];
+        $day = $time['mday'];
+        $hours = $time['hours'];
+        $minutes = $time['minutes'];
+        $seconds = $time['seconds'] >> 1;
+
+        return ($year << 25)
+            | ($month << 21)
+            | ($day << 16)
+            | ($hours << 11)
+            | ($minutes << 5)
+            | $seconds;
+    }
 }
