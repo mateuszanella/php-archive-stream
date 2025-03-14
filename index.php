@@ -1,5 +1,6 @@
 <?php
 
+use PhpArchiveStream\Archives\Zip;
 use PhpArchiveStream\Writers\Zip\Records\EndOfCentralDirectoryRecord;
 
 require 'vendor/autoload.php';
@@ -9,21 +10,12 @@ try {
         unlink('./archive.zip');
     }
 
-    $stream = fopen('./archive.zip', 'w');
+    $zip = Zip::create('./archive.zip');
 
-    $EOCDR = EndOfCentralDirectoryRecord::generate(
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        'eoijdod2ijo2iojd2jiij'
-    );
+    $zip->addFileFromPath('file1.txt', './file1.txt');
+    // $zip->addFileFromPath('file2.txt', './file2.txt');
 
-    fwrite($stream, $EOCDR);
-
-    fclose($stream);
+    $zip->finish();
 
     echo "Archive created successfully!";
 } catch (Exception $e) {

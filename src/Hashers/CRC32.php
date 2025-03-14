@@ -21,8 +21,8 @@ class CRC32
         hash_update($this->context, $data);
     }
 
-    public function finish(): string
+    public function finish(): int
     {
-        return hash_final($this->context, true);
+        return unpack('N', hash_final($this->context, true))[1];
     }
 }

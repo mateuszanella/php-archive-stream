@@ -2,6 +2,7 @@
 
 namespace PhpArchiveStream\Writers\Zip\Records;
 
+use PhpArchiveStream\Utils;
 use PhpArchiveStream\Writers\Zip\Records\Fields\Packer;
 use PhpArchiveStream\Writers\Zip\Records\Fields\U16Field;
 use PhpArchiveStream\Writers\Zip\Records\Fields\U32Field;
@@ -15,8 +16,7 @@ class CentralDirectoryFileHeader
         int     $minimumVersion,
         int     $generalPurposeBitFlag,
         int     $compressionMethod,
-        int     $lastModificationTime,
-        int     $lastModificationDate,
+        int     $lastModificationUnixTime,
         int     $crc32,
         int     $compressedSize,
         int     $uncompressedSize,
@@ -34,8 +34,7 @@ class CentralDirectoryFileHeader
             U16Field::create($minimumVersion),
             U16Field::create($generalPurposeBitFlag),
             U16Field::create($compressionMethod),
-            U16Field::create($lastModificationTime),
-            U16Field::create($lastModificationDate),
+            U32Field::create(Utils::convertUnixToDosTime($lastModificationUnixTime)),
             U32Field::create($crc32),
             U32Field::create($compressedSize),
             U32Field::create($uncompressedSize),

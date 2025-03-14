@@ -2,8 +2,8 @@
 
 namespace PhpArchiveStream\Writers\Zip\Records;
 
-use DateTimeInterface;
 use PhpArchiveStream\Utils;
+use PhpArchiveStream\Writers\Zip\Records\Fields\Packer;
 use PhpArchiveStream\Writers\Zip\Records\Fields\U16Field;
 use PhpArchiveStream\Writers\Zip\Records\Fields\U32Field;
 
