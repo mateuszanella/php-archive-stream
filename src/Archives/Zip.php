@@ -2,10 +2,11 @@
 
 namespace PhpArchiveStream\Archives;
 
+use PhpArchiveStream\Contracts\Archive;
 use PhpArchiveStream\Writers\Zip\IO\InputStream;
 use PhpArchiveStream\Writers\Zip\ZipWriter;
 
-class Zip
+class Zip implements Archive
 {
     public readonly string $outputPath;
 

@@ -1,7 +1,6 @@
 <?php
 
-use PhpArchiveStream\Archives\Zip;
-use PhpArchiveStream\Writers\Zip\Records\EndOfCentralDirectoryRecord;
+use PhpArchiveStream\ArchiveStream;
 
 require 'vendor/autoload.php';
 
@@ -10,16 +9,19 @@ try {
         unlink('./archive.zip');
     }
 
-    $zip = Zip::create('./archive.zip');
-
-    $zip->addFileFromPath('file1.txt', './file1.txt');
-    // $zip->addFileFromPath('file2.txt', './file2.txt');
-
+    $zip = ArchiveStream::to('./archives/archive.zip');
+    $zip->addFileFromPath('composer.json', 'composer.json');
+    $zip->addFileFromPath('composer.lock', 'composer.lock');
     $zip->finish();
 
-    echo "Archive created successfully!";
+    $tar = ArchiveStream::to('./archives/archive.tar');
+    $tar->addFileFromPath('composer.json', 'composer.json');
+    $tar->addFileFromPath('composer.lock', 'composer.lock');
+    $tar->finish();
+
+    echo "Archive created successfully!\n";
 } catch (Exception $e) {
-    echo "An error occurred: " . $e->getMessage();
+    echo "An error occurred: " . $e->getMessage() . "\n";
 
     @unlink('./archive.zip');
 }

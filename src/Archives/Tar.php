@@ -2,10 +2,11 @@
 
 namespace PhpArchiveStream\Archives;
 
+use PhpArchiveStream\Contracts\Archive;
 use PhpArchiveStream\Writers\Tar\IO\InputStream;
 use PhpArchiveStream\Writers\Tar\TarWriter;
 
-class Tar
+class Tar implements Archive
 {
     public readonly string $outputPath;
 
