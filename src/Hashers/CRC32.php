@@ -23,6 +23,6 @@ class CRC32
 
     public function finish(): int
     {
-        return unpack('N', hash_final($this->context, true))[1];
+        return hexdec(hash_final($this->context));
     }
 }

@@ -2,6 +2,7 @@
 
 namespace PhpArchiveStream\Writers\Zip;
 
+use Error;
 use PhpArchiveStream\Hashers\CRC32;
 use PhpArchiveStream\Writers\Zip\IO\OutputStream;
 use PhpArchiveStream\Writers\Zip\Compressors\Compressor;
@@ -23,6 +24,7 @@ class ZipWriter
     protected Compressor $compressor;
 
     protected int $version = Version::BASE;
+    protected static int $versionMadeBy = 0x603;
 
     public function __construct(string $outputPath)
     {
@@ -48,29 +50,72 @@ class ZipWriter
 
         $lastModificationUnixTime = time();
 
-        // Add local file header
-        $localFileHeader = LocalFileHeader::generate(
-            $this->version,
-            $generalPurposeBitFlag->getValue(),
-            $this->compressor::bitFlag(),
+        $localHeaderOffset = $this->outputStream->getBytesWritten();
+
+        $this->writeLocalFileHeader($fileName, $generalPurposeBitFlag, $lastModificationUnixTime);
+
+        list($crc32Value, $compressedSize, $uncompressedSize) = $this->writeFile($stream);
+
+        error_log("CRC32: $crc32Value, Compressed Size: $compressedSize, Uncompressed Size: $uncompressedSize");
+
+        $this->writeDataDescriptor($crc32Value, $compressedSize, $uncompressedSize);
+
+        $this->centralDirectoryHeaders[] = $this->generateCentralDirectoryFileHeader(
+            $fileName,
+            $generalPurposeBitFlag,
             $lastModificationUnixTime,
-            0,
-            0,
-            0,
-            $fileName
+            $crc32Value,
+            $compressedSize,
+            $uncompressedSize,
+            $localHeaderOffset
+        );
+    }
+
+    public function finish(): void
+    {
+        $centralDirectoryOffset = $this->outputStream->getBytesWritten();
+        $sizeOfCentralDirectory = 0;
+
+        foreach ($this->centralDirectoryHeaders as $header) {
+            $this->outputStream->write($header);
+
+            $sizeOfCentralDirectory += strlen($header);
+        }
+
+        $endOfCentralDirectory = EndOfCentralDirectoryRecord::generate(
+            diskNumber: 0,
+            diskStart: 0,
+            numberOfCentralDirectoryRecords: count($this->centralDirectoryHeaders),
+            totalCentralDirectoryRecords: count($this->centralDirectoryHeaders),
+            centralDirectorySize: $sizeOfCentralDirectory,
+            centralDirectoryOffset: $centralDirectoryOffset,
         );
 
-        /**
-         * @todo Move the logic and the write statements to functions
-         */
-        $this->outputStream->write($localFileHeader);
+        $this->outputStream->write($endOfCentralDirectory);
+        $this->outputStream->close();
+    }
 
+    protected function writeLocalFileHeader(string $fileName, GeneralPurposeBitFlag $generalPurposeBitFlag, int $lastModificationUnixTime): void
+    {
+        $this->outputStream->write(LocalFileHeader::generate(
+            minimumVersion: $this->version,
+            generalPurposeBitFlag: $generalPurposeBitFlag->getValue(),
+            compressionMethod: $this->compressor::bitFlag(),
+            lastModificationUnixTime: $lastModificationUnixTime,
+            crc32: 0,
+            compressedSize: 0,
+            uncompressedSize: 0,
+            fileName: $fileName
+        ));
+    }
+
+    protected function writeFile(InputStream $stream): array
+    {
         $crc32 = CRC32::init();
         $compressedSize = 0;
         $uncompressedSize = 0;
 
-        // Compress and write the file
-        foreach($stream->read() as $chunk) {
+        foreach ($stream->read() as $chunk) {
             $crc32->update($chunk);
             $uncompressedSize += strlen($chunk);
 
@@ -82,7 +127,14 @@ class ZipWriter
 
         $crc32Value = $crc32->finish();
 
-        // Add data descriptor
+        return [$crc32Value, $compressedSize, $uncompressedSize];
+    }
+
+    protected function writeDataDescriptor(
+        int $crc32Value,
+        int $compressedSize,
+        int $uncompressedSize
+    ): void {
         $dataDescriptor = DataDescriptor::generate(
             $crc32Value,
             $compressedSize,
@@ -90,50 +142,31 @@ class ZipWriter
         );
 
         $this->outputStream->write($dataDescriptor);
-
-        $this->centralDirectoryHeaders[] = CentralDirectoryFileHeader::generate(
-            $this->version,
-            $this->version,
-            $generalPurposeBitFlag->getValue(),
-            $this->compressor::bitFlag(),
-            $lastModificationUnixTime,
-            $crc32Value,
-            $compressedSize,
-            $uncompressedSize,
-            0,
-            0,
-            32,
-            $this->outputStream->getBytesWritten(),
-            $fileName
-        );
     }
 
-    public function finish(): void
-    {
-        // Add central directories
-        foreach($this->centralDirectoryHeaders as $header) {
-            $this->outputStream->write($header);
-        }
-
-        $sizeOfCentralDirectory = 0;
-        $numberOfCentralDirectoryRecords = 0;
-
-        foreach($this->centralDirectoryHeaders as $header) {
-            $sizeOfCentralDirectory += strlen($header);
-            $numberOfCentralDirectoryRecords++;
-        }
-
-        // Add end of central directory
-        $endOfCentralDirectory = EndOfCentralDirectoryRecord::generate(
-            0,
-            0,
-            $numberOfCentralDirectoryRecords,
-            $numberOfCentralDirectoryRecords,
-            $sizeOfCentralDirectory,
-            $this->outputStream->getBytesWritten()
+    protected function generateCentralDirectoryFileHeader(
+        string $fileName,
+        GeneralPurposeBitFlag $generalPurposeBitFlag,
+        int $lastModificationUnixTime,
+        int $crc32Value,
+        int $compressedSize,
+        int $uncompressedSize,
+        int $localHeaderOffset,
+    ): string {
+        return CentralDirectoryFileHeader::generate(
+            versionMadeBy: static::$versionMadeBy,
+            minimumVersion: $this->version,
+            generalPurposeBitFlag: $generalPurposeBitFlag->getValue(),
+            compressionMethod: $this->compressor::bitFlag(),
+            lastModificationUnixTime: $lastModificationUnixTime,
+            crc32: $crc32Value,
+            compressedSize: $compressedSize,
+            uncompressedSize: $uncompressedSize,
+            diskNumberStart: 0,
+            internalFileAttributes: 0,
+            externalFileAttributes: 32,
+            relativeOffsetOfLocalHeader: $localHeaderOffset,
+            fileName: $fileName
         );
-
-        $this->outputStream->write($endOfCentralDirectory);
-        $this->outputStream->close();
     }
 }

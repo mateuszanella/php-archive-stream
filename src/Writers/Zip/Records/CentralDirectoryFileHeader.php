@@ -12,7 +12,7 @@ class CentralDirectoryFileHeader
     public const SIGNATURE = 0x02014b50;
 
     public static function generate(
-        int     $version,
+        int     $versionMadeBy,
         int     $minimumVersion,
         int     $generalPurposeBitFlag,
         int     $compressionMethod,
@@ -30,7 +30,7 @@ class CentralDirectoryFileHeader
     ): string {
         return Packer::pack(
             U32Field::create(self::SIGNATURE),
-            U16Field::create($version),
+            U16Field::create($versionMadeBy),
             U16Field::create($minimumVersion),
             U16Field::create($generalPurposeBitFlag),
             U16Field::create($compressionMethod),
