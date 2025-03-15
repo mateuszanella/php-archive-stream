@@ -56,8 +56,6 @@ class ZipWriter
 
         list($crc32Value, $compressedSize, $uncompressedSize) = $this->writeFile($stream);
 
-        error_log("CRC32: $crc32Value, Compressed Size: $compressedSize, Uncompressed Size: $uncompressedSize");
-
         $this->writeDataDescriptor($crc32Value, $compressedSize, $uncompressedSize);
 
         $this->centralDirectoryHeaders[] = $this->generateCentralDirectoryFileHeader(
