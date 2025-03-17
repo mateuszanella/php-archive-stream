@@ -3,11 +3,10 @@
 namespace PhpArchiveStream\Writers\Tar;
 
 use PhpArchiveStream\Contracts\ReadStream;
-use PhpArchiveStream\Contracts\Writer;
 use PhpArchiveStream\Writers\Tar\IO\InputStream;
 use PhpArchiveStream\Writers\Tar\IO\OutputStream;
 
-class TarWriter implements Writer
+class TarWriter
 {
     protected ?OutputStream $outputStream;
 
