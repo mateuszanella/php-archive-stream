@@ -6,13 +6,23 @@ use PhpArchiveStream\Writers\Zip\Compressors\Compressor;
 
 class StoreCompressor implements Compressor
 {
+    public static function bitFlag(): int
+    {
+        return 0x00;
+    }
+
+    public static function init(): static
+    {
+        return new static;
+    }
+
     public function compress(string $data): string
     {
         return $data;
     }
 
-    public static function bitFlag(): int
+    public function finish(): string
     {
-        return 0x0;
+        return '';
     }
 }

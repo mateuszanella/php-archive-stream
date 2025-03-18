@@ -2,10 +2,12 @@
 
 namespace PhpArchiveStream\Writers\Zip;
 
+use DeflateContext;
 use Error;
 use PhpArchiveStream\Hashers\CRC32;
 use PhpArchiveStream\Writers\Zip\IO\OutputStream;
 use PhpArchiveStream\Writers\Zip\Compressors\Compressor;
+use PhpArchiveStream\Writers\Zip\Compressors\DeflateCompressor;
 use PhpArchiveStream\Writers\Zip\Compressors\StoreCompressor;
 use PhpArchiveStream\Writers\Zip\IO\InputStream;
 use PhpArchiveStream\Writers\Zip\Records\CentralDirectoryFileHeader;
@@ -21,7 +23,7 @@ class ZipWriter
 
     protected array $centralDirectoryHeaders = [];
 
-    protected Compressor $compressor;
+    protected string $defaultCompressor;
 
     protected int $version = Version::BASE;
     protected static int $versionMadeBy = 0x603;
@@ -34,7 +36,8 @@ class ZipWriter
          * @todo Should be changed dinamically
          * @todo Should be injected via a configuration class
          */
-        $this->compressor = new StoreCompressor;
+        $this->defaultCompressor = DeflateCompressor::class;
+        // $this->defaultCompressor = StoreCompressor::class;
     }
 
     public static function create(string $outputPath): static
@@ -44,17 +47,19 @@ class ZipWriter
 
     public function addFile(InputStream $stream, string $fileName): void
     {
+        $compressor = new $this->defaultCompressor;
+
         $generalPurposeBitFlag = GeneralPurposeBitFlag::create()
             ->setZeroHeader(true)
-            ->setCompressionMethod($this->compressor);
+            ->setCompressionMethod($compressor);
 
         $lastModificationUnixTime = time();
 
         $localHeaderOffset = $this->outputStream->getBytesWritten();
 
-        $this->writeLocalFileHeader($fileName, $generalPurposeBitFlag, $lastModificationUnixTime);
+        $this->writeLocalFileHeader($fileName, $generalPurposeBitFlag, $lastModificationUnixTime, $compressor::bitFlag());
 
-        list($crc32Value, $compressedSize, $uncompressedSize) = $this->writeFile($stream);
+        list($crc32Value, $compressedSize, $uncompressedSize) = $this->writeFile($stream, $compressor);
 
         $this->writeDataDescriptor($crc32Value, $compressedSize, $uncompressedSize);
 
@@ -65,7 +70,8 @@ class ZipWriter
             $crc32Value,
             $compressedSize,
             $uncompressedSize,
-            $localHeaderOffset
+            $localHeaderOffset,
+            $compressor::bitFlag()
         );
     }
 
@@ -93,12 +99,16 @@ class ZipWriter
         $this->outputStream->close();
     }
 
-    protected function writeLocalFileHeader(string $fileName, GeneralPurposeBitFlag $generalPurposeBitFlag, int $lastModificationUnixTime): void
-    {
+    protected function writeLocalFileHeader(
+        string $fileName,
+        GeneralPurposeBitFlag $generalPurposeBitFlag,
+        int $lastModificationUnixTime,
+        int $compressionMethod
+    ): void {
         $this->outputStream->write(LocalFileHeader::generate(
             minimumVersion: $this->version,
             generalPurposeBitFlag: $generalPurposeBitFlag->getValue(),
-            compressionMethod: $this->compressor::bitFlag(),
+            compressionMethod: $compressionMethod,
             lastModificationUnixTime: $lastModificationUnixTime,
             crc32: 0,
             compressedSize: 0,
@@ -107,7 +117,7 @@ class ZipWriter
         ));
     }
 
-    protected function writeFile(InputStream $stream): array
+    protected function writeFile(InputStream $stream, Compressor $compressor): array
     {
         $crc32 = CRC32::init();
         $compressedSize = 0;
@@ -117,11 +127,16 @@ class ZipWriter
             $crc32->update($chunk);
             $uncompressedSize += strlen($chunk);
 
-            $compressedChunk = $this->compressor->compress($chunk);
+            $compressedChunk = $compressor->compress($chunk);
             $compressedSize += strlen($compressedChunk);
 
             $this->outputStream->write($compressedChunk);
         }
+
+        $finalCompressedChunk = $compressor->finish();
+        $compressedSize += strlen($finalCompressedChunk);
+
+        $this->outputStream->write($finalCompressedChunk);
 
         $crc32Value = $crc32->finish();
 
@@ -150,12 +165,13 @@ class ZipWriter
         int $compressedSize,
         int $uncompressedSize,
         int $localHeaderOffset,
+        int $compressionMethod
     ): string {
         return CentralDirectoryFileHeader::generate(
             versionMadeBy: static::$versionMadeBy,
             minimumVersion: $this->version,
             generalPurposeBitFlag: $generalPurposeBitFlag->getValue(),
-            compressionMethod: $this->compressor::bitFlag(),
+            compressionMethod: $compressionMethod,
             lastModificationUnixTime: $lastModificationUnixTime,
             crc32: $crc32Value,
             compressedSize: $compressedSize,
