@@ -20,6 +20,11 @@ class DeflateCompressor implements Compressor
         }
     }
 
+    public static function bitFlag(): int
+    {
+        return 0x08;
+    }
+
     public static function init(): static
     {
         return new static;
@@ -45,10 +50,5 @@ class DeflateCompressor implements Compressor
         }
 
         return $data;
-    }
-
-    public static function bitFlag(): int
-    {
-        return 0x08;
     }
 }
