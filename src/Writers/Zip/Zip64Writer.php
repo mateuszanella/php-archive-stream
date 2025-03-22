@@ -15,7 +15,7 @@ use PhpArchiveStream\Writers\Zip\Records\Fields\GeneralPurposeBitFlag;
 use PhpArchiveStream\Writers\Zip\Records\Fields\Version;
 use PhpArchiveStream\Writers\Zip\Records\LocalFileHeader;
 
-class ZipWriter
+class Zip64Writer
 {
     protected ?OutputStream $outputStream;
 
