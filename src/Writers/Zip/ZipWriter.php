@@ -36,6 +36,10 @@ class ZipWriter
          */
         $this->defaultCompressor = DeflateCompressor::class;
         // $this->defaultCompressor = StoreCompressor::class;
+
+        if ($this->defaultCompressor === StoreCompressor::class) {
+            $this->version = Version::DEFLATE;
+        }
     }
 
     public static function create(string $outputPath): static
