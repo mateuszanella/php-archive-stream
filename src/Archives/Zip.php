@@ -4,17 +4,17 @@ namespace PhpArchiveStream\Archives;
 
 use PhpArchiveStream\Contracts\Archive;
 use PhpArchiveStream\Writers\Zip\IO\InputStream;
-use PhpArchiveStream\Writers\Zip\ZipWriter;
+use PhpArchiveStream\Writers\Zip\Zip64Writer;
 
 class Zip implements Archive
 {
     public readonly string $outputPath;
 
-    protected ?ZipWriter $writer;
+    protected ?Zip64Writer $writer;
 
     public function __construct(
         string $outputPath,
-        ZipWriter $writer
+        Zip64Writer $writer
     ) {
         $this->outputPath = $outputPath;
         $this->writer = $writer;
@@ -22,7 +22,7 @@ class Zip implements Archive
 
     public static function create(string $outputPath): self
     {
-        $writer = ZipWriter::create($outputPath);
+        $writer = Zip64Writer::create($outputPath);
 
         return new self($outputPath, $writer);
     }

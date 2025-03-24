@@ -2,7 +2,7 @@
 
 $zip = new ZipArchive();
 
-$file = './archive.zip';
+$file = './archives/archive.zip';
 
 $open = $zip->open($file);
 

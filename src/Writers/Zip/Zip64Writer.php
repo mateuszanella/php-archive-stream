@@ -9,11 +9,14 @@ use PhpArchiveStream\Writers\Zip\Compressors\DeflateCompressor;
 use PhpArchiveStream\Writers\Zip\Compressors\StoreCompressor;
 use PhpArchiveStream\Writers\Zip\IO\InputStream;
 use PhpArchiveStream\Writers\Zip\Records\CentralDirectoryFileHeader;
-use PhpArchiveStream\Writers\Zip\Records\DataDescriptor;
 use PhpArchiveStream\Writers\Zip\Records\EndOfCentralDirectoryRecord;
 use PhpArchiveStream\Writers\Zip\Records\Fields\GeneralPurposeBitFlag;
 use PhpArchiveStream\Writers\Zip\Records\Fields\Version;
 use PhpArchiveStream\Writers\Zip\Records\LocalFileHeader;
+use PhpArchiveStream\Writers\Zip\Zip64Records\DataDescriptor;
+use PhpArchiveStream\Writers\Zip\Zip64Records\EndOfCentralDirectoryLocator;
+use PhpArchiveStream\Writers\Zip\Zip64Records\EndOfCentralDirectoryRecord as Zip64EndOfCentralDirectoryRecord;
+use PhpArchiveStream\Writers\Zip\Zip64Records\ExtraField;
 
 class Zip64Writer
 {
@@ -23,7 +26,7 @@ class Zip64Writer
 
     protected string $defaultCompressor;
 
-    protected int $version = Version::BASE;
+    protected int $version = Version::ZIP64;
     protected static int $versionMadeBy = 0x603;
 
     public function __construct(string $outputPath)
@@ -48,7 +51,7 @@ class Zip64Writer
         $compressor = new $this->defaultCompressor;
 
         $generalPurposeBitFlag = GeneralPurposeBitFlag::create()
-            ->setZeroHeader(true)
+            ->setZeroHeader()
             ->setCompressionMethod($compressor);
 
         $lastModificationUnixTime = time();
@@ -84,16 +87,33 @@ class Zip64Writer
             $sizeOfCentralDirectory += strlen($header);
         }
 
-        $endOfCentralDirectory = EndOfCentralDirectoryRecord::generate(
+        $this->outputStream->write(Zip64EndOfCentralDirectoryRecord::generate(
+            versionMadeBy: static::$versionMadeBy,
+            versionNeededToExtract: $this->version,
+            numberOfThisDisk: 0,
+            numberOfTheDiskWithTheStartOfTheCentralDirectory: 0,
+            numberOfCentralDirectoryEntriesOnThisDisk: count($this->centralDirectoryHeaders),
+            numberOfCentralDirectoryEntries: count($this->centralDirectoryHeaders),
+            centralDirectorySize: $sizeOfCentralDirectory,
+            centralDirectoryOffsetOnDisk: $centralDirectoryOffset,
+            extensibleDataSector: ''
+        ));
+
+        $this->outputStream->write(EndOfCentralDirectoryLocator::generate(
+            numberOfTheDiskWithZip64CentralDirectoryStart: 0,
+            zip64centralDirectoryStartOffsetOnDisk: $centralDirectoryOffset + $sizeOfCentralDirectory,
+            totalNumberOfDisks: 1
+        ));
+
+        $this->outputStream->write(EndOfCentralDirectoryRecord::generate(
             diskNumber: 0,
             diskStart: 0,
-            numberOfCentralDirectoryRecords: count($this->centralDirectoryHeaders),
-            totalCentralDirectoryRecords: count($this->centralDirectoryHeaders),
+            numberOfCentralDirectoryRecords: min(count($this->centralDirectoryHeaders), 0xFFFF),
+            totalCentralDirectoryRecords: min(count($this->centralDirectoryHeaders), 0xFFFF),
             centralDirectorySize: $sizeOfCentralDirectory,
             centralDirectoryOffset: $centralDirectoryOffset,
-        );
+        ));
 
-        $this->outputStream->write($endOfCentralDirectory);
         $this->outputStream->close();
     }
 
@@ -165,6 +185,21 @@ class Zip64Writer
         int $localHeaderOffset,
         int $compressionMethod
     ): string {
+        $extraField = '';
+
+        if (
+            $compressedSize > 0xFFFFFFFF ||
+            $uncompressedSize > 0xFFFFFFFF ||
+            $localHeaderOffset > 0xFFFFFFFF
+        ) {
+            $extraField = ExtraField::generate(
+                $uncompressedSize,
+                $compressedSize,
+                $localHeaderOffset,
+                0
+            );
+        }
+
         return CentralDirectoryFileHeader::generate(
             versionMadeBy: static::$versionMadeBy,
             minimumVersion: $this->version,
@@ -172,12 +207,13 @@ class Zip64Writer
             compressionMethod: $compressionMethod,
             lastModificationUnixTime: $lastModificationUnixTime,
             crc32: $crc32Value,
-            compressedSize: $compressedSize,
-            uncompressedSize: $uncompressedSize,
+            compressedSize: min($compressedSize, 0xFFFFFFFF),
+            uncompressedSize: min($uncompressedSize, 0xFFFFFFFF),
+            relativeOffsetOfLocalHeader: min($localHeaderOffset, 0xFFFFFFFF),
             diskNumberStart: 0,
             internalFileAttributes: 0,
             externalFileAttributes: 32,
-            relativeOffsetOfLocalHeader: $localHeaderOffset,
+            extraField: $extraField,
             fileName: $fileName
         );
     }
