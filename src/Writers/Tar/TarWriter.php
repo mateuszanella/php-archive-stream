@@ -53,7 +53,7 @@ class TarWriter
         $baseFileName = basename($outputFilePath);
         $folderPrefix = dirname($outputFilePath);
 
-        $header = Header::get(
+        $header = Header::generate(
             $baseFileName,
             $folderPrefix,
             $sourceFileSize

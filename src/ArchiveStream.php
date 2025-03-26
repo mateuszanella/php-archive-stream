@@ -9,6 +9,13 @@ use PhpArchiveStream\Contracts\Archive;
 
 class ArchiveStream
 {
+    /**
+     * @todo Add configuration to select specific configs of each file format
+     * @todo Refactor some of the classes to make their execution clearer
+     * @todo Add PHP docs on functions
+     * @todo Add tests
+     * @todo Try to implement .tar.gz streaming
+     */
     public static function to(string $path): Archive
     {
         $extension = pathinfo($path, PATHINFO_EXTENSION);

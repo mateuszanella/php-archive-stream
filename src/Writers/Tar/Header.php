@@ -6,7 +6,7 @@ use PhpArchiveStream\Utils;
 
 class Header
 {
-    public static function get(string $filename, string $prefix, int $filesize): string
+    public static function generate(string $filename, string $prefix, int $filesize): string
     {
         $_filename         = str_pad($filename, 100, "\0");                                 // File name (up to 100 characters, null-padded)
         $_filePermissions  = str_pad('0000777', 8, '0', STR_PAD_LEFT);                      // File mode/permissions (8 bytes, left-padded)

@@ -1,10 +1,10 @@
 <?php
 
-namespace PhpArchiveStream\Writers\Zip\Compressors;
+namespace PhpArchiveStream\Compressors;
 
 interface Compressor
 {
-    public static function bitFlag(): int;
+    public static function zipBitFlag(): int;
 
     public static function init(): static;
 

@@ -1,12 +1,12 @@
 <?php
 
-namespace PhpArchiveStream\Writers\Zip\Compressors;
+namespace PhpArchiveStream\Compressors;
 
-use PhpArchiveStream\Writers\Zip\Compressors\Compressor;
+use PhpArchiveStream\Compressors\Compressor;
 
 class StoreCompressor implements Compressor
 {
-    public static function bitFlag(): int
+    public static function zipBitFlag(): int
     {
         return 0x00;
     }

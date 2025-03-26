@@ -4,9 +4,9 @@ namespace PhpArchiveStream\Writers\Zip;
 
 use PhpArchiveStream\Hashers\CRC32;
 use PhpArchiveStream\Writers\Zip\IO\OutputStream;
-use PhpArchiveStream\Writers\Zip\Compressors\Compressor;
-use PhpArchiveStream\Writers\Zip\Compressors\DeflateCompressor;
-use PhpArchiveStream\Writers\Zip\Compressors\StoreCompressor;
+use PhpArchiveStream\Compressors\Compressor;
+use PhpArchiveStream\Compressors\DeflateCompressor;
+use PhpArchiveStream\Compressors\StoreCompressor;
 use PhpArchiveStream\Writers\Zip\IO\InputStream;
 use PhpArchiveStream\Writers\Zip\Records\CentralDirectoryFileHeader;
 use PhpArchiveStream\Writers\Zip\Records\DataDescriptor;
@@ -59,7 +59,7 @@ class ZipWriter
 
         $localHeaderOffset = $this->outputStream->getBytesWritten();
 
-        $this->writeLocalFileHeader($fileName, $generalPurposeBitFlag, $lastModificationUnixTime, $compressor::bitFlag());
+        $this->writeLocalFileHeader($fileName, $generalPurposeBitFlag, $lastModificationUnixTime, $compressor::zipBitFlag());
 
         list($crc32Value, $compressedSize, $uncompressedSize) = $this->writeFile($stream, $compressor);
 
@@ -73,7 +73,7 @@ class ZipWriter
             $compressedSize,
             $uncompressedSize,
             $localHeaderOffset,
-            $compressor::bitFlag()
+            $compressor::zipBitFlag()
         );
     }
 

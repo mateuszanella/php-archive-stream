@@ -1,8 +1,8 @@
 <?php
 
-namespace PhpArchiveStream\Writers\Zip\Compressors;
+namespace PhpArchiveStream\Compressors;
 
-use PhpArchiveStream\Writers\Zip\Compressors\Compressor;
+use PhpArchiveStream\Compressors\Compressor;
 use RuntimeException;
 
 class DeflateCompressor implements Compressor
@@ -20,7 +20,7 @@ class DeflateCompressor implements Compressor
         }
     }
 
-    public static function bitFlag(): int
+    public static function zipBitFlag(): int
     {
         return 0x08;
     }
