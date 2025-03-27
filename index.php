@@ -1,13 +1,14 @@
 <?php
 
+use PhpArchiveStream\Archives\TarGz;
 use PhpArchiveStream\ArchiveStream;
 
 require 'vendor/autoload.php';
 
 try {
-    if (file_exists('./archive.zip')) {
-        unlink('./archive.zip');
-    }
+    @unlink('./archives/archive.zip');
+    @unlink('./archives/archive.tar');
+    @unlink('./archives/archive.tar.gz');
 
     $zip = ArchiveStream::to('./archives/archive.zip');
     $zip->addFileFromPath('composer.json', 'composer.json');
@@ -19,9 +20,12 @@ try {
     $tar->addFileFromPath('composer.lock', 'composer.lock');
     $tar->finish();
 
+    $tarGz = ArchiveStream::to('./archives/archive.tar.gz');
+    $tarGz->addFileFromPath('composer.json', 'composer.json');
+    $tarGz->addFileFromPath('composer.lock', 'composer.lock');
+    $tarGz->finish();
+
     echo "Archive created successfully!\n";
 } catch (Exception $e) {
     echo "An error occurred: " . $e->getMessage() . "\n";
-
-    @unlink('./archive.zip');
 }
