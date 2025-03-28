@@ -3,8 +3,8 @@
         <ini name="error_reporting" value="-1"/>
     </php>
     <testsuites>
-        <testsuite name="Application Test Suite">
-            <directory>./tests</directory>
+        <testsuite name="Config Test Suite">
+            <directory>./tests/Unit/Config</directory>
         </testsuite>
     </testsuites>
 </phpunit>
