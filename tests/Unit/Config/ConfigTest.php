@@ -26,6 +26,8 @@ class ConfigTest extends TestCase
             ]
         ];
 
+        Config::clear();
+
         Config::setItems($items);
 
         $this->assertSame($items, Config::all());
@@ -50,6 +52,8 @@ class ConfigTest extends TestCase
             ]
         ];
 
+        Config::clear();
+
         Config::setItems($items);
 
         $this->assertSame('value', Config::get('key'));
@@ -68,6 +72,8 @@ class ConfigTest extends TestCase
 
     public function testSet(): void
     {
+        Config::clear();
+
         Config::set('key', 'value');
         Config::set('key1', 1);
         Config::set('key2', null);
@@ -87,5 +93,13 @@ class ConfigTest extends TestCase
         $this->assertSame('nested4', Config::get('key3.nested3.nested4'));
         $this->assertSame('nested5', Config::get('key3.nested3.nested5'));
         $this->assertSame('value', Config::get('key3.nested3.nested6'));
+    }
+
+    public function testDefaultGet(): void
+    {
+        Config::clear();
+
+        $this->assertNull(Config::get('key'));
+        $this->assertSame('default', Config::get('key', 'default'));
     }
 }

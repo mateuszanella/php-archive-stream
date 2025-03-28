@@ -60,4 +60,12 @@ class Config
     {
         return static::$items;
     }
+
+    /**
+     * Clear all of the configuration items.
+     */
+    public static function clear(): void
+    {
+        static::$items = [];
+    }
 }
