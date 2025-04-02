@@ -3,28 +3,18 @@
 namespace PhpArchiveStream\Archives;
 
 use PhpArchiveStream\Contracts\Archive;
+use PhpArchiveStream\Writers\Tar\TarWriter;
 use PhpArchiveStream\Writers\TarGz\IO\InputStream;
 use PhpArchiveStream\Writers\TarGz\TarGzWriter;
 
 class TarGz implements Archive
 {
-    public readonly string $outputPath;
-
-    protected ?TarGzWriter $writer;
+    protected ?TarWriter $writer;
 
     public function __construct(
-        string $outputPath,
-        TarGzWriter $writer
+        TarWriter $writer
     ) {
-        $this->outputPath = $outputPath;
         $this->writer = $writer;
-    }
-
-    public static function create(string $outputPath): self
-    {
-        $writer = TarGzWriter::create($outputPath);
-
-        return new self($outputPath, $writer);
     }
 
     public function addFileFromPath(string $fileName, string $filePath): void

@@ -8,23 +8,12 @@ use PhpArchiveStream\Writers\Tar\TarWriter;
 
 class Tar implements Archive
 {
-    public readonly string $outputPath;
-
     protected ?TarWriter $writer;
 
     public function __construct(
-        string $outputPath,
         TarWriter $writer
     ) {
-        $this->outputPath = $outputPath;
         $this->writer = $writer;
-    }
-
-    public static function create(string $outputPath): self
-    {
-        $writer = TarWriter::create($outputPath);
-
-        return new self($outputPath, $writer);
     }
 
     public function addFileFromPath(string $fileName, string $filePath): void

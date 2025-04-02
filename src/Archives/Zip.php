@@ -8,23 +8,12 @@ use PhpArchiveStream\Writers\Zip\Zip64Writer;
 
 class Zip implements Archive
 {
-    public readonly string $outputPath;
-
     protected ?Zip64Writer $writer;
 
     public function __construct(
-        string $outputPath,
         Zip64Writer $writer
     ) {
-        $this->outputPath = $outputPath;
         $this->writer = $writer;
-    }
-
-    public static function create(string $outputPath): self
-    {
-        $writer = Zip64Writer::create($outputPath);
-
-        return new self($outputPath, $writer);
     }
 
     public function addFileFromPath(string $fileName, string $filePath): void
