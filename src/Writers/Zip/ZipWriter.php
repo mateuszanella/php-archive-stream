@@ -6,8 +6,9 @@ use PhpArchiveStream\Hashers\CRC32;
 use PhpArchiveStream\Compressors\Compressor;
 use PhpArchiveStream\Compressors\DeflateCompressor;
 use PhpArchiveStream\Compressors\StoreCompressor;
-use PhpArchiveStream\Contracts\ReadStream;
-use PhpArchiveStream\Contracts\WriteStream;
+use PhpArchiveStream\Contracts\IO\ReadStream;
+use PhpArchiveStream\Contracts\IO\WriteStream;
+use PhpArchiveStream\Contracts\Writers\Writer;
 use PhpArchiveStream\Writers\Zip\Records\CentralDirectoryFileHeader;
 use PhpArchiveStream\Writers\Zip\Records\DataDescriptor;
 use PhpArchiveStream\Writers\Zip\Records\EndOfCentralDirectoryRecord;
@@ -15,7 +16,7 @@ use PhpArchiveStream\Writers\Zip\Records\Fields\GeneralPurposeBitFlag;
 use PhpArchiveStream\Writers\Zip\Records\Fields\Version;
 use PhpArchiveStream\Writers\Zip\Records\LocalFileHeader;
 
-class ZipWriter
+class ZipWriter implements Writer
 {
     protected ?WriteStream $outputStream;
 

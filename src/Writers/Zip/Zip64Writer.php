@@ -5,7 +5,8 @@ namespace PhpArchiveStream\Writers\Zip;
 use PhpArchiveStream\Hashers\CRC32;
 use PhpArchiveStream\Compressors\Compressor;
 use PhpArchiveStream\Compressors\DeflateCompressor;
-use PhpArchiveStream\Contracts\ReadStream;
+use PhpArchiveStream\Contracts\IO\ReadStream;
+use PhpArchiveStream\Contracts\Writers\Writer;
 use PhpArchiveStream\Writers\Zip\Records\CentralDirectoryFileHeader;
 use PhpArchiveStream\Writers\Zip\Records\EndOfCentralDirectoryRecord;
 use PhpArchiveStream\Writers\Zip\Records\Fields\GeneralPurposeBitFlag;
@@ -16,7 +17,7 @@ use PhpArchiveStream\Writers\Zip\Zip64Records\EndOfCentralDirectoryLocator;
 use PhpArchiveStream\Writers\Zip\Zip64Records\EndOfCentralDirectoryRecord as Zip64EndOfCentralDirectoryRecord;
 use PhpArchiveStream\Writers\Zip\Zip64Records\ExtraField;
 
-class Zip64Writer
+class Zip64Writer implements Writer
 {
     protected ?WriteStream $outputStream;
 

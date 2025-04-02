@@ -4,7 +4,7 @@ namespace PhpArchiveStream\IO\Input;
 
 use Generator;
 use InvalidArgumentException;
-use PhpArchiveStream\Contracts\ReadStream;
+use PhpArchiveStream\Contracts\IO\ReadStream;
 use PhpArchiveStream\Exceptions\CouldNotOpenStreamException;
 
 class InputStream implements ReadStream

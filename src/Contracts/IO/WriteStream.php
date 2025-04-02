@@ -1,6 +1,6 @@
 <?php
 
-namespace PhpArchiveStream\Contracts;
+namespace PhpArchiveStream\Contracts\IO;
 
 interface WriteStream
 {

@@ -3,36 +3,32 @@
 namespace PhpArchiveStream\Archives;
 
 use PhpArchiveStream\Contracts\Archive;
-use PhpArchiveStream\Writers\Zip\IO\InputStream;
-use PhpArchiveStream\Writers\Zip\Zip64Writer;
+use PhpArchiveStream\Contracts\Writers\Writer;
+use PhpArchiveStream\IO\Input\InputStream;
 
 class Zip implements Archive
 {
-    protected ?Zip64Writer $writer;
-
     public function __construct(
-        Zip64Writer $writer
-    ) {
-        $this->writer = $writer;
-    }
+        protected ?Writer $writer,
+    ) {}
 
     public function addFileFromPath(string $fileName, string $filePath): void
     {
-        $stream = InputStream::open($filePath);
+        $stream = InputStream::open($filePath, 4096);
 
         $this->writer->addFile($stream, $fileName);
     }
 
     public function addFileFromStream(string $fileName, $stream): void
     {
-        $stream = InputStream::fromStream($stream);
+        $stream = InputStream::fromStream($stream, 4096);
 
         $this->writer->addFile($stream, $fileName);
     }
 
     public function addFileFromContentString(string $fileName, string $fileContents): void
     {
-        $stream = InputStream::fromString($fileContents);
+        $stream = InputStream::fromString($fileContents, 4096);
 
         $this->writer->addFile($stream, $fileName);
     }
