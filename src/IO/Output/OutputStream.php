@@ -6,7 +6,7 @@ use PhpArchiveStream\Contracts\IO\WriteStream;
 use PhpArchiveStream\Exceptions\CouldNotOpenStreamException;
 use PhpArchiveStream\Exceptions\CouldNotWriteToStreamException;
 
-class ZipOutputStream implements WriteStream
+class OutputStream implements WriteStream
 {
     protected $stream;
 
