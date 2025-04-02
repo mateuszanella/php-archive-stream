@@ -3,11 +3,11 @@
 namespace PhpArchiveStream\Writers\Zip;
 
 use PhpArchiveStream\Hashers\CRC32;
-use PhpArchiveStream\Writers\Zip\IO\OutputStream;
 use PhpArchiveStream\Compressors\Compressor;
 use PhpArchiveStream\Compressors\DeflateCompressor;
 use PhpArchiveStream\Compressors\StoreCompressor;
-use PhpArchiveStream\Writers\Zip\IO\InputStream;
+use PhpArchiveStream\Contracts\ReadStream;
+use PhpArchiveStream\Contracts\WriteStream;
 use PhpArchiveStream\Writers\Zip\Records\CentralDirectoryFileHeader;
 use PhpArchiveStream\Writers\Zip\Records\DataDescriptor;
 use PhpArchiveStream\Writers\Zip\Records\EndOfCentralDirectoryRecord;
@@ -17,7 +17,7 @@ use PhpArchiveStream\Writers\Zip\Records\LocalFileHeader;
 
 class ZipWriter
 {
-    protected ?OutputStream $outputStream;
+    protected ?WriteStream $outputStream;
 
     protected array $centralDirectoryHeaders = [];
 
@@ -26,28 +26,17 @@ class ZipWriter
     protected int $version = Version::BASE;
     protected static int $versionMadeBy = 0x603;
 
-    public function __construct(string $outputPath)
+    public function __construct(WriteStream $outputStream, array $config = [])
     {
-        $this->outputStream = OutputStream::open($outputPath);
-
-        /**
-         * @todo Should be changed dinamically
-         * @todo Should be injected via a configuration class
-         */
+        $this->outputStream = $outputStream;
         $this->defaultCompressor = DeflateCompressor::class;
-        // $this->defaultCompressor = StoreCompressor::class;
 
         if ($this->defaultCompressor === StoreCompressor::class) {
             $this->version = Version::DEFLATE;
         }
     }
 
-    public static function create(string $outputPath): static
-    {
-        return new static($outputPath);
-    }
-
-    public function addFile(InputStream $stream, string $fileName): void
+    public function addFile(ReadStream $stream, string $fileName): void
     {
         $compressor = new $this->defaultCompressor;
 
@@ -119,7 +108,7 @@ class ZipWriter
         ));
     }
 
-    protected function writeFile(InputStream $stream, Compressor $compressor): array
+    protected function writeFile(ReadStream $stream, Compressor $compressor): array
     {
         $crc32 = CRC32::init();
         $compressedSize = 0;

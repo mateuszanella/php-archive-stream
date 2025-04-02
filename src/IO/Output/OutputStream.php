@@ -1,14 +1,16 @@
 <?php
 
-namespace PhpArchiveStream\Writers\Tar\IO;
+namespace PhpArchiveStream\IO\Output;
 
 use PhpArchiveStream\Contracts\WriteStream;
 use PhpArchiveStream\Exceptions\CouldNotOpenStreamException;
 use PhpArchiveStream\Exceptions\CouldNotWriteToStreamException;
 
-class OutputStream implements WriteStream
+class ZipOutputStream implements WriteStream
 {
     protected $stream;
+
+    protected int $bytesWritten = 0;
 
     public function __construct($stream)
     {
@@ -38,19 +40,11 @@ class OutputStream implements WriteStream
             throw new CouldNotWriteToStreamException;
         }
 
-        $this->pad($bytesWritten);
+        $this->bytesWritten += $bytesWritten;
     }
 
-    protected function pad(int $bytesWritten): void
+    public function getBytesWritten(): int
     {
-        $remainder = $bytesWritten % 512;
-        if ($remainder) {
-            $padding = 512 - $remainder;
-            $bytesWritten = fwrite($this->stream, str_repeat("\0", $padding));
-
-            if ($bytesWritten === false) {
-                throw new CouldNotWriteToStreamException;
-            }
-        }
+        return $this->bytesWritten;
     }
 }

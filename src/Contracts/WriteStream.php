@@ -9,4 +9,6 @@ interface WriteStream
     public function close(): void;
 
     public function write(string $s): void;
+
+    public function getBytesWritten(): int;
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace PhpArchiveStream\Writers\TarGz\IO;
+namespace PhpArchiveStream\IO\Input;
 
 use Generator;
 use InvalidArgumentException;
@@ -11,12 +11,19 @@ class InputStream implements ReadStream
 {
     protected $stream;
 
-    public function __construct($stream)
+    protected int $chunkSize;
+
+    public function __construct($stream, int $chunkSize = 512)
     {
+        if (! is_resource($stream)) {
+            throw new InvalidArgumentException('Argument must be a valid resource');
+        }
+
+        $this->chunkSize = $chunkSize;
         $this->stream = $stream;
     }
 
-    public static function open(string $path): self
+    public static function open(string $path, int $chunkSize): self
     {
         $stream = fopen($path, 'rb');
 
@@ -24,19 +31,19 @@ class InputStream implements ReadStream
             throw new CouldNotOpenStreamException($path);
         }
 
-        return new self($stream);
+        return new self($stream, $chunkSize);
     }
 
-    public static function fromStream($stream): self
+    public static function fromStream($stream, int $chunkSize): self
     {
         if (! is_resource($stream)) {
             throw new InvalidArgumentException('Argument must be a valid resource');
         }
 
-        return new self($stream);
+        return new self($stream, $chunkSize);
     }
 
-    public static function fromString(string $contents): self
+    public static function fromString(string $contents, int $chunkSize): self
     {
         $stream = fopen('php://memory', 'r+');
 
@@ -44,7 +51,7 @@ class InputStream implements ReadStream
 
         rewind($stream);
 
-        return new self($stream);
+        return new self($stream, $chunkSize);
     }
 
     public function close(): void
@@ -55,7 +62,7 @@ class InputStream implements ReadStream
     public function read(): Generator
     {
         while (! feof($this->stream)) {
-            $chunk = fread($this->stream, 512);
+            $chunk = fread($this->stream, $this->chunkSize);
 
             if ($chunk === false) {
                 break;

@@ -6,11 +6,11 @@ use Generator;
 
 interface ReadStream
 {
-    public static function open(string $path): self;
+    public static function open(string $path, int $chunkSize): self;
 
-    public static function fromStream($stream): self;
+    public static function fromStream($stream, int $chunkSize): self;
 
-    public static function fromString(string $contents): self;
+    public static function fromString(string $contents, int $chunkSize): self;
 
     public function close(): void;
 

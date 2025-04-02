@@ -3,21 +3,15 @@
 namespace PhpArchiveStream\Writers\Tar;
 
 use PhpArchiveStream\Contracts\ReadStream;
-use PhpArchiveStream\Writers\Tar\IO\InputStream;
-use PhpArchiveStream\Writers\Tar\IO\OutputStream;
+use PhpArchiveStream\Contracts\WriteStream;
 
 class TarWriter
 {
-    protected ?OutputStream $outputStream;
+    protected ?WriteStream $outputStream;
 
-    public function __construct(string $outputPath)
+    public function __construct(WriteStream $outputStream, array $config = [])
     {
-        $this->outputStream = OutputStream::open($outputPath);
-    }
-
-    public static function create(string $outputPath): self
-    {
-        return new self($outputPath);
+        $this->outputStream = $outputStream;
     }
 
     public function addFile(ReadStream $stream, string $fileName): void
@@ -37,7 +31,7 @@ class TarWriter
         }
     }
 
-    protected function writeFileDataBlock(InputStream $inputStream, string $outputFilePath): void
+    protected function writeFileDataBlock(ReadStream $inputStream, string $outputFilePath): void
     {
         $sourceFileSize = $inputStream->size();
 

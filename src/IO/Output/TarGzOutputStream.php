@@ -1,15 +1,16 @@
 <?php
 
-namespace PhpArchiveStream\Writers\TarGz\IO;
+namespace PhpArchiveStream\IO\Output;
 
-use PhpArchiveStream\Compressors\GunzipCompressor;
 use PhpArchiveStream\Contracts\WriteStream;
 use PhpArchiveStream\Exceptions\CouldNotOpenStreamException;
 use PhpArchiveStream\Exceptions\CouldNotWriteToStreamException;
 
-class OutputStream implements WriteStream
+class TarGzOutputStream implements WriteStream
 {
     protected $stream;
+
+    protected int $bytesWritten = 0;
 
     public function __construct($stream)
     {
@@ -45,5 +46,10 @@ class OutputStream implements WriteStream
         if ($bytesWritten === false) {
             throw new CouldNotWriteToStreamException;
         }
+    }
+
+    public function getBytesWritten(): int
+    {
+        return $this->bytesWritten;
     }
 }
