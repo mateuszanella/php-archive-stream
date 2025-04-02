@@ -15,6 +15,9 @@ class ArchiveManager
 {
     protected $drivers = [];
 
+    /**
+     * @todo should be an instance of the config class
+     */
     protected $config = [];
 
     public function __construct(array $config = [])
