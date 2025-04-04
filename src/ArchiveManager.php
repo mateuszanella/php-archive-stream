@@ -2,8 +2,10 @@
 
 namespace PhpArchiveStream;
 
+use Exception;
 use PhpArchiveStream\Archives\Tar;
 use PhpArchiveStream\Archives\Zip;
+use PhpArchiveStream\Contracts\Archive;
 use PhpArchiveStream\IO\Output\OutputStream;
 use PhpArchiveStream\IO\Output\TarGzOutputStream;
 use PhpArchiveStream\IO\Output\TarOutputStream;
@@ -27,10 +29,28 @@ class ArchiveManager
         $this->registerDefaults();
     }
 
-    protected function registerDefaults()
+    public function register(string $extension, callable $factory): void
+    {
+        $this->drivers[$extension] = $factory;
+    }
+
+    public function create(string $filename, array $options = []): Archive
+    {
+        $extension = $this->extractExtension($filename);
+
+        if (!isset($this->drivers[$extension])) {
+            throw new Exception("Unsupported archive type for extension: {$extension}");
+        }
+
+        $mergedOptions = array_merge($this->config, $options);
+
+        return call_user_func($this->drivers[$extension], $filename, $mergedOptions);
+    }
+
+    protected function registerDefaults(): void
     {
         $this->drivers['.zip'] = function ($path, array $options) {
-            $useZip64 = $options['zip64'] ?? false;
+            $useZip64 = $options['zip64'] ?? true;
             $outputStream = OutputStream::open($path);
 
             $writer = $useZip64
@@ -59,29 +79,12 @@ class ArchiveManager
         };
     }
 
-    public function register(string $extension, callable $factory)
-    {
-        $this->drivers[$extension] = $factory;
-    }
-
-    public function createArchive(string $filename, array $options = [])
-    {
-        $extension = $this->extractExtension($filename);
-
-        if (!isset($this->drivers[$extension])) {
-            throw new \Exception("Unsupported archive type for extension: {$extension}");
-        }
-
-        $mergedOptions = array_merge($this->config, $options);
-
-        return call_user_func($this->drivers[$extension], $filename, $mergedOptions);
-    }
-
-    protected function extractExtension(string $filename)
+    protected function extractExtension(string $filename): string
     {
         if (preg_match('/\.tar\.gz$/i', $filename)) {
             return '.tar.gz';
         }
+
         return strtolower(strrchr($filename, '.'));
     }
 }
