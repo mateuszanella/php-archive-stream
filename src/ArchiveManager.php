@@ -15,16 +15,13 @@ use PhpArchiveStream\Writers\Zip\ZipWriter;
 
 class ArchiveManager
 {
-    protected $drivers = [];
+    protected array $drivers = [];
 
-    /**
-     * @todo should be an instance of the config class
-     */
-    protected $config = [];
+    protected Config $config;
 
     public function __construct(array $config = [])
     {
-        $this->config = $config;
+        $this->config = new Config($config);
 
         $this->registerDefaults();
     }
@@ -34,7 +31,7 @@ class ArchiveManager
         $this->drivers[$extension] = $factory;
     }
 
-    public function create(string $filename, array $options = []): Archive
+    public function create(string $filename): Archive
     {
         $extension = $this->extractExtension($filename);
 
@@ -42,39 +39,56 @@ class ArchiveManager
             throw new Exception("Unsupported archive type for extension: {$extension}");
         }
 
-        $mergedOptions = array_merge($this->config, $options);
+        return call_user_func($this->drivers[$extension], $filename);
+    }
 
-        return call_user_func($this->drivers[$extension], $filename, $mergedOptions);
+    public function config(): Config
+    {
+        return $this->config;
     }
 
     protected function registerDefaults(): void
     {
-        $this->drivers['.zip'] = function ($path, array $options) {
-            $useZip64 = $options['zip64'] ?? true;
-            $outputStream = OutputStream::open($path);
+        $this->drivers['.zip'] = function ($path) {
+            $useZip64 = $this->config->get('zip.enableZip64', true);
 
-            $writer = $useZip64
-                ? new Zip64Writer($outputStream)
-                : new ZipWriter($outputStream);
+            $defaultOutputClass = $this->config->get('zip.output.default', OutputStream::class);
+            if (! class_exists($defaultOutputClass)) {
+                throw new Exception("Default output stream class {$defaultOutputClass} does not exist.");
+            }
 
-            return new Zip($writer, $options);
-        };
+            $outputStream = $defaultOutputClass::open($path);
 
-        $this->drivers['.tar'] = function ($path, array $options) {
-            $outputStream = TarOutputStream::open($path);
-
-            return new Tar(
-                new TarWriter($outputStream),
-                $options
+            return new Zip(
+                $useZip64
+                    ? new Zip64Writer($outputStream)
+                    : new ZipWriter($outputStream)
             );
         };
 
-        $this->drivers['.tar.gz'] = function ($path, array $options) {
-            $outputStream = TarGzOutputStream::open($path);
+        $this->drivers['.tar'] = function ($path) {
+            $defaultOutputClass = $this->config->get('tar.output.default', TarOutputStream::class);
+            if (! class_exists($defaultOutputClass)) {
+                throw new Exception("Default output stream class {$defaultOutputClass} does not exist.");
+            }
+
+            $outputStream = $defaultOutputClass::open($path);
 
             return new Tar(
                 new TarWriter($outputStream),
-                $options
+            );
+        };
+
+        $this->drivers['.tar.gz'] = function ($path) {
+            $defaultOutputClass = $this->config->get('targz.output.default', TarGzOutputStream::class);
+            if (! class_exists($defaultOutputClass)) {
+                throw new Exception("Default output stream class {$defaultOutputClass} does not exist.");
+            }
+
+            $outputStream = $defaultOutputClass::open($path);
+
+            return new Tar(
+                new TarWriter($outputStream),
             );
         };
     }
