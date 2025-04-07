@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use PhpArchiveStream\Archives\Tar;
+use PhpArchiveStream\IO\Output\TarOutputStream;
 use PhpArchiveStream\Writers\Tar\TarWriter;
 use PHPUnit\Framework\TestCase;
 
@@ -33,8 +34,10 @@ class TarTest extends TestCase
         file_put_contents($this->inputPath1, 'Hello World 1');
         file_put_contents($this->inputPath2, 'Hello World 2');
 
-        $tarWriter = TarWriter::create($this->outputPath);
-        $this->tar = new Tar($this->outputPath, $tarWriter);
+        $stream = fopen($this->outputPath, 'w');
+        $outputStream = new TarOutputStream($stream);
+        $tarWriter = new TarWriter($outputStream);
+        $this->tar = new Tar($tarWriter);
     }
 
     protected function tearDown(): void
