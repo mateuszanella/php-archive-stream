@@ -39,7 +39,7 @@ class ArchiveManager
             throw new Exception("Unsupported archive type for extension: {$extension}");
         }
 
-        return call_user_func($this->drivers[$extension], $filename);
+        return ($this->drivers[$extension])($filename);
     }
 
     public function config(): Config
