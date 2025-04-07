@@ -26,11 +26,9 @@ class ConfigTest extends TestCase
             ]
         ];
 
-        Config::clear();
+        $config = new Config($items);
 
-        Config::setItems($items);
-
-        $this->assertSame($items, Config::all());
+        $this->assertSame($items, $config->all());
     }
 
     public function testGet(): void
@@ -52,54 +50,52 @@ class ConfigTest extends TestCase
             ]
         ];
 
-        Config::clear();
+        $config = new Config($items);
 
-        Config::setItems($items);
-
-        $this->assertSame('value', Config::get('key'));
-        $this->assertSame(1, Config::get('key1'));
-        $this->assertNull(Config::get('key2'));
-        $this->assertSame('nested', Config::get('key3.0'));
-        $this->assertSame('nested1', Config::get('key3.1'));
-        $this->assertSame('nested2', Config::get('key3.2'));
-        $this->assertSame('nested4', Config::get('key3.nested3.0'));
-        $this->assertSame('nested5', Config::get('key3.nested3.1'));
-        $this->assertSame('value', Config::get('key3.nested3.nested6'));
-        $this->assertNull(Config::get('key4'));
-        $this->assertSame('default', Config::get('key4', 'default'));
-        $this->assertSame(null, Config::get('a.value.that.does.not.exist'));
+        $this->assertSame('value', $config->get('key'));
+        $this->assertSame(1, $config->get('key1'));
+        $this->assertNull($config->get('key2'));
+        $this->assertSame('nested', $config->get('key3.0'));
+        $this->assertSame('nested1', $config->get('key3.1'));
+        $this->assertSame('nested2', $config->get('key3.2'));
+        $this->assertSame('nested4', $config->get('key3.nested3.0'));
+        $this->assertSame('nested5', $config->get('key3.nested3.1'));
+        $this->assertSame('value', $config->get('key3.nested3.nested6'));
+        $this->assertNull($config->get('key4'));
+        $this->assertSame('default', $config->get('key4', 'default'));
+        $this->assertSame(null, $config->get('a.value.that.does.not.exist'));
     }
 
     public function testSet(): void
     {
-        Config::clear();
+        $config = new Config();
 
-        Config::set('key', 'value');
-        Config::set('key1', 1);
-        Config::set('key2', null);
-        Config::set('key3.nested', 'nested');
-        Config::set('key3.nested1', 'nested1');
-        Config::set('key3.nested2', 'nested2');
-        Config::set('key3.nested3.nested4', 'nested4');
-        Config::set('key3.nested3.nested5', 'nested5');
-        Config::set('key3.nested3.nested6', 'value');
+        $config->set('key', 'value');
+        $config->set('key1', 1);
+        $config->set('key2', null);
+        $config->set('key3.nested', 'nested');
+        $config->set('key3.nested1', 'nested1');
+        $config->set('key3.nested2', 'nested2');
+        $config->set('key3.nested3.nested4', 'nested4');
+        $config->set('key3.nested3.nested5', 'nested5');
+        $config->set('key3.nested3.nested6', 'value');
 
-        $this->assertSame('value', Config::get('key'));
-        $this->assertSame(1, Config::get('key1'));
-        $this->assertNull(Config::get('key2'));
-        $this->assertSame('nested', Config::get('key3.nested'));
-        $this->assertSame('nested1', Config::get('key3.nested1'));
-        $this->assertSame('nested2', Config::get('key3.nested2'));
-        $this->assertSame('nested4', Config::get('key3.nested3.nested4'));
-        $this->assertSame('nested5', Config::get('key3.nested3.nested5'));
-        $this->assertSame('value', Config::get('key3.nested3.nested6'));
+        $this->assertSame('value', $config->get('key'));
+        $this->assertSame(1, $config->get('key1'));
+        $this->assertNull($config->get('key2'));
+        $this->assertSame('nested', $config->get('key3.nested'));
+        $this->assertSame('nested1', $config->get('key3.nested1'));
+        $this->assertSame('nested2', $config->get('key3.nested2'));
+        $this->assertSame('nested4', $config->get('key3.nested3.nested4'));
+        $this->assertSame('nested5', $config->get('key3.nested3.nested5'));
+        $this->assertSame('value', $config->get('key3.nested3.nested6'));
     }
 
     public function testDefaultGet(): void
     {
-        Config::clear();
+        $config = new Config();
 
-        $this->assertNull(Config::get('key'));
-        $this->assertSame('default', Config::get('key', 'default'));
+        $this->assertNull($config->get('key'));
+        $this->assertSame('default', $config->get('key', 'default'));
     }
 }
