@@ -17,23 +17,12 @@ class TarGzOutputStream implements WriteStream
         $this->stream = $stream;
     }
 
-    public static function open(string $path): self
-    {
-        $stream = gzopen($path, 'wb');
-
-        if ($stream === false) {
-            throw new CouldNotOpenStreamException($path);
-        }
-
-        return new self($stream);
-    }
-
     public function close(): void
     {
         gzclose($this->stream);
     }
 
-    public function write(string $s): void
+    public function write(string $s): int
     {
         $paddedData = $s;
         $paddingSize = 512 - (strlen($s) % 512);
@@ -46,6 +35,10 @@ class TarGzOutputStream implements WriteStream
         if ($bytesWritten === false) {
             throw new CouldNotWriteToStreamException;
         }
+
+        $this->bytesWritten += $bytesWritten;
+
+        return $bytesWritten;
     }
 
     public function getBytesWritten(): int

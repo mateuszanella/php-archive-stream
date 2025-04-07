@@ -17,23 +17,12 @@ class OutputStream implements WriteStream
         $this->stream = $stream;
     }
 
-    public static function open(string $path): self
-    {
-        $stream = fopen($path, 'wb');
-
-        if ($stream === false) {
-            throw new CouldNotOpenStreamException($path);
-        }
-
-        return new self($stream);
-    }
-
     public function close(): void
     {
         fclose($this->stream);
     }
 
-    public function write(string $s): void
+    public function write(string $s): int
     {
         $bytesWritten = fwrite($this->stream, $s);
         if ($bytesWritten === false) {
@@ -41,6 +30,8 @@ class OutputStream implements WriteStream
         }
 
         $this->bytesWritten += $bytesWritten;
+
+        return $bytesWritten;
     }
 
     public function getBytesWritten(): int

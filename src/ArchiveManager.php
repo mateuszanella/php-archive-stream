@@ -57,7 +57,9 @@ class ArchiveManager
                 throw new Exception("Default output stream class {$defaultOutputClass} does not exist.");
             }
 
-            $outputStream = $defaultOutputClass::open($path);
+            $stream = $this->getStream($path);
+
+            $outputStream = new $defaultOutputClass($stream);
 
             return new Zip(
                 $useZip64
@@ -72,7 +74,9 @@ class ArchiveManager
                 throw new Exception("Default output stream class {$defaultOutputClass} does not exist.");
             }
 
-            $outputStream = $defaultOutputClass::open($path);
+            $stream = $this->getStream($path);
+
+            $outputStream = new $defaultOutputClass($stream);
 
             return new Tar(
                 new TarWriter($outputStream),
@@ -85,7 +89,9 @@ class ArchiveManager
                 throw new Exception("Default output stream class {$defaultOutputClass} does not exist.");
             }
 
-            $outputStream = $defaultOutputClass::open($path);
+            $stream = $this->getStream($path);
+
+            $outputStream = new $defaultOutputClass($stream);
 
             return new Tar(
                 new TarWriter($outputStream),
@@ -100,5 +106,18 @@ class ArchiveManager
         }
 
         return strtolower(strrchr($filename, '.'));
+    }
+
+    protected function getStream(string $path)
+    {
+        $stream = str_ends_with($path, '.gz')
+            ? gzopen($path, 'wb9')
+            : fopen($path, 'wb');
+
+        if ($stream === false) {
+            throw new Exception("Could not open stream for path: {$path}");
+        }
+
+        return $stream;
     }
 }

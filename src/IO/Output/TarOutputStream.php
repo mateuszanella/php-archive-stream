@@ -17,32 +17,29 @@ class TarOutputStream implements WriteStream
         $this->stream = $stream;
     }
 
-    public static function open(string $path): self
-    {
-        $stream = fopen($path, 'wb');
-
-        if ($stream === false) {
-            throw new CouldNotOpenStreamException($path);
-        }
-
-        return new self($stream);
-    }
-
     public function close(): void
     {
         fclose($this->stream);
     }
 
-    public function write(string $s): void
+    public function write(string $s): int
     {
-        $bytesWritten = fwrite($this->stream, $s);
+        $paddedData = $s;
+        $paddingSize = 512 - (strlen($s) % 512);
+
+        if ($paddingSize < 512) {
+            $paddedData .= str_repeat("\0", $paddingSize);
+        }
+
+        $bytesWritten = fwrite($this->stream, $paddedData);
         if ($bytesWritten === false) {
             throw new CouldNotWriteToStreamException;
         }
 
-        $this->pad($bytesWritten);
-    }
+        $this->bytesWritten += $bytesWritten;
 
+        return $bytesWritten;
+    }
     public function getBytesWritten(): int
     {
         return $this->bytesWritten;
