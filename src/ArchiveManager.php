@@ -9,6 +9,7 @@ use PhpArchiveStream\Contracts\Archive;
 use PhpArchiveStream\IO\Output\OutputStream;
 use PhpArchiveStream\IO\Output\TarGzOutputStream;
 use PhpArchiveStream\IO\Output\TarOutputStream;
+use PhpArchiveStream\Support\WriteStreamFactory;
 use PhpArchiveStream\Writers\Tar\TarWriter;
 use PhpArchiveStream\Writers\Zip\Zip64Writer;
 use PhpArchiveStream\Writers\Zip\ZipWriter;
@@ -35,7 +36,7 @@ class ArchiveManager
     {
         $extension = $this->extractExtension($filename);
 
-        if (!isset($this->drivers[$extension])) {
+        if (! isset($this->drivers[$extension])) {
             throw new Exception("Unsupported archive type for extension: {$extension}");
         }
 
@@ -51,17 +52,11 @@ class ArchiveManager
     {
         $this->register('.zip', function ($path) {
             $useZip64 = $this->config->get('zip.enableZip64', true);
-
-            $defaultOutputClass = $this->config->get('zip.output.default', OutputStream::class);
-            if (! class_exists($defaultOutputClass)) {
-                throw new Exception("Default output stream class {$defaultOutputClass} does not exist.");
-            }
-
-            $stream = $this->getStream($path);
-
-            $outputStream = new $defaultOutputClass($stream);
-
             $defaultChunkSize = $this->config->get('zip.input.chunkSize', 4096);
+            $outputStream = WriteStreamFactory::create(
+                $this->config->get('zip.output.default', OutputStream::class),
+                $path,
+            );
 
             return new Zip(
                 $useZip64
@@ -72,16 +67,11 @@ class ArchiveManager
         });
 
         $this->register('.tar', function ($path) {
-            $defaultOutputClass = $this->config->get('tar.output.default', TarOutputStream::class);
-            if (! class_exists($defaultOutputClass)) {
-                throw new Exception("Default output stream class {$defaultOutputClass} does not exist.");
-            }
-
-            $stream = $this->getStream($path);
-
-            $outputStream = new $defaultOutputClass($stream);
-
             $defaultChunkSize = $this->config->get('zip.input.chunkSize', 512);
+            $outputStream = WriteStreamFactory::create(
+                $this->config->get('tar.output.default', TarOutputStream::class),
+                $path,
+            );
 
             return new Tar(
                 new TarWriter($outputStream),
@@ -90,16 +80,11 @@ class ArchiveManager
         });
 
         $this->register('.tar.gz', function ($path) {
-            $defaultOutputClass = $this->config->get('targz.output.default', TarGzOutputStream::class);
-            if (! class_exists($defaultOutputClass)) {
-                throw new Exception("Default output stream class {$defaultOutputClass} does not exist.");
-            }
-
-            $stream = $this->getStream($path);
-
-            $outputStream = new $defaultOutputClass($stream);
-
             $defaultChunkSize = $this->config->get('zip.input.chunkSize', 512);
+            $outputStream = WriteStreamFactory::create(
+                $this->config->get('targz.output.default', TarGzOutputStream::class),
+                $path,
+            );
 
             return new Tar(
                 new TarWriter($outputStream),
@@ -115,18 +100,5 @@ class ArchiveManager
         }
 
         return strtolower(strrchr($filename, '.'));
-    }
-
-    protected function getStream(string $path)
-    {
-        $stream = str_ends_with($path, '.gz')
-            ? gzopen($path, 'wb9')
-            : fopen($path, 'wb');
-
-        if ($stream === false) {
-            throw new Exception("Could not open stream for path: {$path}");
-        }
-
-        return $stream;
     }
 }
