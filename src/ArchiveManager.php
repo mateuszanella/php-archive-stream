@@ -49,7 +49,7 @@ class ArchiveManager
 
     protected function registerDefaults(): void
     {
-        $this->drivers['.zip'] = function ($path) {
+        $this->register('.zip', function ($path) {
             $useZip64 = $this->config->get('zip.enableZip64', true);
 
             $defaultOutputClass = $this->config->get('zip.output.default', OutputStream::class);
@@ -69,9 +69,9 @@ class ArchiveManager
                     : new ZipWriter($outputStream),
                 $defaultChunkSize
             );
-        };
+        });
 
-        $this->drivers['.tar'] = function ($path) {
+        $this->register('.tar', function ($path) {
             $defaultOutputClass = $this->config->get('tar.output.default', TarOutputStream::class);
             if (! class_exists($defaultOutputClass)) {
                 throw new Exception("Default output stream class {$defaultOutputClass} does not exist.");
@@ -87,9 +87,9 @@ class ArchiveManager
                 new TarWriter($outputStream),
                 $defaultChunkSize
             );
-        };
+        });
 
-        $this->drivers['.tar.gz'] = function ($path) {
+        $this->register('.tar.gz', function ($path) {
             $defaultOutputClass = $this->config->get('targz.output.default', TarGzOutputStream::class);
             if (! class_exists($defaultOutputClass)) {
                 throw new Exception("Default output stream class {$defaultOutputClass} does not exist.");
@@ -105,7 +105,7 @@ class ArchiveManager
                 new TarWriter($outputStream),
                 $defaultChunkSize
             );
-        };
+        });
     }
 
     protected function extractExtension(string $filename): string
