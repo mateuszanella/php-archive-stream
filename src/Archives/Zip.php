@@ -10,25 +10,26 @@ class Zip implements Archive
 {
     public function __construct(
         protected ?Writer $writer,
+        protected int $defaultChunkSize = 4096,
     ) {}
 
     public function addFileFromPath(string $fileName, string $filePath): void
     {
-        $stream = InputStream::open($filePath, 4096);
+        $stream = InputStream::open($filePath, $this->defaultChunkSize);
 
         $this->writer->addFile($stream, $fileName);
     }
 
     public function addFileFromStream(string $fileName, $stream): void
     {
-        $stream = InputStream::fromStream($stream, 4096);
+        $stream = InputStream::fromStream($stream, $this->defaultChunkSize);
 
         $this->writer->addFile($stream, $fileName);
     }
 
     public function addFileFromContentString(string $fileName, string $fileContents): void
     {
-        $stream = InputStream::fromString($fileContents, 4096);
+        $stream = InputStream::fromString($fileContents, $this->defaultChunkSize);
 
         $this->writer->addFile($stream, $fileName);
     }

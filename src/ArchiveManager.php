@@ -61,10 +61,13 @@ class ArchiveManager
 
             $outputStream = new $defaultOutputClass($stream);
 
+            $defaultChunkSize = $this->config->get('zip.input.chunkSize', 4096);
+
             return new Zip(
                 $useZip64
                     ? new Zip64Writer($outputStream)
-                    : new ZipWriter($outputStream)
+                    : new ZipWriter($outputStream),
+                $defaultChunkSize
             );
         };
 
@@ -78,8 +81,11 @@ class ArchiveManager
 
             $outputStream = new $defaultOutputClass($stream);
 
+            $defaultChunkSize = $this->config->get('zip.input.chunkSize', 512);
+
             return new Tar(
                 new TarWriter($outputStream),
+                $defaultChunkSize
             );
         };
 
@@ -93,8 +99,11 @@ class ArchiveManager
 
             $outputStream = new $defaultOutputClass($stream);
 
+            $defaultChunkSize = $this->config->get('zip.input.chunkSize', 512);
+
             return new Tar(
                 new TarWriter($outputStream),
+                $defaultChunkSize
             );
         };
     }
