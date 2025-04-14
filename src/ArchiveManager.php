@@ -16,10 +16,23 @@ use PhpArchiveStream\Writers\Zip\ZipWriter;
 
 class ArchiveManager
 {
+    /**
+     * The array of registered driver constructor callbacks.
+     *
+     * @var array<string, callable(string, \PhpArchiveStream\Config): Archive>
+     */
     protected array $drivers = [];
 
+    /**
+     * The configuration instance.
+     */
     protected Config $config;
 
+    /**
+     * Create a new ArchiveManager instance.
+     *
+     * @param array<string, mixed> $config
+     */
     public function __construct(array $config = [])
     {
         $this->config = new Config($config);
@@ -27,11 +40,22 @@ class ArchiveManager
         $this->registerDefaults();
     }
 
+    /**
+     * Register a new driver with the manager.
+     *
+     * @param  string  $extension
+     * @param  callable(string, \PhpArchiveStream\Config): Archive  $factory
+     */
     public function register(string $extension, callable $factory): void
     {
         $this->drivers[$extension] = $factory;
     }
 
+    /**
+     * Create a new archive instance.
+     *
+     * @param  string  $filename
+     */
     public function create(string $filename): Archive
     {
         $extension = $this->extractExtension($filename);
@@ -40,21 +64,27 @@ class ArchiveManager
             throw new Exception("Unsupported archive type for extension: {$extension}");
         }
 
-        return ($this->drivers[$extension])($filename);
+        return ($this->drivers[$extension])($filename, $this->config);
     }
 
+    /**
+     * Get the configuration instance.
+     */
     public function config(): Config
     {
         return $this->config;
     }
 
+    /**
+     * Register the default drivers.
+     */
     protected function registerDefaults(): void
     {
-        $this->register('.zip', function ($path) {
-            $useZip64 = $this->config->get('zip.enableZip64', true);
-            $defaultChunkSize = $this->config->get('zip.input.chunkSize', 4096);
+        $this->register('.zip', function ($path, $config) {
+            $useZip64 = $config->get('zip.enableZip64', true);
+            $defaultChunkSize = $config->get('zip.input.chunkSize', 4096);
             $outputStream = WriteStreamFactory::create(
-                $this->config->get('zip.output.default', OutputStream::class),
+                $config->get('zip.output.default', OutputStream::class),
                 $path,
             );
 
@@ -66,10 +96,10 @@ class ArchiveManager
             );
         });
 
-        $this->register('.tar', function ($path) {
-            $defaultChunkSize = $this->config->get('zip.input.chunkSize', 512);
+        $this->register('.tar', function ($path, $config) {
+            $defaultChunkSize = $config->get('zip.input.chunkSize', 512);
             $outputStream = WriteStreamFactory::create(
-                $this->config->get('tar.output.default', TarOutputStream::class),
+                $config->get('tar.output.default', TarOutputStream::class),
                 $path,
             );
 
@@ -79,10 +109,10 @@ class ArchiveManager
             );
         });
 
-        $this->register('.tar.gz', function ($path) {
-            $defaultChunkSize = $this->config->get('zip.input.chunkSize', 512);
+        $this->register('.tar.gz', function ($path, $config) {
+            $defaultChunkSize = $config->get('zip.input.chunkSize', 512);
             $outputStream = WriteStreamFactory::create(
-                $this->config->get('targz.output.default', TarGzOutputStream::class),
+                $config->get('targz.output.default', TarGzOutputStream::class),
                 $path,
             );
 
@@ -93,6 +123,9 @@ class ArchiveManager
         });
     }
 
+    /**
+     * Extract the file extension from the filename.
+     */
     protected function extractExtension(string $filename): string
     {
         if (preg_match('/\.tar\.gz$/i', $filename)) {
