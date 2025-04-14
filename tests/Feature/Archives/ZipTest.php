@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\Archives;
 
 use PhpArchiveStream\Archives\Zip;
 use PhpArchiveStream\IO\Output\OutputStream;

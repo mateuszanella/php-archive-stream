@@ -4,9 +4,9 @@
     </php>
     <testsuites>
         <testsuite name="Archives Feature Test Suite">
-            <directory>./tests/Feature</directory>
+            <directory>./tests/Feature/Archives</directory>
         </testsuite>
-        <testsuite name="Config Test Suite">
+        <testsuite name="Config Unit Test Suite">
             <directory>./tests/Unit/Config</directory>
         </testsuite>
     </testsuites>

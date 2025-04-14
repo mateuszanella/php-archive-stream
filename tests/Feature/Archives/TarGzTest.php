@@ -1,16 +1,16 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\Archives;
 
 use PhpArchiveStream\Archives\Tar;
-use PhpArchiveStream\IO\Output\TarOutputStream;
+use PhpArchiveStream\IO\Output\TarGzOutputStream;
 use PhpArchiveStream\Writers\Tar\TarWriter;
 use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \PhpArchiveStream\Archives\Tar
  */
-class TarTest extends TestCase
+class TarGzTest extends TestCase
 {
     protected string $outputPath = './output.tar';
     protected string $inputPath1 = './input1.txt';
@@ -51,8 +51,8 @@ class TarTest extends TestCase
 
     public function testAddFileFromPath()
     {
-        $stream = fopen($this->outputPath, 'w');
-        $outputStream = new TarOutputStream($stream);
+        $stream = gzopen($this->outputPath, 'w');
+        $outputStream = new TarGzOutputStream($stream);
         $tarWriter = new TarWriter($outputStream);
         $tar = new Tar($tarWriter);
 
@@ -64,8 +64,8 @@ class TarTest extends TestCase
 
     public function testAddFileFromStream()
     {
-        $stream = fopen($this->outputPath, 'w');
-        $outputStream = new TarOutputStream($stream);
+        $stream = gzopen($this->outputPath, 'w');
+        $outputStream = new TarGzOutputStream($stream);
         $tarWriter = new TarWriter($outputStream);
         $tar = new Tar($tarWriter);
 
@@ -78,8 +78,8 @@ class TarTest extends TestCase
 
     public function testAddFileFromContentString()
     {
-        $stream = fopen($this->outputPath, 'w');
-        $outputStream = new TarOutputStream($stream);
+        $stream = gzopen($this->outputPath, 'w');
+        $outputStream = new TarGzOutputStream($stream);
         $tarWriter = new TarWriter($outputStream);
         $tar = new Tar($tarWriter);
 
@@ -91,8 +91,8 @@ class TarTest extends TestCase
 
     public function testFinish()
     {
-        $stream = fopen($this->outputPath, 'w');
-        $outputStream = new TarOutputStream($stream);
+        $stream = gzopen($this->outputPath, 'w');
+        $outputStream = new TarGzOutputStream($stream);
         $tarWriter = new TarWriter($outputStream);
         $tar = new Tar($tarWriter);
 
