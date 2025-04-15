@@ -27,7 +27,7 @@ class U32Field extends Field
     protected static function validate($value): void
     {
         if ($value < 0 || $value > static::MAX_UNSIGNED_LONG) {
-            throw new InvalidArgumentException('Invalid u32 value');
+            $value = static::MAX_UNSIGNED_LONG;
         }
     }
 }

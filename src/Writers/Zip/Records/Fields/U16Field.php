@@ -27,7 +27,7 @@ class U16Field extends Field
     protected static function validate($value): void
     {
         if ($value < 0 || $value > static::MAX_UNSIGNED_SHORT) {
-            throw new InvalidArgumentException('Invalid u16 value');
+            $value = static::MAX_UNSIGNED_SHORT;
         }
     }
 }
