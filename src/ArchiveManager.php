@@ -14,6 +14,10 @@ use PhpArchiveStream\Writers\Tar\TarWriter;
 use PhpArchiveStream\Writers\Zip\Zip64Writer;
 use PhpArchiveStream\Writers\Zip\ZipWriter;
 
+/**
+ * @todo Add alias array for filetypes
+ * @todo Add support to use ArrayOutputStream when creating a file
+ */
 class ArchiveManager
 {
     /**
