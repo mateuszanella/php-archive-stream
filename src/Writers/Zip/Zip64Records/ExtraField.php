@@ -2,8 +2,8 @@
 
 namespace PhpArchiveStream\Writers\Zip\Zip64Records;
 
-use PhpArchiveStream\Writers\Zip\Records\Fields\Packer;
-use PhpArchiveStream\Writers\Zip\Records\Fields\U16Field;
+use PhpArchiveStream\Binary\Packer;
+use PhpArchiveStream\Binary\U16Field;
 
 class ExtraField
 {

@@ -2,9 +2,9 @@
 
 namespace PhpArchiveStream\Writers\Zip\Zip64Records;
 
-use PhpArchiveStream\Writers\Zip\Records\Fields\Packer;
-use PhpArchiveStream\Writers\Zip\Records\Fields\U32Field;
-use PhpArchiveStream\Writers\Zip\Records\Fields\U64Field;
+use PhpArchiveStream\Binary\Packer;
+use PhpArchiveStream\Binary\U32Field;
+use PhpArchiveStream\Binary\U64Field;
 
 class DataDescriptor
 {

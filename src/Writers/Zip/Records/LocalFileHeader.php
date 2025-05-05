@@ -3,9 +3,9 @@
 namespace PhpArchiveStream\Writers\Zip\Records;
 
 use PhpArchiveStream\Utils;
-use PhpArchiveStream\Writers\Zip\Records\Fields\Packer;
-use PhpArchiveStream\Writers\Zip\Records\Fields\U16Field;
-use PhpArchiveStream\Writers\Zip\Records\Fields\U32Field;
+use PhpArchiveStream\Binary\Packer;
+use PhpArchiveStream\Binary\U16Field;
+use PhpArchiveStream\Binary\U32Field;
 
 class LocalFileHeader
 {

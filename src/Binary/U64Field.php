@@ -1,6 +1,6 @@
 <?php
 
-namespace PhpArchiveStream\Writers\Zip\Records\Fields;
+namespace PhpArchiveStream\Binary;
 
 class U64Field extends Field
 {

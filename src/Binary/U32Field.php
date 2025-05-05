@@ -1,14 +1,12 @@
 <?php
 
-namespace PhpArchiveStream\Writers\Zip\Records\Fields;
+namespace PhpArchiveStream\Binary;
 
-use InvalidArgumentException;
-
-class U16Field extends Field
+class U32Field extends Field
 {
-    public const MAX_UNSIGNED_SHORT = 0xFFFF;
+    public const MAX_UNSIGNED_LONG = 0xFFFFFFFF;
 
-    public static string $format = 'v';
+    public static string $format = 'V';
 
     public readonly int|string $value;
 
@@ -26,8 +24,8 @@ class U16Field extends Field
 
     protected static function validate($value): void
     {
-        if ($value < 0 || $value > static::MAX_UNSIGNED_SHORT) {
-            $value = static::MAX_UNSIGNED_SHORT;
+        if ($value < 0 || $value > static::MAX_UNSIGNED_LONG) {
+            $value = static::MAX_UNSIGNED_LONG;
         }
     }
 }
