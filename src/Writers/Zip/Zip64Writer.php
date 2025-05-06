@@ -125,12 +125,10 @@ class Zip64Writer implements Writer
         int $compressionMethod,
         int $localHeaderOffset
     ): void {
-        $extraField = ExtraField::generate(
+        $extraField = $this->buildExtraField(
             originalSize: 0,
             compressedSize: 0,
-            relativeHeaderOffset: $localHeaderOffset > 0xFFFFFFFF
-                ? $localHeaderOffset
-                : null,
+            relativeHeaderOffset: $localHeaderOffset
         );
 
         $this->outputStream->write(LocalFileHeader::generate(
@@ -196,12 +194,10 @@ class Zip64Writer implements Writer
         int $localHeaderOffset,
         int $compressionMethod
     ): string {
-        $extraField = ExtraField::generate(
+        $extraField = $this->buildExtraField(
             originalSize: $uncompressedSize,
             compressedSize: $compressedSize,
-            relativeHeaderOffset: $localHeaderOffset > 0xFFFFFFFF
-                ? $localHeaderOffset
-                : null,
+            relativeHeaderOffset: $localHeaderOffset
         );
 
         return CentralDirectoryFileHeader::generate(
@@ -219,6 +215,29 @@ class Zip64Writer implements Writer
             externalFileAttributes: 32,
             fileName: $fileName,
             extraField: $extraField,
+        );
+    }
+
+    protected function buildExtraField(
+        int $originalSize,
+        int $compressedSize,
+        int $relativeHeaderOffset
+    ): string {
+        if (
+            $originalSize < 0xFFFFFFFF &&
+            $compressedSize < 0xFFFFFFFF &&
+            $relativeHeaderOffset < 0xFFFFFFFF
+        ) {
+            return '';
+        }
+
+        return ExtraField::generate(
+            originalSize: $originalSize,
+            compressedSize: $compressedSize,
+            relativeHeaderOffset: $relativeHeaderOffset > 0xFFFFFFFF
+                ? $relativeHeaderOffset
+                : null,
+            diskStartNumber: 0,
         );
     }
 }

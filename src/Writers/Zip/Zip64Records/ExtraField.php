@@ -27,19 +27,19 @@ class ExtraField
             U16Field::create($fieldSize),
         ];
 
-        if ($originalSize) {
+        if (isset($originalSize)) {
             $fields[] = U64Field::create($originalSize);
         }
 
-        if ($compressedSize) {
+        if (isset($compressedSize)) {
             $fields[] = U64Field::create($compressedSize);
         }
 
-        if ($relativeHeaderOffset) {
+        if (isset($relativeHeaderOffset)) {
             $fields[] = U64Field::create($relativeHeaderOffset);
         }
 
-        if ($diskStartNumber) {
+        if (isset($diskStartNumber)) {
             $fields[] = U32Field::create($diskStartNumber);
         }
 
