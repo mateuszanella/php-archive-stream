@@ -2,8 +2,6 @@
 
 namespace PhpArchiveStream\Binary;
 
-use InvalidArgumentException;
-
 class U16Field extends Field
 {
     public const MAX_UNSIGNED_SHORT = 0xFFFF;

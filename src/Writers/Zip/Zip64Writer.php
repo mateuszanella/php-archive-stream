@@ -47,7 +47,13 @@ class Zip64Writer implements Writer
 
         $localHeaderOffset = $this->outputStream->getBytesWritten();
 
-        $this->writeLocalFileHeader($fileName, $generalPurposeBitFlag, $lastModificationUnixTime, $compressor::zipBitFlag());
+        $this->writeLocalFileHeader(
+            $fileName,
+            $generalPurposeBitFlag,
+            $lastModificationUnixTime,
+            $compressor::zipBitFlag(),
+            $localHeaderOffset
+        );
 
         list($crc32Value, $compressedSize, $uncompressedSize) = $this->writeFile($stream, $compressor);
 
@@ -76,31 +82,37 @@ class Zip64Writer implements Writer
             $sizeOfCentralDirectory += strlen($header);
         }
 
-        $this->outputStream->write(Zip64EndOfCentralDirectoryRecord::generate(
-            versionMadeBy: static::$versionMadeBy,
-            versionNeededToExtract: $this->version,
-            numberOfThisDisk: 0,
-            numberOfTheDiskWithTheStartOfTheCentralDirectory: 0,
-            numberOfCentralDirectoryEntriesOnThisDisk: count($this->centralDirectoryHeaders),
-            numberOfCentralDirectoryEntries: count($this->centralDirectoryHeaders),
-            centralDirectorySize: $sizeOfCentralDirectory,
-            centralDirectoryOffsetOnDisk: $centralDirectoryOffset,
-            extensibleDataSector: ''
-        ));
+        if (
+            count($this->centralDirectoryHeaders) >= 0xFFFF
+            || $centralDirectoryOffset > 0xFFFFFFFF
+            || $sizeOfCentralDirectory > 0xFFFFFFFF
+        ) {
+            $this->outputStream->write(Zip64EndOfCentralDirectoryRecord::generate(
+                versionMadeBy: static::$versionMadeBy,
+                versionNeededToExtract: $this->version,
+                numberOfThisDisk: 0,
+                numberOfTheDiskWithTheStartOfTheCentralDirectory: 0,
+                numberOfCentralDirectoryEntriesOnThisDisk: count($this->centralDirectoryHeaders),
+                numberOfCentralDirectoryEntries: count($this->centralDirectoryHeaders),
+                centralDirectorySize: $sizeOfCentralDirectory,
+                centralDirectoryOffsetOnDisk: $centralDirectoryOffset,
+                extensibleDataSector: ''
+            ));
 
-        $this->outputStream->write(EndOfCentralDirectoryLocator::generate(
-            numberOfTheDiskWithZip64CentralDirectoryStart: 0,
-            zip64centralDirectoryStartOffsetOnDisk: $centralDirectoryOffset + $sizeOfCentralDirectory,
-            totalNumberOfDisks: 1
-        ));
+            $this->outputStream->write(EndOfCentralDirectoryLocator::generate(
+                numberOfTheDiskWithZip64CentralDirectoryStart: 0,
+                zip64centralDirectoryStartOffsetOnDisk: $centralDirectoryOffset + $sizeOfCentralDirectory,
+                totalNumberOfDisks: 1
+            ));
+        }
 
         $this->outputStream->write(EndOfCentralDirectoryRecord::generate(
             diskNumber: 0,
             diskStart: 0,
             numberOfCentralDirectoryRecords: min(count($this->centralDirectoryHeaders), 0xFFFF),
             totalCentralDirectoryRecords: min(count($this->centralDirectoryHeaders), 0xFFFF),
-            centralDirectorySize: $sizeOfCentralDirectory,
-            centralDirectoryOffset: $centralDirectoryOffset,
+            centralDirectorySize: min($sizeOfCentralDirectory, 0xFFFFFFFF),
+            centralDirectoryOffset: min($centralDirectoryOffset, 0xFFFFFFFF),
         ));
 
         $this->outputStream->close();
@@ -110,17 +122,27 @@ class Zip64Writer implements Writer
         string $fileName,
         GeneralPurposeBitFlag $generalPurposeBitFlag,
         int $lastModificationUnixTime,
-        int $compressionMethod
+        int $compressionMethod,
+        int $localHeaderOffset
     ): void {
+        $extraField = ExtraField::generate(
+            originalSize: 0,
+            compressedSize: 0,
+            relativeHeaderOffset: $localHeaderOffset > 0xFFFFFFFF
+                ? $localHeaderOffset
+                : null,
+        );
+
         $this->outputStream->write(LocalFileHeader::generate(
             minimumVersion: $this->version,
             generalPurposeBitFlag: $generalPurposeBitFlag->getValue(),
             compressionMethod: $compressionMethod,
             lastModificationUnixTime: $lastModificationUnixTime,
             crc32: 0,
-            compressedSize: 0,
-            uncompressedSize: 0,
-            fileName: $fileName
+            compressedSize: 0xFFFFFFFF,
+            uncompressedSize: 0xFFFFFFFF,
+            fileName: $fileName,
+            extraField: $extraField,
         ));
     }
 
@@ -174,20 +196,13 @@ class Zip64Writer implements Writer
         int $localHeaderOffset,
         int $compressionMethod
     ): string {
-        $extraField = '';
-
-        if (
-            $compressedSize > 0xFFFFFFFF ||
-            $uncompressedSize > 0xFFFFFFFF ||
-            $localHeaderOffset > 0xFFFFFFFF
-        ) {
-            $extraField = ExtraField::generate(
-                $uncompressedSize,
-                $compressedSize,
-                $localHeaderOffset,
-                0
-            );
-        }
+        $extraField = ExtraField::generate(
+            originalSize: $uncompressedSize,
+            compressedSize: $compressedSize,
+            relativeHeaderOffset: $localHeaderOffset > 0xFFFFFFFF
+                ? $localHeaderOffset
+                : null,
+        );
 
         return CentralDirectoryFileHeader::generate(
             versionMadeBy: static::$versionMadeBy,
@@ -202,8 +217,8 @@ class Zip64Writer implements Writer
             diskNumberStart: 0,
             internalFileAttributes: 0,
             externalFileAttributes: 32,
+            fileName: $fileName,
             extraField: $extraField,
-            fileName: $fileName
         );
     }
 }
