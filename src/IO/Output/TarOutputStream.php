@@ -25,10 +25,10 @@ class TarOutputStream implements WriteStream
     public function write(string $s): int
     {
         $paddedData = $s;
-        $paddingSize = 512 - (strlen($s) % 512);
+        $paddingSize = strlen($s) % 512;
 
-        if ($paddingSize < 512) {
-            $paddedData .= str_repeat("\0", $paddingSize);
+        if ($paddingSize > 0) {
+            $paddedData .= str_repeat("\0", 512 - $paddingSize);
         }
 
         $bytesWritten = fwrite($this->stream, $paddedData);
