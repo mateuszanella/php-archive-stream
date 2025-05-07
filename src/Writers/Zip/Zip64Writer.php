@@ -128,7 +128,9 @@ class Zip64Writer implements Writer
         $extraField = $this->buildExtraField(
             originalSize: 0,
             compressedSize: 0,
-            relativeHeaderOffset: $localHeaderOffset
+            relativeHeaderOffset: $localHeaderOffset > 0xFFFFFFFF
+                ? $localHeaderOffset
+                : null,
         );
 
         $this->outputStream->write(LocalFileHeader::generate(
@@ -194,11 +196,25 @@ class Zip64Writer implements Writer
         int $localHeaderOffset,
         int $compressionMethod
     ): string {
-        $extraField = $this->buildExtraField(
-            originalSize: $uncompressedSize,
-            compressedSize: $compressedSize,
-            relativeHeaderOffset: $localHeaderOffset
-        );
+        $extraField = '';
+
+        if (
+            $compressedSize > 0xFFFFFFFF ||
+            $uncompressedSize > 0xFFFFFFFF ||
+            $localHeaderOffset > 0xFFFFFFFF
+        ) {
+            $extraField = $this->buildExtraField(
+                originalSize: $uncompressedSize > 0xFFFFFFFF
+                    ? $uncompressedSize
+                    : null,
+                compressedSize: $compressedSize > 0xFFFFFFFF
+                    ? $compressedSize
+                    : null,
+                relativeHeaderOffset: $localHeaderOffset > 0xFFFFFFFF
+                    ? $localHeaderOffset
+                    : null,
+            );
+        }
 
         return CentralDirectoryFileHeader::generate(
             versionMadeBy: static::$versionMadeBy,
@@ -219,24 +235,14 @@ class Zip64Writer implements Writer
     }
 
     protected function buildExtraField(
-        int $originalSize,
-        int $compressedSize,
-        int $relativeHeaderOffset
+        ?int $originalSize = null,
+        ?int $compressedSize = null,
+        ?int $relativeHeaderOffset = null
     ): string {
-        if (
-            $originalSize < 0xFFFFFFFF &&
-            $compressedSize < 0xFFFFFFFF &&
-            $relativeHeaderOffset < 0xFFFFFFFF
-        ) {
-            return '';
-        }
-
         return ExtraField::generate(
             originalSize: $originalSize,
             compressedSize: $compressedSize,
-            relativeHeaderOffset: $relativeHeaderOffset > 0xFFFFFFFF
-                ? $relativeHeaderOffset
-                : null,
+            relativeHeaderOffset: $relativeHeaderOffset,
             diskStartNumber: 0,
         );
     }
