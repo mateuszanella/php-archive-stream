@@ -15,7 +15,6 @@ use PhpArchiveStream\Writers\Zip\Zip64Writer;
 use PhpArchiveStream\Writers\Zip\ZipWriter;
 
 /**
- * @todo Add alias array for filetypes
  * @todo Add support to use ArrayOutputStream when creating a file
  */
 class ArchiveManager
@@ -26,6 +25,13 @@ class ArchiveManager
      * @var array<string, callable(string, \PhpArchiveStream\Config): Archive>
      */
     protected array $drivers = [];
+
+    /**
+     * The array of registered driver aliases.
+     *
+     * @var array<string, string>
+     */
+    protected array $aliases = [];
 
     /**
      * The configuration instance.
@@ -42,6 +48,7 @@ class ArchiveManager
         $this->config = new Config($config);
 
         $this->registerDefaults();
+        $this->registerAliases();
     }
 
     /**
@@ -53,6 +60,15 @@ class ArchiveManager
     public function register(string $extension, callable $factory): void
     {
         $this->drivers[$extension] = $factory;
+    }
+
+    public function alias(string $alias, string $extension): void
+    {
+        if (! isset($this->drivers[$extension])) {
+            throw new Exception("Unsupported archive type for extension: {$extension}");
+        }
+
+        $this->aliases[$alias] = $extension;
     }
 
     /**
@@ -125,6 +141,11 @@ class ArchiveManager
                 $defaultChunkSize
             );
         });
+    }
+
+    protected function registerAliases(): void
+    {
+        $this->alias('.tgz', '.tar.gz');
     }
 
     /**
