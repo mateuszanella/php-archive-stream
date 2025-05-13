@@ -52,7 +52,7 @@ class ArchiveManager
     }
 
     /**
-     * Register a new driver with the manager.
+     * Register a new driver.
      *
      * @param  string  $extension
      * @param  callable(string, \PhpArchiveStream\Config): Archive  $factory
@@ -62,6 +62,12 @@ class ArchiveManager
         $this->drivers[$extension] = $factory;
     }
 
+    /**
+     * Register a new driver alias.
+     *
+     * @param  string  $alias
+     * @param  string  $extension
+     */
     public function alias(string $alias, string $extension): void
     {
         if (! isset($this->drivers[$extension])) {
