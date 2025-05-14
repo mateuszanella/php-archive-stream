@@ -6,10 +6,7 @@ use Exception;
 use PhpArchiveStream\Archives\Tar;
 use PhpArchiveStream\Archives\Zip;
 use PhpArchiveStream\Contracts\Archive;
-use PhpArchiveStream\IO\Output\OutputStream;
-use PhpArchiveStream\IO\Output\TarGzOutputStream;
-use PhpArchiveStream\IO\Output\TarOutputStream;
-use PhpArchiveStream\Support\WriteStreamFactory;
+use PhpArchiveStream\Support\Destination;
 use PhpArchiveStream\Writers\Tar\TarWriter;
 use PhpArchiveStream\Writers\Zip\Zip64Writer;
 use PhpArchiveStream\Writers\Zip\ZipWriter;
@@ -55,7 +52,7 @@ class ArchiveManager
      * Register a new driver.
      *
      * @param  string  $extension
-     * @param  callable(string, \PhpArchiveStream\Config): Archive  $factory
+     * @param  callable(string|array<string>, \PhpArchiveStream\Config): Archive  $factory
      */
     public function register(string $extension, callable $factory): void
     {
@@ -82,15 +79,15 @@ class ArchiveManager
      *
      * @param  string  $filename
      */
-    public function create(string $filename): Archive
+    public function create(string|array $destination): Archive
     {
-        $extension = $this->extractExtension($filename);
+        $extension = (new Destination)->extractCommonExtension($destination);
 
         if (! isset($this->drivers[$extension])) {
             throw new Exception("Unsupported archive type for extension: {$extension}");
         }
 
-        return ($this->drivers[$extension])($filename, $this->config);
+        return ($this->drivers[$extension])($destination, $this->config);
     }
 
     /**
@@ -106,13 +103,11 @@ class ArchiveManager
      */
     protected function registerDefaults(): void
     {
-        $this->register('.zip', function ($path, $config) {
+        $this->register('.zip', function (string|array $destination, Config $config) {
             $useZip64 = $config->get('zip.enableZip64', true);
             $defaultChunkSize = $config->get('zip.input.chunkSize', 4096);
-            $outputStream = WriteStreamFactory::create(
-                $config->get('zip.output.default', OutputStream::class),
-                $path,
-            );
+
+            $outputStream = (new Destination)->parse($destination, 'zip');
 
             return new Zip(
                 $useZip64
@@ -122,12 +117,10 @@ class ArchiveManager
             );
         });
 
-        $this->register('.tar', function ($path, $config) {
+        $this->register('.tar', function (string|array $destination, Config $config) {
             $defaultChunkSize = $config->get('zip.input.chunkSize', 512);
-            $outputStream = WriteStreamFactory::create(
-                $config->get('tar.output.default', TarOutputStream::class),
-                $path,
-            );
+
+            $outputStream = (new Destination)->parse($destination, 'tar');
 
             return new Tar(
                 new TarWriter($outputStream),
@@ -135,12 +128,10 @@ class ArchiveManager
             );
         });
 
-        $this->register('.tar.gz', function ($path, $config) {
+        $this->register('.tar.gz', function (string|array $destination, Config $config) {
             $defaultChunkSize = $config->get('zip.input.chunkSize', 512);
-            $outputStream = WriteStreamFactory::create(
-                $config->get('targz.output.default', TarGzOutputStream::class),
-                $path,
-            );
+
+            $outputStream = (new Destination)->parse($destination, 'tar.gz');
 
             return new Tar(
                 new TarWriter($outputStream),
@@ -152,17 +143,5 @@ class ArchiveManager
     protected function registerAliases(): void
     {
         $this->alias('.tgz', '.tar.gz');
-    }
-
-    /**
-     * Extract the file extension from the filename.
-     */
-    protected function extractExtension(string $filename): string
-    {
-        if (preg_match('/\.tar\.gz$/i', $filename)) {
-            return '.tar.gz';
-        }
-
-        return strtolower(strrchr($filename, '.'));
     }
 }
