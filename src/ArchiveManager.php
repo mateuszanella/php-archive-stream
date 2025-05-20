@@ -11,9 +11,6 @@ use PhpArchiveStream\Writers\Tar\TarWriter;
 use PhpArchiveStream\Writers\Zip\Zip64Writer;
 use PhpArchiveStream\Writers\Zip\ZipWriter;
 
-/**
- * @todo Add support to use ArrayOutputStream when creating a file
- */
 class ArchiveManager
 {
     /**
@@ -85,10 +82,11 @@ class ArchiveManager
      * Create a new archive instance.
      *
      * @param  string|array<string>  $destination
+     * @param  string|null  $extension
      */
-    public function create(string|array $destination): Archive
+    public function create(string|array $destination, ?string $extension = null): Archive
     {
-        $extension = $this->destination->extractCommonExtension($destination);
+        $extension ??= $this->destination->extractCommonExtension($destination);
 
         if (! isset($this->drivers[$extension])) {
             throw new Exception("Unsupported archive type for extension: {$extension}");
