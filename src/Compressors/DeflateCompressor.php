@@ -2,7 +2,7 @@
 
 namespace PhpArchiveStream\Compressors;
 
-use PhpArchiveStream\Compressors\Compressor;
+use PhpArchiveStream\Contracts\Compressor;
 use RuntimeException;
 
 class DeflateCompressor implements Compressor

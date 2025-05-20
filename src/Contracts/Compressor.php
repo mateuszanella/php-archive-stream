@@ -1,6 +1,6 @@
 <?php
 
-namespace PhpArchiveStream\Compressors;
+namespace PhpArchiveStream\Contracts;
 
 interface Compressor
 {

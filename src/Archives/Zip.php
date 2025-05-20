@@ -13,6 +13,11 @@ class Zip implements Archive
         protected int $defaultChunkSize = 4096,
     ) {}
 
+    public function setDefaultCompressor(string $compressor): void
+    {
+        $this->writer->setDefaultCompressor($compressor);
+    }
+
     public function addFileFromPath(string $fileName, string $filePath): void
     {
         $stream = InputStream::open($filePath, $this->defaultChunkSize);

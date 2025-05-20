@@ -2,7 +2,7 @@
 
 namespace PhpArchiveStream\Compressors;
 
-use PhpArchiveStream\Compressors\Compressor;
+use PhpArchiveStream\Contracts\Compressor;
 
 class StoreCompressor implements Compressor
 {

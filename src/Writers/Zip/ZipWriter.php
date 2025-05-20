@@ -25,14 +25,25 @@ class ZipWriter implements Writer
     protected string $defaultCompressor;
 
     protected int $version = Version::BASE;
+
     protected static int $versionMadeBy = 0x603;
 
     public function __construct(WriteStream $outputStream, array $config = [])
     {
         $this->outputStream = $outputStream;
-        $this->defaultCompressor = DeflateCompressor::class;
 
-        if ($this->defaultCompressor === StoreCompressor::class) {
+        $this->setDefaultCompressor(DeflateCompressor::class);
+    }
+
+    public function setDefaultCompressor(string $compressor): void
+    {
+        if (! is_subclass_of($compressor, Compressor::class)) {
+            throw new InvalidArgumentException('Invalid compressor class: ' . $compressor);
+        }
+
+        $this->defaultCompressor = $compressor;
+
+        if ($this->defaultCompressor === DeflateCompressor::class) {
             $this->version = Version::DEFLATE;
         }
     }
