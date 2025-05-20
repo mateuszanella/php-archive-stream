@@ -36,6 +36,11 @@ class ArchiveManager
     protected Config $config;
 
     /**
+     * The destination parser instance.
+     */
+    protected Destination $destination;
+
+    /**
      * Create a new ArchiveManager instance.
      *
      * @param array<string, mixed> $config
@@ -43,6 +48,8 @@ class ArchiveManager
     public function __construct(array $config = [])
     {
         $this->config = new Config($config);
+
+        $this->destination = new Destination;
 
         $this->registerDefaults();
         $this->registerAliases();
@@ -77,11 +84,11 @@ class ArchiveManager
     /**
      * Create a new archive instance.
      *
-     * @param  string  $filename
+     * @param  string|array<string>  $destination
      */
     public function create(string|array $destination): Archive
     {
-        $extension = (new Destination)->extractCommonExtension($destination);
+        $extension = $this->destination->extractCommonExtension($destination);
 
         if (! isset($this->drivers[$extension])) {
             throw new Exception("Unsupported archive type for extension: {$extension}");
@@ -103,11 +110,11 @@ class ArchiveManager
      */
     protected function registerDefaults(): void
     {
-        $this->register('.zip', function (string|array $destination, Config $config) {
+        $this->register('zip', function (string|array $destination, Config $config) {
             $useZip64 = $config->get('zip.enableZip64', true);
             $defaultChunkSize = $config->get('zip.input.chunkSize', 4096);
 
-            $outputStream = (new Destination)->parse($destination, 'zip');
+            $outputStream = $this->destination->parse($destination, 'zip');
 
             return new Zip(
                 $useZip64
@@ -117,10 +124,10 @@ class ArchiveManager
             );
         });
 
-        $this->register('.tar', function (string|array $destination, Config $config) {
+        $this->register('tar', function (string|array $destination, Config $config) {
             $defaultChunkSize = $config->get('zip.input.chunkSize', 512);
 
-            $outputStream = (new Destination)->parse($destination, 'tar');
+            $outputStream = $this->destination->parse($destination, 'tar');
 
             return new Tar(
                 new TarWriter($outputStream),
@@ -128,10 +135,10 @@ class ArchiveManager
             );
         });
 
-        $this->register('.tar.gz', function (string|array $destination, Config $config) {
+        $this->register('tar.gz', function (string|array $destination, Config $config) {
             $defaultChunkSize = $config->get('zip.input.chunkSize', 512);
 
-            $outputStream = (new Destination)->parse($destination, 'tar.gz');
+            $outputStream = $this->destination->parse($destination, 'tar.gz');
 
             return new Tar(
                 new TarWriter($outputStream),
@@ -140,8 +147,11 @@ class ArchiveManager
         });
     }
 
+    /**
+     * Register the default driver aliases.
+     */
     protected function registerAliases(): void
     {
-        $this->alias('.tgz', '.tar.gz');
+        $this->alias('tgz', 'tar.gz');
     }
 }
