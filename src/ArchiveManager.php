@@ -88,6 +88,10 @@ class ArchiveManager
     {
         $extension ??= $this->destination->extractCommonExtension($destination);
 
+        if (isset($this->aliases[$extension])) {
+            $extension = $this->aliases[$extension];
+        }
+
         if (! isset($this->drivers[$extension])) {
             throw new Exception("Unsupported archive type for extension: {$extension}");
         }
