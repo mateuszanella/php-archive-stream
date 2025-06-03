@@ -17,7 +17,11 @@ class TarWriter implements Writer
 
     public function addFile(ReadStream $stream, string $fileName): void
     {
-        $this->writeFileDataBlock($stream, $fileName);
+        $sourceFileSize = $stream->size();
+
+        $this->writeHeaderBlock($fileName, $sourceFileSize);
+
+        $this->writeFileDataBlock($stream);
 
         $stream->close();
     }
@@ -32,12 +36,8 @@ class TarWriter implements Writer
         }
     }
 
-    protected function writeFileDataBlock(ReadStream $inputStream, string $outputFilePath): void
+    protected function writeFileDataBlock(ReadStream $inputStream): void
     {
-        $sourceFileSize = $inputStream->size();
-
-        $this->writeHeaderBlock($outputFilePath, $sourceFileSize);
-
         foreach ($inputStream->read() as $chunk) {
             $this->write($chunk);
         }
