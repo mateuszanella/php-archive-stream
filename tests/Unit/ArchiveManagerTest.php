@@ -9,6 +9,13 @@ use PHPUnit\Framework\TestCase;
 
 class ArchiveManagerTest extends TestCase
 {
+    protected function tearDown(): void
+    {
+        if (file_exists('test.tgz')) {
+            unlink('test.tgz');
+        }
+    }
+
     public function testArchiveManagerInitialization(): void
     {
         $manager = new ArchiveManager;
@@ -29,7 +36,5 @@ class ArchiveManagerTest extends TestCase
         $this->assertFileExists('test.tgz');
 
         $archive->finish();
-
-        @ unlink('test.tgz');
     }
 }
