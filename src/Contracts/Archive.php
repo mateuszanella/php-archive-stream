@@ -4,6 +4,8 @@ namespace PhpArchiveStream\Contracts;
 
 interface Archive
 {
+    public function setDefaultReadChunkSize(int $chunkSize): void;
+
     public function addFileFromPath(string $fileName, string $filePath): void;
 
     public function addFileFromStream(string $fileName, $stream): void;
