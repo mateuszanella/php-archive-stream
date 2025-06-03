@@ -11,7 +11,7 @@ use PhpArchiveStream\IO\Output\OutputStream;
 use PhpArchiveStream\IO\Output\TarGzOutputStream;
 use PhpArchiveStream\IO\Output\TarOutputStream;
 
-class Destination
+class DestinationManager
 {
     use ParsesPaths,
         CreatesStreams;

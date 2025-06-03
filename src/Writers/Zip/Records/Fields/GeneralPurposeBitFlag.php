@@ -2,7 +2,7 @@
 
 namespace PhpArchiveStream\Writers\Zip\Records\Fields;
 
-use PhpArchiveStream\Compressors\Compressor;
+use PhpArchiveStream\Contracts\Compressor;
 
 /**
  * A class representing the general purpose bit flag of a ZIP file.

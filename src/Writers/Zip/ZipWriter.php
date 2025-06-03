@@ -2,10 +2,10 @@
 
 namespace PhpArchiveStream\Writers\Zip;
 
+use InvalidArgumentException;
 use PhpArchiveStream\Hashers\CRC32;
-use PhpArchiveStream\Compressors\Compressor;
 use PhpArchiveStream\Compressors\DeflateCompressor;
-use PhpArchiveStream\Compressors\StoreCompressor;
+use PhpArchiveStream\Contracts\Compressor;
 use PhpArchiveStream\Contracts\IO\ReadStream;
 use PhpArchiveStream\Contracts\IO\WriteStream;
 use PhpArchiveStream\Contracts\Writers\Writer;

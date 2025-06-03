@@ -6,7 +6,7 @@ use Exception;
 use PhpArchiveStream\Archives\Tar;
 use PhpArchiveStream\Archives\Zip;
 use PhpArchiveStream\Contracts\Archive;
-use PhpArchiveStream\Support\Destination;
+use PhpArchiveStream\Support\DestinationManager;
 use PhpArchiveStream\Writers\Tar\TarWriter;
 use PhpArchiveStream\Writers\Zip\Zip64Writer;
 use PhpArchiveStream\Writers\Zip\ZipWriter;
@@ -35,7 +35,7 @@ class ArchiveManager
     /**
      * The destination parser instance.
      */
-    protected Destination $destination;
+    protected DestinationManager $destination;
 
     /**
      * Create a new ArchiveManager instance.
@@ -46,7 +46,7 @@ class ArchiveManager
     {
         $this->config = new Config($config);
 
-        $this->destination = new Destination;
+        $this->destination = new DestinationManager;
 
         $this->registerDefaults();
         $this->registerAliases();
