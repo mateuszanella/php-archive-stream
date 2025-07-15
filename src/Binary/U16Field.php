@@ -10,6 +10,11 @@ class U16Field extends Field
 
     public readonly int|string $value;
 
+    /**
+     * Constructor for the U16Field class.
+     *
+     * @param  int  $value The value of the field, must be between 0 and 0xFFFF.
+     */
     public function __construct(int $value)
     {
         static::validate($value);

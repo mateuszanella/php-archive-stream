@@ -4,6 +4,12 @@ namespace PhpArchiveStream\Binary;
 
 class Packer
 {
+    /**
+     * Packs the given fields into a binary string.
+     *
+     * @param  Field[]  ...$fields The fields to pack.
+     * @return string The packed binary string.
+     */
     public static function pack(... $fields): string
     {
         $format = '';

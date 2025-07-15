@@ -6,12 +6,24 @@ use InvalidArgumentException;
 
 trait ParsesPaths
 {
+    /**
+     * List of wrappers that should be ignored when extracting the extension.
+     *
+     * @var array
+     */
     protected static array $ignoredWrappers = [
         'php',
         'zlib',
         'rar',
     ];
 
+    /**
+     * Extracts the extension from a given path.
+     *
+     * @param  string  $path The path to extract the extension from.
+     * @return string|null The extracted extension or null if it cannot be determined.
+     * @throws InvalidArgumentException If the extension cannot be determined.
+     */
     public function extractExtension(string $path): ?string
     {
         $parsedPath = parse_url($path);
