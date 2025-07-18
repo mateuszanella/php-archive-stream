@@ -57,6 +57,9 @@ class DestinationManager
     {
         $destination = is_array($destination) ? $destination : [$destination];
 
+        /**
+         * @todo Refactor this to use a factory method or similar pattern
+         */
         switch ($extension) {
             case 'zip':
                 if (count($destination) === 1) {
