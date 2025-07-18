@@ -50,6 +50,9 @@ class DestinationManager
         return reset($uniqueExtensions);
     }
 
+    /**
+     * Parse the destination and return the appropriate WriteStream instance.
+     */
     public function parse(string|array $destination, string $extension): WriteStream
     {
         $destination = is_array($destination) ? $destination : [$destination];
