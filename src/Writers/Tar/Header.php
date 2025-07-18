@@ -6,6 +6,9 @@ use PhpArchiveStream\Utils;
 
 class Header
 {
+    /**
+     * Generate a TAR header for a file.
+     */
     public static function generate(string $filename, string $prefix, int $filesize): string
     {
         $_filename         = str_pad($filename, 100, "\0");                                 // File name (up to 100 characters, null-padded)

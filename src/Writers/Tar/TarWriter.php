@@ -10,11 +10,17 @@ class TarWriter implements Writer
 {
     protected ?WriteStream $outputStream;
 
+    /**
+     * Create a new TarWriter instance.
+     */
     public function __construct(WriteStream $outputStream, array $config = [])
     {
         $this->outputStream = $outputStream;
     }
 
+    /**
+     * Add a file to the TAR archive.
+     */
     public function addFile(ReadStream $stream, string $fileName): void
     {
         $sourceFileSize = $stream->size();
@@ -26,6 +32,9 @@ class TarWriter implements Writer
         $stream->close();
     }
 
+    /**
+     * Finish writing the TAR archive.
+     */
     public function finish(): void
     {
         $this->writeTrailerBlock();
@@ -36,13 +45,19 @@ class TarWriter implements Writer
         }
     }
 
+    /**
+     * Write the file data block to the TAR archive.
+     */
     protected function writeFileDataBlock(ReadStream $inputStream): void
     {
         foreach ($inputStream->read() as $chunk) {
-            $this->write($chunk);
+            $this->outputStream->write($chunk);
         }
     }
 
+    /**
+     * Write the header block for a file in the TAR archive.
+     */
     protected function writeHeaderBlock(string $outputFilePath, int $sourceFileSize): void
     {
         $baseFileName = basename($outputFilePath);
@@ -54,16 +69,14 @@ class TarWriter implements Writer
             $sourceFileSize
         );
 
-        $this->write($header);
+        $this->outputStream->write($header);
     }
 
+    /**
+     * Write the trailer block to the TAR archive.
+     */
     protected function writeTrailerBlock(): void
     {
-        $this->write(str_repeat("\0", 1024));
-    }
-
-    private function write(string $data): void
-    {
-        $this->outputStream->write($data);
+        $this->outputStream->write(str_repeat("\0", 1024));
     }
 }
