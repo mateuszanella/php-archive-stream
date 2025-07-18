@@ -28,15 +28,27 @@ use PhpArchiveStream\Contracts\Compressor;
  */
 class GeneralPurposeBitFlag
 {
+    /**
+     * Bit flag for zero header.
+     */
     public const ZERO_HEADER = 0b0000000000001000;
 
+    /**
+     * The value of the general purpose bit flag.
+     */
     protected int $value = 0b0000000000000000;
 
+    /**
+     * Create a new instance of the GeneralPurposeBitFlag.
+     */
     public static function create(): static
     {
         return new static;
     }
 
+    /**
+     * Set the zero header flag in the general purpose bit flag.
+     */
     public function setZeroHeader(): static
     {
         $this->value |= static::ZERO_HEADER;
@@ -44,6 +56,9 @@ class GeneralPurposeBitFlag
         return $this;
     }
 
+    /**
+     * Set the compression method in the general purpose bit flag.
+     */
     public function setCompressionMethod(Compressor $compressor): static
     {
         $this->value |= $compressor::zipBitFlag();
@@ -51,6 +66,9 @@ class GeneralPurposeBitFlag
         return $this;
     }
 
+    /**
+     * Get the value of the general purpose bit flag.
+     */
     public function getValue(): int
     {
         return $this->value;

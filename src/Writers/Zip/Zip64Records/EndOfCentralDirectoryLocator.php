@@ -8,8 +8,14 @@ use PhpArchiveStream\Binary\U64Field;
 
 class EndOfCentralDirectoryLocator
 {
+    /**
+     * Signature for the end of central directory locator record.
+     */
     private const SIGNATURE = 0x07064b50;
 
+    /**
+     * Generate the binary representation of the Zip64 end of central directory locator record.
+     */
     public static function generate(
         int $numberOfTheDiskWithZip64CentralDirectoryStart,
         int $zip64centralDirectoryStartOffsetOnDisk,

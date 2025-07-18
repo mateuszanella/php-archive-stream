@@ -9,8 +9,14 @@ use PhpArchiveStream\Binary\U32Field;
 
 class CentralDirectoryFileHeader
 {
+    /**
+     * Signature for the central directory file header.
+     */
     public const SIGNATURE = 0x02014b50;
 
+    /**
+     * Generate the binary representation of the central directory file header.
+     */
     public static function generate(
         int     $versionMadeBy,
         int     $minimumVersion,

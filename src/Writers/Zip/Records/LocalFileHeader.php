@@ -9,8 +9,14 @@ use PhpArchiveStream\Binary\U32Field;
 
 class LocalFileHeader
 {
+    /**
+     * Signature for the local file header.
+     */
     public const SIGNATURE = 0x04034b50;
 
+    /**
+     * Generate the binary representation of the local file header.
+     */
     public static function generate(
         int $minimumVersion,
         int $generalPurposeBitFlag,

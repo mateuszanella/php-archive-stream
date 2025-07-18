@@ -7,8 +7,14 @@ use PhpArchiveStream\Binary\U32Field;
 
 class DataDescriptor
 {
+    /**
+     * Signature for the data descriptor record.
+     */
     private const SIGNATURE = 0x08074b50;
 
+    /**
+     * Generate the binary representation of the data descriptor record.
+     */
     public static function generate(
         int $crc32,
         int $compressedSize,

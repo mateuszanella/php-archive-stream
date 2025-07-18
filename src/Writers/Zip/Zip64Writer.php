@@ -21,16 +21,37 @@ use PhpArchiveStream\Writers\Zip\Zip64Records\ExtraField;
 
 class Zip64Writer implements Writer
 {
+    /**
+     * The output stream where the ZIP archive will be written.
+     */
     protected ?WriteStream $outputStream;
 
+    /**
+     * The version of the ZIP file.
+     */
     protected int $version = Version::ZIP64;
 
+    /**
+     * The version made by field for the ZIP file.
+     */
     protected static int $versionMadeBy = 0x603;
 
+    /**
+     * The central directory headers collected during the writing process.
+     */
     protected array $centralDirectoryHeaders = [];
 
+    /**
+     * The default compressor class to use for compression.
+     */
     protected string $defaultCompressor;
 
+    /**
+     * Create a new Zip64Writer instance.
+     *
+     * @param WriteStream $outputStream The output stream where the ZIP archive will be written.
+     * @param array $config Configuration options for the writer, unused in this implementation.
+     */
     public function __construct(WriteStream $outputPath, array $config = [])
     {
         $this->outputStream = $outputPath;
@@ -38,6 +59,12 @@ class Zip64Writer implements Writer
         $this->setDefaultCompressor(DeflateCompressor::class);
     }
 
+    /**
+     * Set the default compressor class to use for compression.
+     *
+     * @param string $compressor The fully qualified class name of the compressor.
+     * @throws InvalidArgumentException If the compressor class is not valid.
+     */
     public function setDefaultCompressor(string $compressor): void
     {
         if (! is_subclass_of($compressor, Compressor::class)) {
@@ -47,6 +74,9 @@ class Zip64Writer implements Writer
         $this->defaultCompressor = $compressor;
     }
 
+    /**
+     * Add a file to the ZIP archive.
+     */
     public function addFile(ReadStream $stream, string $fileName): void
     {
         $compressor = new $this->defaultCompressor;
@@ -67,7 +97,7 @@ class Zip64Writer implements Writer
             $localHeaderOffset
         );
 
-        list($crc32Value, $compressedSize, $uncompressedSize) = $this->writeFile($stream, $compressor);
+        [$crc32Value, $compressedSize, $uncompressedSize] = $this->writeFile($stream, $compressor);
 
         $this->writeDataDescriptor($crc32Value, $compressedSize, $uncompressedSize);
 
@@ -83,6 +113,9 @@ class Zip64Writer implements Writer
         );
     }
 
+    /**
+     * Finish writing the ZIP archive.
+     */
     public function finish(): void
     {
         $centralDirectoryOffset = $this->outputStream->getBytesWritten();
@@ -130,6 +163,9 @@ class Zip64Writer implements Writer
         $this->outputStream->close();
     }
 
+    /**
+     * Write the local file header for a file in the ZIP archive.
+     */
     protected function writeLocalFileHeader(
         string $fileName,
         GeneralPurposeBitFlag $generalPurposeBitFlag,
@@ -158,6 +194,11 @@ class Zip64Writer implements Writer
         ));
     }
 
+    /**
+     * Write the file data to the ZIP archive and return the CRC32, compressed size, and uncompressed size.
+     *
+     * @return array<int, int, int> An array containing the CRC32 value, compressed size, and uncompressed size.
+     */
     protected function writeFile(ReadStream $stream, Compressor $compressor): array
     {
         $crc32 = CRC32::init();
@@ -184,6 +225,9 @@ class Zip64Writer implements Writer
         return [$crc32Value, $compressedSize, $uncompressedSize];
     }
 
+    /**
+     * Write the data descriptor for the file in the ZIP archive.
+     */
     protected function writeDataDescriptor(
         int $crc32Value,
         int $compressedSize,
@@ -198,6 +242,9 @@ class Zip64Writer implements Writer
         $this->outputStream->write($dataDescriptor);
     }
 
+    /**
+     * Generate the central directory file header for a file in the ZIP archive.
+     */
     protected function generateCentralDirectoryFileHeader(
         string $fileName,
         GeneralPurposeBitFlag $generalPurposeBitFlag,
@@ -246,6 +293,9 @@ class Zip64Writer implements Writer
         );
     }
 
+    /**
+     * Build the extra field for the ZIP64 records.
+     */
     protected function buildExtraField(
         ?int $originalSize = null,
         ?int $compressedSize = null,

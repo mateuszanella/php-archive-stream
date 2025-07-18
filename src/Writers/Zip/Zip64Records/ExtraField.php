@@ -9,8 +9,14 @@ use PhpArchiveStream\Binary\U64Field;
 
 class ExtraField
 {
+    /**
+     * Signature for the Zip64 extra field.
+     */
     public const SIGNATURE = 0x0001;
 
+    /**
+     * Generate the binary representation of the Zip64 extra field.
+     */
     public static function generate(
         ?int $originalSize = null,
         ?int $compressedSize = null,

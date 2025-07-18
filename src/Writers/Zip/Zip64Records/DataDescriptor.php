@@ -8,8 +8,14 @@ use PhpArchiveStream\Binary\U64Field;
 
 class DataDescriptor
 {
+    /**
+     * Signature for the data descriptor record.
+     */
     private const SIGNATURE = 0x08074b50;
 
+    /**
+     * Generate the binary representation of the Zip64 data descriptor record.
+     */
     public static function generate(
         int $crc32,
         int $compressedSize,

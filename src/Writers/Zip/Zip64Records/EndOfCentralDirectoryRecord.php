@@ -9,8 +9,14 @@ use PhpArchiveStream\Binary\U64Field;
 
 class EndOfCentralDirectoryRecord
 {
+    /**
+     * Signature for the end of central directory record.
+     */
     public const SIGNATURE = 0x06064b50;
 
+    /**
+     * Generate the binary representation of the Zip64 end of central directory record.
+     */
     public static function generate(
         int    $versionMadeBy,
         int    $versionNeededToExtract,
@@ -22,9 +28,7 @@ class EndOfCentralDirectoryRecord
         int    $centralDirectoryOffsetOnDisk,
         string $extensibleDataSector
     ): string {
-        /**
-         * Size = (SizeOfFixedFields - 12) + SizeOfVariableData.
-         */
+        // Size = (SizeOfFixedFields - 12) + SizeOfVariableData.
         $sizeOfEndOfCentralDirectoryRecord = 44 + strlen($extensibleDataSector);
 
         return Packer::pack(

@@ -8,8 +8,14 @@ use PhpArchiveStream\Binary\U32Field;
 
 class EndOfCentralDirectoryRecord
 {
+    /**
+     * Signature for the end of central directory record.
+     */
     public const SIGNATURE = 0x06054b50;
 
+    /**
+     * Generate the binary representation of the end of central directory record.
+     */
     public static function generate(
         int     $diskNumber,
         int     $diskStart,

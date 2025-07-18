@@ -8,6 +8,9 @@ use PhpArchiveStream\Contracts\Writers\Writer;
 
 class TarWriter implements Writer
 {
+    /**
+     * The output stream where the TAR archive will be written.
+     */
     protected ?WriteStream $outputStream;
 
     /**
