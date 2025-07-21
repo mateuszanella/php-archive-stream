@@ -3,7 +3,7 @@
 namespace Tests\Feature\Archives;
 
 use PhpArchiveStream\Archives\Tar;
-use PhpArchiveStream\IO\Output\TarOutputStream;
+use PhpArchiveStream\IO\Output\OutputStream;
 use PhpArchiveStream\Writers\Tar\TarWriter;
 use PHPUnit\Framework\TestCase;
 
@@ -52,7 +52,7 @@ class TarTest extends TestCase
     public function testAddFileFromPath()
     {
         $stream = fopen($this->outputPath, 'w');
-        $outputStream = new TarOutputStream($stream);
+        $outputStream = new OutputStream($stream);
         $tarWriter = new TarWriter($outputStream);
         $tar = new Tar($tarWriter);
 
@@ -65,7 +65,7 @@ class TarTest extends TestCase
     public function testAddFileFromStream()
     {
         $stream = fopen($this->outputPath, 'w');
-        $outputStream = new TarOutputStream($stream);
+        $outputStream = new OutputStream($stream);
         $tarWriter = new TarWriter($outputStream);
         $tar = new Tar($tarWriter);
 
@@ -79,7 +79,7 @@ class TarTest extends TestCase
     public function testAddFileFromContentString()
     {
         $stream = fopen($this->outputPath, 'w');
-        $outputStream = new TarOutputStream($stream);
+        $outputStream = new OutputStream($stream);
         $tarWriter = new TarWriter($outputStream);
         $tar = new Tar($tarWriter);
 
@@ -92,7 +92,7 @@ class TarTest extends TestCase
     public function testFinish()
     {
         $stream = fopen($this->outputPath, 'w');
-        $outputStream = new TarOutputStream($stream);
+        $outputStream = new OutputStream($stream);
         $tarWriter = new TarWriter($outputStream);
         $tar = new Tar($tarWriter);
 

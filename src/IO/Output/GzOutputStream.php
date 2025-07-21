@@ -3,10 +3,9 @@
 namespace PhpArchiveStream\IO\Output;
 
 use PhpArchiveStream\Contracts\IO\WriteStream;
-use PhpArchiveStream\Exceptions\CouldNotOpenStreamException;
 use PhpArchiveStream\Exceptions\CouldNotWriteToStreamException;
 
-class TarGzOutputStream implements WriteStream
+class GzOutputStream implements WriteStream
 {
     protected $stream;
 
@@ -24,14 +23,7 @@ class TarGzOutputStream implements WriteStream
 
     public function write(string $s): int
     {
-        $paddedData = $s;
-        $paddingSize = 512 - (strlen($s) % 512);
-
-        if ($paddingSize < 512) {
-            $paddedData .= str_repeat("\0", $paddingSize);
-        }
-
-        $bytesWritten = gzwrite($this->stream, $paddedData);
+        $bytesWritten = gzwrite($this->stream, $s);
         if ($bytesWritten === false) {
             throw new CouldNotWriteToStreamException;
         }

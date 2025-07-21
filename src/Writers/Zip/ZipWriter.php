@@ -133,6 +133,7 @@ class ZipWriter implements Writer
 
         $this->outputStream->write($endOfCentralDirectory);
         $this->outputStream->close();
+        $this->outputStream = null;
     }
 
     /**

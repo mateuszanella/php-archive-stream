@@ -57,6 +57,8 @@ class InputStream implements ReadStream
     public function close(): void
     {
         fclose($this->stream);
+
+        unset($this->stream);
     }
 
     public function read(): Generator
@@ -77,5 +79,12 @@ class InputStream implements ReadStream
         $stat = fstat($this->stream);
 
         return $stat['size'];
+    }
+
+    public function __destruct()
+    {
+        if (is_resource($this->stream)) {
+            $this->close();
+        }
     }
 }

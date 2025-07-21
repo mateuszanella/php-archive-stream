@@ -3,7 +3,7 @@
 namespace Tests\Feature\Archives;
 
 use PhpArchiveStream\Archives\Tar;
-use PhpArchiveStream\IO\Output\TarGzOutputStream;
+use PhpArchiveStream\IO\Output\GzOutputStream;
 use PhpArchiveStream\Writers\Tar\TarWriter;
 use PHPUnit\Framework\TestCase;
 
@@ -52,7 +52,7 @@ class TarGzTest extends TestCase
     public function testAddFileFromPath()
     {
         $stream = gzopen($this->outputPath, 'w');
-        $outputStream = new TarGzOutputStream($stream);
+        $outputStream = new GzOutputStream($stream);
         $tarWriter = new TarWriter($outputStream);
         $tar = new Tar($tarWriter);
 
@@ -65,7 +65,7 @@ class TarGzTest extends TestCase
     public function testAddFileFromStream()
     {
         $stream = gzopen($this->outputPath, 'w');
-        $outputStream = new TarGzOutputStream($stream);
+        $outputStream = new GzOutputStream($stream);
         $tarWriter = new TarWriter($outputStream);
         $tar = new Tar($tarWriter);
 
@@ -79,7 +79,7 @@ class TarGzTest extends TestCase
     public function testAddFileFromContentString()
     {
         $stream = gzopen($this->outputPath, 'w');
-        $outputStream = new TarGzOutputStream($stream);
+        $outputStream = new GzOutputStream($stream);
         $tarWriter = new TarWriter($outputStream);
         $tar = new Tar($tarWriter);
 
@@ -92,7 +92,7 @@ class TarGzTest extends TestCase
     public function testFinish()
     {
         $stream = gzopen($this->outputPath, 'w');
-        $outputStream = new TarGzOutputStream($stream);
+        $outputStream = new GzOutputStream($stream);
         $tarWriter = new TarWriter($outputStream);
         $tar = new Tar($tarWriter);
 

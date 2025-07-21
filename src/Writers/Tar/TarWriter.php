@@ -31,8 +31,6 @@ class TarWriter implements Writer
         $this->writeHeaderBlock($fileName, $sourceFileSize);
 
         $this->writeFileDataBlock($stream);
-
-        $stream->close();
     }
 
     /**
@@ -42,10 +40,8 @@ class TarWriter implements Writer
     {
         $this->writeTrailerBlock();
 
-        if ($this->outputStream) {
-            $this->outputStream->close();
-            $this->outputStream = null;
-        }
+        $this->outputStream->close();
+        $this->outputStream = null;
     }
 
     /**
@@ -53,8 +49,16 @@ class TarWriter implements Writer
      */
     protected function writeFileDataBlock(ReadStream $inputStream): void
     {
+        $bytesWritten = 0;
+
         foreach ($inputStream->read() as $chunk) {
-            $this->outputStream->write($chunk);
+            $bytesWritten += $this->outputStream->write($chunk);
+        }
+
+        if ($bytesWritten % 512 !== 0) {
+            $paddingSize = 512 - ($bytesWritten % 512);
+
+            $this->outputStream->write(str_repeat("\0", $paddingSize));
         }
     }
 

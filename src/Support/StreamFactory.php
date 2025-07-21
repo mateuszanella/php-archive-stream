@@ -4,9 +4,8 @@ namespace PhpArchiveStream\Support;
 use InvalidArgumentException;
 use PhpArchiveStream\Contracts\IO\WriteStream;
 use PhpArchiveStream\Contracts\StreamFactory as StreamFactoryContract;
+use PhpArchiveStream\IO\Output\GzOutputStream;
 use PhpArchiveStream\IO\Output\OutputStream;
-use PhpArchiveStream\IO\Output\TarOutputStream;
-use PhpArchiveStream\IO\Output\TarGzOutputStream;
 
 class StreamFactory implements StreamFactoryContract
 {
@@ -22,8 +21,8 @@ class StreamFactory implements StreamFactoryContract
     {
         return match ($extension) {
             'zip'    => new OutputStream($stream),
-            'tar'    => new TarOutputStream($stream),
-            'tar.gz' => new TarGzOutputStream($stream),
+            'tar'    => new OutputStream($stream),
+            'tar.gz' => new GzOutputStream($stream),
             default  => throw new InvalidArgumentException("Unsupported destination type: {$extension}"),
         };
     }

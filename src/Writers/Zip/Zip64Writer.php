@@ -161,6 +161,7 @@ class Zip64Writer implements Writer
         ));
 
         $this->outputStream->close();
+        $this->outputStream = null;
     }
 
     /**
