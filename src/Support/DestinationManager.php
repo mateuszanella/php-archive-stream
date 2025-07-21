@@ -8,6 +8,7 @@ use PhpArchiveStream\Concerns\ParsesPaths;
 use PhpArchiveStream\Contracts\IO\WriteStream;
 use PhpArchiveStream\Contracts\StreamFactory as StreamFactoryContract;
 use PhpArchiveStream\IO\Output\ArrayOutputStream;
+use PhpArchiveStream\IO\Output\HttpHeaderWriteStream;
 
 class DestinationManager
 {
@@ -16,6 +17,8 @@ class DestinationManager
 
     /**
      * The class used to create streams.
+     *
+     * @todo should not be static.
      */
     public static string $streamFactoryClass = StreamFactory::class;
 
@@ -64,24 +67,38 @@ class DestinationManager
 
     /**
      * Create a stream for the given destination and extension.
+     *
+     * @param  string|array<string>  $destination
+     * @param  string  $extension
+     * @param  array<string, string>  $headers
+     *
+     * @return WriteStream
      */
-    public function getStream(string|array $destination, string $extension): WriteStream
+    public function getStream(string|array $destination, string $extension, array $headers = []): WriteStream
     {
-        $destination = is_array($destination) ? $destination : [$destination];
-
-        if (count($destination) === 1) {
-            $stream = $this->createStream(reset($destination));
-
-            return static::$streamFactoryClass::make($extension, $stream);
+        if (is_string($destination)) {
+            $destination = [$destination];
         }
 
         $outputStreams = [];
         foreach ($destination as $dest) {
             $stream = $this->createStream($dest);
 
-            $outputStreams[] = static::$streamFactoryClass::make($extension, $stream);
+            $writeStream = static::$streamFactoryClass::make($extension, $stream);
+
+            if ($this->shouldSendHTTPHeaders($dest)) {
+                $writeStream = new HttpHeaderWriteStream($writeStream, $headers);
+            }
+
+            $outputStreams[] = $writeStream;
         }
 
         return new ArrayOutputStream($outputStreams);
+    }
+
+    public function shouldSendHTTPHeaders(string $destination): bool
+    {
+        return $destination === 'php://output'
+            || $destination === 'php://stdout';
     }
 }

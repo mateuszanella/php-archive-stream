@@ -3,7 +3,6 @@
 namespace PhpArchiveStream\IO\Output;
 
 use PhpArchiveStream\Contracts\IO\WriteStream;
-use PhpArchiveStream\Exceptions\CouldNotOpenStreamException;
 use PhpArchiveStream\Exceptions\CouldNotWriteToStreamException;
 
 class OutputStream implements WriteStream

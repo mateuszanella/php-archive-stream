@@ -116,7 +116,9 @@ class ArchiveManager
             $useZip64 = $config->get('zip.enableZip64', true);
             $defaultChunkSize = $config->get('zip.input.chunkSize', 1048576);
 
-            $outputStream = $this->destination->getStream($destination, 'zip');
+            $headers = $config->get('zip.headers', []);
+
+            $outputStream = $this->destination->getStream($destination, 'zip', $headers);
 
             return new Zip(
                 $useZip64
@@ -129,7 +131,9 @@ class ArchiveManager
         $this->register('tar', function (string|array $destination, Config $config) {
             $defaultChunkSize = $config->get('tar.input.chunkSize', 1048576);
 
-            $outputStream = $this->destination->getStream($destination, 'tar');
+            $headers = $config->get('tar.headers', []);
+
+            $outputStream = $this->destination->getStream($destination, 'tar', $headers);
 
             return new Tar(
                 new TarWriter($outputStream),
@@ -140,7 +144,9 @@ class ArchiveManager
         $this->register('tar.gz', function (string|array $destination, Config $config) {
             $defaultChunkSize = $config->get('targz.input.chunkSize', 1048576);
 
-            $outputStream = $this->destination->getStream($destination, 'tar.gz');
+            $headers = $config->get('targz.headers', []);
+
+            $outputStream = $this->destination->getStream($destination, 'tar.gz', $headers);
 
             return new Tar(
                 new TarWriter($outputStream),
