@@ -6,15 +6,27 @@ use InvalidArgumentException;
 use PhpArchiveStream\Concerns\CreatesStreams;
 use PhpArchiveStream\Concerns\ParsesPaths;
 use PhpArchiveStream\Contracts\IO\WriteStream;
+use PhpArchiveStream\Contracts\StreamFactory as StreamFactoryContract;
 use PhpArchiveStream\IO\Output\ArrayOutputStream;
-use PhpArchiveStream\IO\Output\OutputStream;
-use PhpArchiveStream\IO\Output\TarGzOutputStream;
-use PhpArchiveStream\IO\Output\TarOutputStream;
 
 class DestinationManager
 {
     use ParsesPaths,
         CreatesStreams;
+
+    /**
+     * The class used to create streams.
+     */
+    public static string $streamFactoryClass = StreamFactory::class;
+
+    public static function useFactory(string $class): void
+    {
+        if (! is_subclass_of($class, StreamFactoryContract::class)) {
+            throw new InvalidArgumentException("The class must implement " . StreamFactoryContract::class);
+        }
+
+        static::$streamFactoryClass = $class;
+    }
 
     /**
      * Extract a common extension from an array of possible destinations.
@@ -38,79 +50,38 @@ class DestinationManager
         }
 
         if (empty($perceivedExtensions)) {
-            throw new InvalidArgumentException("Could not determine the extension for destinations: ".implode(', ', $destinations));
+            throw new InvalidArgumentException("Could not determine the extension for destinations: " . implode(', ', $destinations));
         }
 
         $uniqueExtensions = array_unique($perceivedExtensions);
 
         if (count($uniqueExtensions) > 1) {
-            throw new InvalidArgumentException("Multiple different extensions found: ".implode(', ', $destinations));
+            throw new InvalidArgumentException("Multiple different extensions found: " . implode(', ', $destinations));
         }
 
         return reset($uniqueExtensions);
     }
 
     /**
-     * Parse the destination and return the appropriate WriteStream instance.
+     * Create a stream for the given destination and extension.
      */
-    public function parse(string|array $destination, string $extension): WriteStream
+    public function getStream(string|array $destination, string $extension): WriteStream
     {
         $destination = is_array($destination) ? $destination : [$destination];
 
-        /**
-         * @todo Refactor this to use a factory method or similar pattern
-         */
-        switch ($extension) {
-            case 'zip':
-                if (count($destination) === 1) {
-                    $stream = $this->createStream(reset($destination));
+        if (count($destination) === 1) {
+            $stream = $this->createStream(reset($destination));
 
-                    return new OutputStream($stream);
-                }
-
-                $outputStreams = [];
-
-                foreach ($destination as $dest) {
-                    $stream = $this->createStream($dest);
-
-                    $outputStreams[] = new OutputStream($stream);
-                }
-
-                return new ArrayOutputStream($outputStreams);
-            case 'tar':
-                if (count($destination) === 1) {
-                    $stream = $this->createStream(reset($destination));
-
-                    return new TarOutputStream($stream);
-                }
-
-                $outputStreams = [];
-
-                foreach ($destination as $dest) {
-                    $stream = $this->createStream($dest);
-
-                    $outputStreams[] = new TarOutputStream($stream);
-                }
-
-                return new ArrayOutputStream($outputStreams);
-            case 'tar.gz':
-                if (count($destination) === 1) {
-                    $stream = $this->createStream(reset($destination));
-
-                    return new TarGzOutputStream($stream);
-                }
-
-                $outputStreams = [];
-
-                foreach ($destination as $dest) {
-                    $stream = $this->createStream($dest);
-
-                    $outputStreams[] = new TarGzOutputStream($stream);
-                }
-
-                return new ArrayOutputStream($outputStreams);
-            default:
-                throw new InvalidArgumentException("Unsupported destination type: {$extension}");
+            return static::$streamFactoryClass::make($extension, $stream);
         }
+
+        $outputStreams = [];
+        foreach ($destination as $dest) {
+            $stream = $this->createStream($dest);
+
+            $outputStreams[] = static::$streamFactoryClass::make($extension, $stream);
+        }
+
+        return new ArrayOutputStream($outputStreams);
     }
 }
