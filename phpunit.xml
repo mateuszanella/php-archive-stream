@@ -1,6 +1,8 @@
-<phpunit bootstrap="vendor/autoload.php">
+<phpunit bootstrap="vendor/autoload.php"
+    colors="true"
+    stopOnFailure="false">
     <php>
-        <ini name="error_reporting" value="-1"/>
+        <ini name="error_reporting" value="-1" />
     </php>
     <testsuites>
         <testsuite name="Feature Test Suite">
