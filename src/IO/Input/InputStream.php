@@ -23,6 +23,13 @@ class InputStream implements ReadStream
         $this->stream = $stream;
     }
 
+    public function __destruct()
+    {
+        if (is_resource($this->stream)) {
+            $this->close();
+        }
+    }
+
     public static function open(string $path, int $chunkSize): self
     {
         $stream = fopen($path, 'rb');
@@ -79,12 +86,5 @@ class InputStream implements ReadStream
         $stat = fstat($this->stream);
 
         return $stat['size'];
-    }
-
-    public function __destruct()
-    {
-        if (is_resource($this->stream)) {
-            $this->close();
-        }
     }
 }

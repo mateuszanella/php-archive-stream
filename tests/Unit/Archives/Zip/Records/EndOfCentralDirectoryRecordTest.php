@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 
 class EndOfCentralDirectoryRecordTest extends TestCase
 {
-    public function testEndOfCentralDirectoryRecord(): void
+    public function test_end_of_central_directory_record(): void
     {
         $header = bin2hex(EndOfCentralDirectoryRecord::generate(
             0x00,
@@ -20,14 +20,14 @@ class EndOfCentralDirectoryRecordTest extends TestCase
         ));
 
         $expected = '504b0506'
-        . '0000'
-        . '0000'
-        . '1000'
-        . '1000'
-        . '22000000'
-        . '33000000'
-        . '0300'
-        . bin2hex('foo');
+        .'0000'
+        .'0000'
+        .'1000'
+        .'1000'
+        .'22000000'
+        .'33000000'
+        .'0300'
+        .bin2hex('foo');
 
         $this->assertEquals($header, $expected);
     }

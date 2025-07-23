@@ -2,6 +2,8 @@
 
 namespace PhpArchiveStream\Binary;
 
+use InvalidArgumentException;
+
 abstract class Field
 {
     /**
@@ -17,18 +19,16 @@ abstract class Field
     /**
      * Constructor for the Field class.
      *
-     * @param  int|string  $value The value of the field.
+     * @param  int|string  $value  The value of the field.
      */
     abstract public static function create($value): static;
 
     /**
      * Validates the value of the field.
      *
-     * @param  mixed  $value The value to validate.
-     * @throws \InvalidArgumentException If the value is invalid.
+     * @param  mixed  $value  The value to validate.
+     *
+     * @throws InvalidArgumentException If the value is invalid.
      */
-    protected static function validate($value): void
-    {
-        return;
-    }
+    protected static function validate($value): void {}
 }

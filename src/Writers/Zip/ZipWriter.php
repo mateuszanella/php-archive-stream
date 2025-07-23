@@ -3,12 +3,12 @@
 namespace PhpArchiveStream\Writers\Zip;
 
 use InvalidArgumentException;
-use PhpArchiveStream\Hashers\CRC32;
 use PhpArchiveStream\Compressors\DeflateCompressor;
 use PhpArchiveStream\Contracts\Compressor;
 use PhpArchiveStream\Contracts\IO\ReadStream;
 use PhpArchiveStream\Contracts\IO\WriteStream;
 use PhpArchiveStream\Contracts\Writers\Writer;
+use PhpArchiveStream\Hashers\CRC32;
 use PhpArchiveStream\Writers\Zip\Records\CentralDirectoryFileHeader;
 use PhpArchiveStream\Writers\Zip\Records\DataDescriptor;
 use PhpArchiveStream\Writers\Zip\Records\EndOfCentralDirectoryRecord;
@@ -46,8 +46,8 @@ class ZipWriter implements Writer
     /**
      * Create a new ZipWriter instance, that supports zip version 1.0 and 2.0.
      *
-     * @param WriteStream $outputStream The output stream where the ZIP archive will be written.
-     * @param array $config Configuration options for the writer, unused in this implementation.
+     * @param  WriteStream  $outputStream  The output stream where the ZIP archive will be written.
+     * @param  array  $config  Configuration options for the writer, unused in this implementation.
      */
     public function __construct(WriteStream $outputStream, array $config = [])
     {
@@ -59,13 +59,14 @@ class ZipWriter implements Writer
     /**
      * Set the default compressor class to use for compression.
      *
-     * @param string $compressor The fully qualified class name of the compressor.
+     * @param  string  $compressor  The fully qualified class name of the compressor.
+     *
      * @throws InvalidArgumentException If the provided class is not a valid compressor.
      */
     public function setDefaultCompressor(string $compressor): void
     {
         if (! is_subclass_of($compressor, Compressor::class)) {
-            throw new InvalidArgumentException('Invalid compressor class: ' . $compressor);
+            throw new InvalidArgumentException('Invalid compressor class: '.$compressor);
         }
 
         $this->defaultCompressor = $compressor;
@@ -119,7 +120,7 @@ class ZipWriter implements Writer
         foreach ($this->centralDirectoryHeaders as $header) {
             $this->outputStream->write($header);
 
-            $sizeOfCentralDirectory += strlen($header);
+            $sizeOfCentralDirectory += mb_strlen($header);
         }
 
         $endOfCentralDirectory = EndOfCentralDirectoryRecord::generate(
@@ -170,16 +171,16 @@ class ZipWriter implements Writer
 
         foreach ($stream->read() as $chunk) {
             $crc32->update($chunk);
-            $uncompressedSize += strlen($chunk);
+            $uncompressedSize += mb_strlen($chunk);
 
             $compressedChunk = $compressor->compress($chunk);
-            $compressedSize += strlen($compressedChunk);
+            $compressedSize += mb_strlen($compressedChunk);
 
             $this->outputStream->write($compressedChunk);
         }
 
         $finalCompressedChunk = $compressor->finish();
-        $compressedSize += strlen($finalCompressedChunk);
+        $compressedSize += mb_strlen($finalCompressedChunk);
 
         $this->outputStream->write($finalCompressedChunk);
 

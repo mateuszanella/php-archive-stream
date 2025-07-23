@@ -10,7 +10,7 @@ class DataDescriptor
     /**
      * Signature for the data descriptor record.
      */
-    private const SIGNATURE = 0x08074b50;
+    private const SIGNATURE = 0x08074B50;
 
     /**
      * Generate the binary representation of the data descriptor record.

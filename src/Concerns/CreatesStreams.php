@@ -23,8 +23,9 @@ trait CreatesStreams
     /**
      * Get a stream resource for the given path.
      *
-     * @param  string  $destination The path to the destination file.
+     * @param  string  $destination  The path to the destination file.
      * @return resource The stream resource.
+     *
      * @throws CouldNotOpenStreamException If the stream cannot be opened.
      */
     protected static function createStream(string $destination)

@@ -6,6 +6,7 @@ use PhpArchiveStream\Archives\Zip;
 use PhpArchiveStream\IO\Output\OutputStream;
 use PhpArchiveStream\Writers\Zip\ZipWriter;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 
 /**
  * @covers \PhpArchiveStream\Archives\Zip
@@ -13,7 +14,9 @@ use PHPUnit\Framework\TestCase;
 class ZipTest extends TestCase
 {
     protected string $outputPath = './output.zip';
+
     protected string $inputPath1 = './input1.txt';
+
     protected string $inputPath2 = './input2.txt';
 
     protected function setUp(): void
@@ -49,7 +52,7 @@ class ZipTest extends TestCase
         }
     }
 
-    public function testAddFileFromPath()
+    public function test_add_file_from_path()
     {
         $stream = fopen($this->outputPath, 'w');
         $outputStream = new OutputStream($stream);
@@ -62,7 +65,7 @@ class ZipTest extends TestCase
         $this->assertFileExists($this->outputPath);
     }
 
-    public function testAddFileFromStream()
+    public function test_add_file_from_stream()
     {
         $stream = fopen($this->outputPath, 'w');
         $outputStream = new OutputStream($stream);
@@ -76,7 +79,7 @@ class ZipTest extends TestCase
         $this->assertFileExists($this->outputPath);
     }
 
-    public function testAddFileFromContentString()
+    public function test_add_file_from_content_string()
     {
         $stream = fopen($this->outputPath, 'w');
         $outputStream = new OutputStream($stream);
@@ -89,7 +92,7 @@ class ZipTest extends TestCase
         $this->assertFileExists($this->outputPath);
     }
 
-    public function testFinish()
+    public function test_finish()
     {
         $stream = fopen($this->outputPath, 'w');
         $outputStream = new OutputStream($stream);
@@ -98,7 +101,7 @@ class ZipTest extends TestCase
 
         $zip->finish();
 
-        $reflection = new \ReflectionClass($zip);
+        $reflection = new ReflectionClass($zip);
         $property = $reflection->getProperty('writer');
         $property->setAccessible(true);
         $this->assertNull($property->getValue($zip));

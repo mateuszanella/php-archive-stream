@@ -12,8 +12,8 @@ use PhpArchiveStream\IO\Output\HttpHeaderWriteStream;
 
 class DestinationManager
 {
-    use ParsesPaths,
-        CreatesStreams;
+    use CreatesStreams,
+        ParsesPaths;
 
     /**
      * The class used to create streams.
@@ -34,7 +34,7 @@ class DestinationManager
     public function useFactory(string $class): void
     {
         if (! is_subclass_of($class, StreamFactoryContract::class)) {
-            throw new InvalidArgumentException("The class must implement " . StreamFactoryContract::class);
+            throw new InvalidArgumentException('The class must implement '.StreamFactoryContract::class);
         }
 
         $this->streamFactoryClass = $class;
@@ -62,13 +62,13 @@ class DestinationManager
         }
 
         if (empty($perceivedExtensions)) {
-            throw new InvalidArgumentException("Could not determine the extension for destinations: " . implode(', ', $destinations));
+            throw new InvalidArgumentException('Could not determine the extension for destinations: '.implode(', ', $destinations));
         }
 
         $uniqueExtensions = array_unique($perceivedExtensions);
 
         if (count($uniqueExtensions) > 1) {
-            throw new InvalidArgumentException("Multiple different extensions found: " . implode(', ', $destinations));
+            throw new InvalidArgumentException('Multiple different extensions found: '.implode(', ', $destinations));
         }
 
         return reset($uniqueExtensions);
@@ -78,10 +78,7 @@ class DestinationManager
      * Create a stream for the given destination and extension.
      *
      * @param  string|array<string>  $destination
-     * @param  string  $extension
      * @param  array<string, string>  $headers
-     *
-     * @return WriteStream
      */
     public function getStream(string|array $destination, string $extension, array $headers = []): WriteStream
     {

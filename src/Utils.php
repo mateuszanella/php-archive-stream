@@ -9,7 +9,7 @@ class Utils
         $checksum = 0;
 
         if ($size === null) {
-            $size = strlen($data);
+            $size = mb_strlen($data);
         }
 
         for ($i = 0; $i < $size; $i++) {

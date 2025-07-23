@@ -11,18 +11,18 @@ class EndOfCentralDirectoryRecord
     /**
      * Signature for the end of central directory record.
      */
-    public const SIGNATURE = 0x06054b50;
+    public const SIGNATURE = 0x06054B50;
 
     /**
      * Generate the binary representation of the end of central directory record.
      */
     public static function generate(
-        int     $diskNumber,
-        int     $diskStart,
-        int     $numberOfCentralDirectoryRecords,
-        int     $totalCentralDirectoryRecords,
-        int     $centralDirectorySize,
-        int     $centralDirectoryOffset,
+        int $diskNumber,
+        int $diskStart,
+        int $numberOfCentralDirectoryRecords,
+        int $totalCentralDirectoryRecords,
+        int $centralDirectorySize,
+        int $centralDirectoryOffset,
         ?string $comment = ''
     ): string {
         return Packer::pack(
@@ -33,7 +33,7 @@ class EndOfCentralDirectoryRecord
             U16Field::create($totalCentralDirectoryRecords),
             U32Field::create($centralDirectorySize),
             U32Field::create($centralDirectoryOffset),
-            U16Field::create(strlen($comment)),
-        ) . $comment;
+            U16Field::create(mb_strlen($comment)),
+        ).$comment;
     }
 }

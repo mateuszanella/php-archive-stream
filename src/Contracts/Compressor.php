@@ -21,7 +21,7 @@ interface Compressor
     /**
      * Compress the given data.
      *
-     * @param  string  $data The data to compress.
+     * @param  string  $data  The data to compress.
      * @return string The compressed data.
      */
     public function compress(string $data): string;

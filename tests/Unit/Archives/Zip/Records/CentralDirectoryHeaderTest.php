@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 
 class CentralDirectoryHeaderTest extends TestCase
 {
-    public function testCentralDirectoryHeader(): void
+    public function test_central_directory_header(): void
     {
         $time = new DateTimeImmutable('2022-01-01 01:01:01Z');
 

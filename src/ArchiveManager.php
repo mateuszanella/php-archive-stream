@@ -41,7 +41,7 @@ class ArchiveManager
     /**
      * Create a new ArchiveManager instance.
      *
-     * @param array<string, mixed> $config
+     * @param  array<string, mixed>  $config
      */
     public function __construct(array $config = [])
     {
@@ -58,7 +58,6 @@ class ArchiveManager
     /**
      * Register a new driver.
      *
-     * @param  string  $extension
      * @param  callable(string|array<string>, \PhpArchiveStream\Config): Archive  $factory
      */
     public function register(string $extension, callable $factory): void
@@ -68,9 +67,6 @@ class ArchiveManager
 
     /**
      * Register a new driver alias.
-     *
-     * @param  string  $alias
-     * @param  string  $extension
      */
     public function alias(string $alias, string $extension): void
     {
@@ -85,7 +81,6 @@ class ArchiveManager
      * Create a new archive instance.
      *
      * @param  string|array<string>  $destination
-     * @param  string|null  $extension
      */
     public function create(string|array $destination, ?string $extension = null): Archive
     {

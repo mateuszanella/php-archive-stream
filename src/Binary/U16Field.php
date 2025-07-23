@@ -13,7 +13,7 @@ class U16Field extends Field
     /**
      * Constructor for the U16Field class.
      *
-     * @param  int  $value The value of the field, must be between 0 and 0xFFFF.
+     * @param  int  $value  The value of the field, must be between 0 and 0xFFFF.
      */
     public function __construct(int $value)
     {

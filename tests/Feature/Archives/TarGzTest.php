@@ -6,6 +6,7 @@ use PhpArchiveStream\Archives\Tar;
 use PhpArchiveStream\IO\Output\GzOutputStream;
 use PhpArchiveStream\Writers\Tar\TarWriter;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 
 /**
  * @covers \PhpArchiveStream\Archives\Tar
@@ -13,7 +14,9 @@ use PHPUnit\Framework\TestCase;
 class TarGzTest extends TestCase
 {
     protected string $outputPath = './output.tar';
+
     protected string $inputPath1 = './input1.txt';
+
     protected string $inputPath2 = './input2.txt';
 
     protected function setUp(): void
@@ -49,7 +52,7 @@ class TarGzTest extends TestCase
         }
     }
 
-    public function testAddFileFromPath()
+    public function test_add_file_from_path()
     {
         $stream = gzopen($this->outputPath, 'w');
         $outputStream = new GzOutputStream($stream);
@@ -62,7 +65,7 @@ class TarGzTest extends TestCase
         $this->assertFileExists($this->outputPath);
     }
 
-    public function testAddFileFromStream()
+    public function test_add_file_from_stream()
     {
         $stream = gzopen($this->outputPath, 'w');
         $outputStream = new GzOutputStream($stream);
@@ -76,7 +79,7 @@ class TarGzTest extends TestCase
         $this->assertFileExists($this->outputPath);
     }
 
-    public function testAddFileFromContentString()
+    public function test_add_file_from_content_string()
     {
         $stream = gzopen($this->outputPath, 'w');
         $outputStream = new GzOutputStream($stream);
@@ -89,7 +92,7 @@ class TarGzTest extends TestCase
         $this->assertFileExists($this->outputPath);
     }
 
-    public function testFinish()
+    public function test_finish()
     {
         $stream = gzopen($this->outputPath, 'w');
         $outputStream = new GzOutputStream($stream);
@@ -98,7 +101,7 @@ class TarGzTest extends TestCase
 
         $tar->finish();
 
-        $reflection = new \ReflectionClass($tar);
+        $reflection = new ReflectionClass($tar);
         $property = $reflection->getProperty('writer');
         $property->setAccessible(true);
         $this->assertNull($property->getValue($tar));

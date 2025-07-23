@@ -2,12 +2,14 @@
 
 namespace PhpArchiveStream\Hashers;
 
+use HashContext;
+
 class CRC32
 {
     /**
      * The context for the CRC32 hash.
      *
-     * @var \HashContext
+     * @var HashContext
      */
     protected $context;
 
@@ -30,7 +32,7 @@ class CRC32
     /**
      * Update the CRC32 hash with the given data.
      *
-     * @param  string  $data The data to update the hash with.
+     * @param  string  $data  The data to update the hash with.
      */
     public function update(string $data): void
     {

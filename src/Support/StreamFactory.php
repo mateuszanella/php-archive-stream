@@ -1,4 +1,5 @@
 <?php
+
 namespace PhpArchiveStream\Support;
 
 use InvalidArgumentException;
@@ -12,9 +13,9 @@ class StreamFactory implements StreamFactoryContract
     /**
      * Create a stream based on the provided extension and stream resource.
      *
-     * @param string $extension The file extension to determine the type of stream.
-     * @param resource $stream The stream resource to wrap.
-     * @return WriteStream
+     * @param  string  $extension  The file extension to determine the type of stream.
+     * @param  resource  $stream  The stream resource to wrap.
+     *
      * @throws InvalidArgumentException If the extension is not supported.
      */
     public static function make(string $extension, $stream): WriteStream

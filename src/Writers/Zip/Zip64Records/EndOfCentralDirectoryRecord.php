@@ -12,24 +12,24 @@ class EndOfCentralDirectoryRecord
     /**
      * Signature for the end of central directory record.
      */
-    public const SIGNATURE = 0x06064b50;
+    public const SIGNATURE = 0x06064B50;
 
     /**
      * Generate the binary representation of the Zip64 end of central directory record.
      */
     public static function generate(
-        int    $versionMadeBy,
-        int    $versionNeededToExtract,
-        int    $numberOfThisDisk,
-        int    $numberOfTheDiskWithTheStartOfTheCentralDirectory,
-        int    $numberOfCentralDirectoryEntriesOnThisDisk,
-        int    $numberOfCentralDirectoryEntries,
-        int    $centralDirectorySize,
-        int    $centralDirectoryOffsetOnDisk,
+        int $versionMadeBy,
+        int $versionNeededToExtract,
+        int $numberOfThisDisk,
+        int $numberOfTheDiskWithTheStartOfTheCentralDirectory,
+        int $numberOfCentralDirectoryEntriesOnThisDisk,
+        int $numberOfCentralDirectoryEntries,
+        int $centralDirectorySize,
+        int $centralDirectoryOffsetOnDisk,
         string $extensibleDataSector
     ): string {
         // Size = (SizeOfFixedFields - 12) + SizeOfVariableData.
-        $sizeOfEndOfCentralDirectoryRecord = 44 + strlen($extensibleDataSector);
+        $sizeOfEndOfCentralDirectoryRecord = 44 + mb_strlen($extensibleDataSector);
 
         return Packer::pack(
             U32Field::create(self::SIGNATURE),
@@ -42,6 +42,6 @@ class EndOfCentralDirectoryRecord
             U64Field::create($numberOfCentralDirectoryEntries),
             U64Field::create($centralDirectorySize),
             U64Field::create($centralDirectoryOffsetOnDisk),
-        ) . $extensibleDataSector;
+        ).$extensibleDataSector;
     }
 }

@@ -12,7 +12,7 @@ interface WriteStream
     /**
      * Write data to the stream.
      *
-     * @param  string  $s The data to write.
+     * @param  string  $s  The data to write.
      * @return int The number of bytes written.
      */
     public function write(string $s): int;

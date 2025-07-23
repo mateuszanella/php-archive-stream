@@ -13,7 +13,7 @@ class U32Field extends Field
     /**
      * Constructor for the U32Field class.
      *
-     * @param  int  $value The value of the field, must be between 0 and 0xFFFFFFFF.
+     * @param  int  $value  The value of the field, must be between 0 and 0xFFFFFFFF.
      */
     public function __construct(int $value)
     {

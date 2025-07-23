@@ -2,26 +2,28 @@
 
 namespace PhpArchiveStream\Compressors;
 
+use DeflateContext;
 use PhpArchiveStream\Contracts\Compressor;
 use RuntimeException;
 
 class DeflateCompressor implements Compressor
 {
     /**
-     * @var \DeflateContext The deflate context resource.
+     * @var DeflateContext The deflate context resource.
      */
     protected $context;
 
     /**
      * Constructor for the DeflateCompressor class.
      *
-     * @param  int  $level The compression level (0-9), where 0 is no compression and 9 is maximum compression.
+     * @param  int  $level  The compression level (0-9), where 0 is no compression and 9 is maximum compression.
+     *
      * @throws RuntimeException If the deflate context cannot be initialized.
      */
     public function __construct(int $level = 6)
     {
         $this->context = deflate_init(ZLIB_ENCODING_RAW, [
-            'level' => $level
+            'level' => $level,
         ]);
 
         if ($this->context === false) {

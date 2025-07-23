@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 
 class Zip64ExtraFieldTest extends TestCase
 {
-    public function testZip64ExtraField(): void
+    public function test_zip64_extra_field(): void
     {
         $header = bin2hex(ExtraField::generate(
             originalSize: (0x77777777 << 32) + 0x66666666,
@@ -16,11 +16,11 @@ class Zip64ExtraFieldTest extends TestCase
             diskStartNumber: 0x33333333,
         ));
 
-        $expected = '0100' .
-            '1c00' .
-            '6666666677777777' .
-            '8888888899999999' .
-            '1111111122222222' .
+        $expected = '0100'.
+            '1c00'.
+            '6666666677777777'.
+            '8888888899999999'.
+            '1111111122222222'.
             '33333333';
 
         $this->assertSame($expected, $header);

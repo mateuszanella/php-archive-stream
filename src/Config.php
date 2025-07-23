@@ -11,7 +11,7 @@ class Config
      */
     protected const DEFAULTS = [
         'streamFactory' => StreamFactory::class,
-        'zip' => [
+        'zip'           => [
             'enableZip64' => true,
             'input'       => ['chunkSize' => 1048576],
             'headers'     => [

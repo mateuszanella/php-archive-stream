@@ -9,24 +9,24 @@ interface ReadStream
     /**
      * Create a new ReadStream instance from a file path.
      *
-     * @param  string  $path The path to the file.
-     * @param  int  $chunkSize The size of each chunk to read.
+     * @param  string  $path  The path to the file.
+     * @param  int  $chunkSize  The size of each chunk to read.
      */
     public static function open(string $path, int $chunkSize): self;
 
     /**
      * Create a new ReadStream instance from a stream resource.
      *
-     * @param  resource  $stream The stream resource.
-     * @param  int  $chunkSize The size of each chunk to read.
+     * @param  resource  $stream  The stream resource.
+     * @param  int  $chunkSize  The size of each chunk to read.
      */
     public static function fromStream($stream, int $chunkSize): self;
 
     /**
      * Create a new ReadStream instance from a content string.
      *
-     * @param  string  $contents The string content.
-     * @param  int  $chunkSize The size of each chunk to read.
+     * @param  string  $contents  The string content.
+     * @param  int  $chunkSize  The size of each chunk to read.
      */
     public static function fromString(string $contents, int $chunkSize): self;
 

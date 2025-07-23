@@ -16,8 +16,6 @@ class ArrayOutputStream implements WriteStream
 
     /**
      * The unit amount of bytes written for each stream.
-     *
-     * @var int
      */
     protected int $bytesWritten = 0;
 

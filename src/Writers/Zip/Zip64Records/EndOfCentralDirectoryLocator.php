@@ -11,7 +11,7 @@ class EndOfCentralDirectoryLocator
     /**
      * Signature for the end of central directory locator record.
      */
-    private const SIGNATURE = 0x07064b50;
+    private const SIGNATURE = 0x07064B50;
 
     /**
      * Generate the binary representation of the Zip64 end of central directory locator record.

@@ -3,9 +3,6 @@
 namespace Tests\Feature\Archives;
 
 use PhpArchiveStream\ArchiveManager;
-use PhpArchiveStream\Archives\Zip;
-use PhpArchiveStream\IO\Output\OutputStream;
-use PhpArchiveStream\Writers\Zip\Zip64Writer;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -14,9 +11,11 @@ use PHPUnit\Framework\TestCase;
 class MultiDestinationTest extends TestCase
 {
     protected string $outputPath1 = './output1.zip';
+
     protected string $outputPath2 = './output2.zip';
 
     protected string $inputPath1 = './input1.txt';
+
     protected string $inputPath2 = './input2.txt';
 
     protected ArchiveManager $manager;
@@ -64,7 +63,7 @@ class MultiDestinationTest extends TestCase
         }
     }
 
-    public function testMultiDestinationZipFile()
+    public function test_multi_destination_zip_file()
     {
         $zip = $this->manager->create([
             $this->outputPath1,

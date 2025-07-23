@@ -7,10 +7,10 @@ use PHPUnit\Framework\TestCase;
 
 class ConfigTest extends TestCase
 {
-    public function testSetItems(): void
+    public function test_set_items(): void
     {
         $items = [
-            'key' => 'value',
+            'key'  => 'value',
             'key1' => 1,
             'key2' => null,
             'key3' => [
@@ -21,9 +21,9 @@ class ConfigTest extends TestCase
                 'nested3' => [
                     'nested4',
                     'nested5',
-                    'nested6' => 'value'
-                ]
-            ]
+                    'nested6' => 'value',
+                ],
+            ],
         ];
 
         $config = new Config();
@@ -32,10 +32,10 @@ class ConfigTest extends TestCase
         $this->assertSame($items, $config->all());
     }
 
-    public function testGet(): void
+    public function test_get(): void
     {
         $items = [
-            'key' => 'value',
+            'key'  => 'value',
             'key1' => 1,
             'key2' => null,
             'key3' => [
@@ -46,9 +46,9 @@ class ConfigTest extends TestCase
                 'nested3' => [
                     'nested4',
                     'nested5',
-                    'nested6' => 'value'
-                ]
-            ]
+                    'nested6' => 'value',
+                ],
+            ],
         ];
 
         $config = new Config($items);
@@ -67,7 +67,7 @@ class ConfigTest extends TestCase
         $this->assertSame(null, $config->get('a.value.that.does.not.exist'));
     }
 
-    public function testSet(): void
+    public function test_set(): void
     {
         $config = new Config();
 
@@ -92,7 +92,7 @@ class ConfigTest extends TestCase
         $this->assertSame('value', $config->get('key3.nested3.nested6'));
     }
 
-    public function testDefaultGet(): void
+    public function test_default_get(): void
     {
         $config = new Config();
 
@@ -100,14 +100,14 @@ class ConfigTest extends TestCase
         $this->assertSame('default', $config->get('key', 'default'));
     }
 
-    public function testGetDefaults(): void
+    public function test_get_defaults(): void
     {
         $config = new Config();
 
         $this->assertSame($config->getDefaults(), $config->all());
     }
 
-    public function testMergesConfigCorrectly(): void
+    public function test_merges_config_correctly(): void
     {
         $config = new Config([
             'zip' => [
@@ -115,7 +115,7 @@ class ConfigTest extends TestCase
                 'input'       => [
                     'chunkSize' => 1024,
                 ],
-            ]
+            ],
         ]);
 
         $all = $config->all();

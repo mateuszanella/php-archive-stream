@@ -16,7 +16,7 @@ class ArchiveManagerTest extends TestCase
         }
     }
 
-    public function testArchiveManagerInitialization(): void
+    public function test_archive_manager_initialization(): void
     {
         $manager = new ArchiveManager;
 
@@ -24,7 +24,7 @@ class ArchiveManagerTest extends TestCase
         $this->assertInstanceOf(Config::class, $manager->config());
     }
 
-    public function testAlias(): void
+    public function test_alias(): void
     {
         $manager = new ArchiveManager;
 

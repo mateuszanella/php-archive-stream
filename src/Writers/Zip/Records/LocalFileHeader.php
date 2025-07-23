@@ -2,17 +2,17 @@
 
 namespace PhpArchiveStream\Writers\Zip\Records;
 
-use PhpArchiveStream\Utils;
 use PhpArchiveStream\Binary\Packer;
 use PhpArchiveStream\Binary\U16Field;
 use PhpArchiveStream\Binary\U32Field;
+use PhpArchiveStream\Utils;
 
 class LocalFileHeader
 {
     /**
      * Signature for the local file header.
      */
-    public const SIGNATURE = 0x04034b50;
+    public const SIGNATURE = 0x04034B50;
 
     /**
      * Generate the binary representation of the local file header.
@@ -37,8 +37,8 @@ class LocalFileHeader
             U32Field::create($crc32),
             U32Field::create($compressedSize),
             U32Field::create($uncompressedSize),
-            U16Field::create(strlen($fileName)),
-            U16Field::create(strlen($extraField)),
-        ) . $fileName . $extraField;
+            U16Field::create(mb_strlen($fileName)),
+            U16Field::create(mb_strlen($extraField)),
+        ).$fileName.$extraField;
     }
 }

@@ -28,8 +28,8 @@ class HttpHeaderWriteStream implements WriteStream
      * existing output stream and handles sending HTTP headers
      * before writing to the stream.
      *
-     * @param WriteStream $stream The underlying stream to write to.
-     * @param array<string, string> $headers The HTTP headers to send.
+     * @param  WriteStream  $stream  The underlying stream to write to.
+     * @param  array<string, string>  $headers  The HTTP headers to send.
      */
     public function __construct(WriteStream $stream, array $headers = [])
     {
