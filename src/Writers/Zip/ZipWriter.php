@@ -44,7 +44,7 @@ class ZipWriter implements Writer
     protected static int $versionMadeBy = 0x603;
 
     /**
-     * Create a new ZipWriter instance.
+     * Create a new ZipWriter instance, that supports zip version 1.0 and 2.0.
      *
      * @param WriteStream $outputStream The output stream where the ZIP archive will be written.
      * @param array $config Configuration options for the writer, unused in this implementation.

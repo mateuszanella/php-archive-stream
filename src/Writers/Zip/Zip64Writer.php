@@ -47,7 +47,7 @@ class Zip64Writer implements Writer
     protected string $defaultCompressor;
 
     /**
-     * Create a new Zip64Writer instance.
+     * Create a new Zip64Writer instance, that supports zip version 4.5.
      *
      * @param WriteStream $outputStream The output stream where the ZIP archive will be written.
      * @param array $config Configuration options for the writer, unused in this implementation.
