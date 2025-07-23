@@ -5,13 +5,53 @@ namespace PhpArchiveStream;
 class Config
 {
     /**
+     * Default configuration values.
+     */
+    protected const DEFAULTS = [
+        'zip' => [
+            'enableZip64' => true,
+            'input'       => ['chunkSize' => 1048576],
+            'headers'     => [
+                'Content-Type'              => 'application/zip',
+                'Content-Disposition'       => 'attachment; filename="archive.zip"',
+                'Content-Transfer-Encoding' => 'binary',
+                'Pragma'                    => 'public',
+                'Cache-Control'             => 'public, must-revalidate',
+                'Connection'                => 'Keep-Alive',
+            ],
+        ],
+        'tar' => [
+            'input'   => ['chunkSize' => 1048576],
+            'headers' => [
+                'Content-Type'              => 'application/x-tar',
+                'Content-Disposition'       => 'attachment; filename="archive.tar"',
+                'Content-Transfer-Encoding' => 'binary',
+                'Pragma'                    => 'public',
+                'Cache-Control'             => 'public, must-revalidate',
+                'Connection'                => 'Keep-Alive',
+            ],
+        ],
+        'targz' => [
+            'input'   => ['chunkSize' => 1048576],
+            'headers' => [
+                'Content-Type'              => 'application/x-tar',
+                'Content-Disposition'       => 'attachment; filename="archive.tar.gz"',
+                'Content-Transfer-Encoding' => 'binary',
+                'Pragma'                    => 'public',
+                'Cache-Control'             => 'public, must-revalidate',
+                'Connection'                => 'Keep-Alive',
+            ],
+        ],
+    ];
+
+    /**
      * All of the configuration items.
      */
     private array $items = [];
 
     public function __construct(array $items = [])
     {
-        $this->items = $items;
+        $this->items = array_merge_recursive(static::DEFAULTS, $items);
     }
 
     /**
@@ -72,5 +112,15 @@ class Config
     public function clear(): void
     {
         $this->items = [];
+    }
+
+    /**
+     * Get the default configuration values.
+     *
+     * @return array<string, mixed>
+     */
+    public function getDefaults(): array
+    {
+        return static::DEFAULTS;
     }
 }
