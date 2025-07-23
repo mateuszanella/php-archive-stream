@@ -2,12 +2,15 @@
 
 namespace PhpArchiveStream;
 
+use PhpArchiveStream\Support\StreamFactory;
+
 class Config
 {
     /**
      * Default configuration values.
      */
     protected const DEFAULTS = [
+        'streamFactory' => StreamFactory::class,
         'zip' => [
             'enableZip64' => true,
             'input'       => ['chunkSize' => 1048576],

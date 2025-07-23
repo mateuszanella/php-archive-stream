@@ -7,6 +7,7 @@ use PhpArchiveStream\Archives\Tar;
 use PhpArchiveStream\Archives\Zip;
 use PhpArchiveStream\Contracts\Archive;
 use PhpArchiveStream\Support\DestinationManager;
+use PhpArchiveStream\Support\StreamFactory;
 use PhpArchiveStream\Writers\Tar\TarWriter;
 use PhpArchiveStream\Writers\Zip\Zip64Writer;
 use PhpArchiveStream\Writers\Zip\ZipWriter;
@@ -46,7 +47,9 @@ class ArchiveManager
     {
         $this->config = new Config($config);
 
-        $this->destination = new DestinationManager;
+        $streamFactoryClass = $this->config->get('streamFactory', StreamFactory::class);
+
+        $this->destination = new DestinationManager($streamFactoryClass);
 
         $this->registerDefaults();
         $this->registerAliases();

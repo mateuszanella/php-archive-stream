@@ -17,18 +17,27 @@ class DestinationManager
 
     /**
      * The class used to create streams.
-     *
-     * @todo should not be static.
      */
-    public static string $streamFactoryClass = StreamFactory::class;
+    protected string $streamFactoryClass;
 
-    public static function useFactory(string $class): void
+    /**
+     * Create a new DestinationManager instance.
+     */
+    public function __construct(string $streamFactoryClass)
+    {
+        $this->useFactory($streamFactoryClass);
+    }
+
+    /**
+     * Set the stream factory class to be used.
+     */
+    public function useFactory(string $class): void
     {
         if (! is_subclass_of($class, StreamFactoryContract::class)) {
             throw new InvalidArgumentException("The class must implement " . StreamFactoryContract::class);
         }
 
-        static::$streamFactoryClass = $class;
+        $this->streamFactoryClass = $class;
     }
 
     /**
@@ -84,7 +93,7 @@ class DestinationManager
         foreach ($destination as $dest) {
             $stream = $this->createStream($dest);
 
-            $writeStream = static::$streamFactoryClass::make($extension, $stream);
+            $writeStream = $this->streamFactoryClass::make($extension, $stream);
 
             if ($this->shouldSendHTTPHeaders($dest)) {
                 $writeStream = new HttpHeaderWriteStream($writeStream, $headers);
