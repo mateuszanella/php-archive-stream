@@ -26,7 +26,8 @@ class ConfigTest extends TestCase
             ]
         ];
 
-        $config = new Config($items);
+        $config = new Config();
+        $config->setItems($items);
 
         $this->assertSame($items, $config->all());
     }
@@ -97,5 +98,39 @@ class ConfigTest extends TestCase
 
         $this->assertNull($config->get('key'));
         $this->assertSame('default', $config->get('key', 'default'));
+    }
+
+    public function testGetDefaults(): void
+    {
+        $config = new Config();
+
+        $this->assertSame($config->getDefaults(), $config->all());
+    }
+
+    public function testMergesConfigCorrectly(): void
+    {
+        $config = new Config([
+            'zip' => [
+                'enableZip64' => false,
+                'input'       => [
+                    'chunkSize' => 1024,
+                ],
+            ]
+        ]);
+
+        $all = $config->all();
+        $default = $config->getDefaults();
+
+        $this->assertArrayHasKey('zip', $all);
+        $this->assertArrayHasKey('tar', $all);
+        $this->assertArrayHasKey('targz', $all);
+
+        $this->assertNotEquals($default['zip']['enableZip64'], $all['zip']['enableZip64']);
+        $this->assertNotEquals($default['zip']['input']['chunkSize'], $all['zip']['input']['chunkSize']);
+
+        $this->assertEquals($default['zip']['headers'], $all['zip']['headers']);
+
+        $this->assertEquals($default['tar'], $all['tar']);
+        $this->assertEquals($default['targz'], $all['targz']);
     }
 }
