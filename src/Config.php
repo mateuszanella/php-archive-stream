@@ -54,7 +54,7 @@ class Config
 
     public function __construct(array $items = [])
     {
-        $this->items = array_merge_recursive(static::DEFAULTS, $items);
+        $this->items = $this->mergeConfigRecursive(static::DEFAULTS, $items);
     }
 
     /**
@@ -125,5 +125,23 @@ class Config
     public function getDefaults(): array
     {
         return static::DEFAULTS;
+    }
+
+    /**
+     * Recursively merge configuration arrays, properly overriding scalar values.
+     */
+    protected function mergeConfigRecursive(array $defaults, array $custom): array
+    {
+        $result = $defaults;
+
+        foreach ($custom as $key => $value) {
+            if (isset($result[$key]) && is_array($result[$key]) && is_array($value)) {
+                $result[$key] = $this->mergeConfigRecursive($result[$key], $value);
+            } else {
+                $result[$key] = $value;
+            }
+        }
+
+        return $result;
     }
 }
