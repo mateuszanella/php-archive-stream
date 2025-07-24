@@ -2,9 +2,9 @@
 
 The ArchiveManager provides a flexible way to create and manage archives in various formats. This document outlines the basic usage patterns, including creating archives, adding files, and configuring the manager.
 
-## Creating the manager instance
+## Creating the Manager Instance
 
-To start using the library, you need to create an instance of the `ArchiveManager` class.:
+To start using the library, you need to create an instance of the `ArchiveManager` class:
 
 ```php
 use PhpArchiveStream\ArchiveManager;
@@ -34,7 +34,7 @@ $manager = new ArchiveManager([
 
 ## Creating Archives
 
-To create an archive, you can use the `create` method of the ArchiveManager. This method accepts the desired destination path, and an optional format string.
+To create an archive, you can use the `create` method of the `ArchiveManager`. This method accepts the desired destination path, and an optional format string.
 
 ```php
 /**
@@ -56,13 +56,6 @@ This makes it convenient to create archives in various locations, such as local 
 $manager->create('s3://path/to/file1.zip');
 ```
 
-The second argument is the format of the archive, which is optional. If not provided, the library will attempt to determine the format based on the destination path.
-
-```php
-// Specifying the format explicitly
-$manager->create('php://output', 'zip');
-```
-
 When creating an archive with an array of paths, the library saves the current state of the archive, and simply sends the data through each stream, making the process lightweight and convenient when dealing with simultaneous streams of multiple files.
 
 ```php
@@ -71,6 +64,13 @@ $manager->create([
     's3://path/to/file.zip', 
     'path/to/local/file.zip'
 ]);
+```
+
+The second argument is the format of the archive, which is optional. If not provided, the library will attempt to determine the format based on the destination path.
+
+```php
+// Specifying the format explicitly
+$manager->create('php://output', 'zip');
 ```
 
 ### Streaming an archive to the browser
