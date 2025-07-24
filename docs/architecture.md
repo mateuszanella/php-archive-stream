@@ -5,23 +5,24 @@ This document provides an overview of the PHP Archive Stream library architectur
 ## High-Level Architecture
 
 ```
-┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
-│   Application   │───▶│  ArchiveManager  │───▶│   Archive       │
-│                 │    │                  │    │  (Zip/Tar)      │
-└─────────────────┘    └──────────────────┘    └─────────────────┘
-                                │                        │
-                                ▼                        ▼
-                       ┌──────────────────┐    ┌─────────────────┐
-                       │ DestinationManager│    │     Writer      │
-                       │                  │    │  (ZipWriter/    │
-                       └──────────────────┘    │   TarWriter)    │
-                                │              └─────────────────┘
-                                ▼                        │
-                       ┌──────────────────┐              ▼
-                       │  StreamFactory   │    ┌─────────────────┐
-                       │                  │    │   OutputStream  │
-                       └──────────────────┘    │                 │
-                                               └─────────────────┘
+┌─────────────────┐    ┌────────────────────┐    ┌─────────────────┐
+│   Application   │───▶│   ArchiveManager   │───▶│     Archive     │
+│                 │    │                    │    │    (Zip/Tar)    │
+└─────────────────┘    └────────────────────┘    └─────────────────┘
+                                 │                       │
+                                 ▼                       ▼
+                       ┌────────────────────┐    ┌─────────────────┐
+                       │ DestinationManager │    │     Writer      │
+                       │                    │    │   (ZipWriter\   │
+                       └────────────────────┘    │   TarWriter)    │
+                                 │               └─────────────────┘
+                                 ▼                   │           │
+                        ┌──────────────────┐         │           │
+                        │  StreamFactory   │         ▼           ▼
+                        │                  │    ┌─────────┐ ┌─────────┐
+                        └──────────────────┘    │ Input   │ │ Output  │
+                                                │ Stream  │ │ Stream  │
+                                                └─────────┘ └─────────┘
 ```
 
 ## Core Components

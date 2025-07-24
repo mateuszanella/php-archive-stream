@@ -4,10 +4,20 @@ The ArchiveManager accepts a configuration array that allows you to customize va
 
 ## Default Configuration
 
+The default configuration is as follows:
+
 ```php
 $defaultConfig = [
+    /**
+     * The factory class used to define which stream is used 
+     * for each output on each archive type with the default
+     * archive implementations.
+     */
     'streamFactory' => StreamFactory::class,
     'zip' => [
+        /**
+         * Enables ZIP64 support for large archives.
+         */
         'enableZip64' => true,
         'input' => ['chunkSize' => 1048576], // 1MB
         'headers' => [
@@ -52,19 +62,23 @@ $defaultConfig = [
 'streamFactory' => CustomStreamFactory::class
 ```
 
-Specifies the class used to create streams for different output types. Must implement `StreamFactoryContract`.
+Specifies the class used to identify which `WriteStream` will be used for the given format in the default archive implementations. 
+
+Classes must implement the `PhpArchiveStream\Contracts\StreamFactory.php` interface, and will throw a `RuntimeException` otherwise.
 
 ### ZIP Configuration
 
 #### Enable ZIP64
 
+Enables the default usage of the ZIP64 format when creating a ZIP archive.
+
 ```php
-'zip' => [
+'zip' => [  
     'enableZip64' => true, // Default: true
 ]
 ```
 
-Enables ZIP64 format support for archives larger than 4GB or with more than 65535 files.
+> This enables the creation of archives larger than 4GB or with more than 65535 files.
 
 #### Input Chunk Size
 
@@ -74,7 +88,7 @@ Enables ZIP64 format support for archives larger than 4GB or with more than 6553
 ]
 ```
 
-Controls how much data is read from source files at once. Larger chunks can improve performance but use more memory.
+Controls how much data is read from source files at once. Larger chunks can improve performance at the cost of memory usage.
 
 #### HTTP Headers
 
@@ -88,72 +102,22 @@ Controls how much data is read from source files at once. Larger chunks can impr
 ]
 ```
 
-Custom HTTP headers sent when streaming to `php://output` or `php://stdout`.
-
-### TAR Configuration
-
-Similar to ZIP configuration but for TAR archives:
-
-```php
-'tar' => [
-    'input' => ['chunkSize' => 512], // Smaller chunks for TAR
-    'headers' => [
-        'Content-Type' => 'application/x-tar',
-        'Content-Disposition' => 'attachment; filename="backup.tar"',
-    ],
-]
-```
-
-### TAR.GZ Configuration
-
-```php
-'targz' => [
-    'input' => ['chunkSize' => 1048576],
-    'headers' => [
-        'Content-Type' => 'application/gzip',
-        'Content-Disposition' => 'attachment; filename="compressed.tar.gz"',
-    ],
-]
-```
+Defines custom HTTP headers sent when streaming to `php://output` or `php://stdout`.
 
 ## Runtime Configuration
 
-You can also modify configuration at runtime:
+You may also modify configuration at runtime:
 
 ```php
-$manager = new ArchiveManager();
+$manager = new ArchiveManager;
 
 // Get configuration instance
 $config = $manager->config();
 
-// Modify specific values
+// Modify specific values using dot notation
 $config->set('zip.enableZip64', false);
 $config->set('tar.input.chunkSize', 2048);
 
-// Get values
+// Get values using dot notation
 $chunkSize = $config->get('zip.input.chunkSize', 1048576);
-```
-
-## Performance Tuning
-
-### Chunk Size Guidelines
-
-- **Small files (< 1MB)**: Use smaller chunks (64KB - 256KB)
-- **Large files (> 10MB)**: Use larger chunks (1MB - 4MB)
-- **Memory constrained**: Use smaller chunks
-- **Performance critical**: Use larger chunks
-
-### Example Performance Configuration
-
-```php
-$performanceConfig = [
-    'zip' => [
-        'input' => ['chunkSize' => 4194304], // 4MB for better performance
-    ],
-    'tar' => [
-        'input' => ['chunkSize' => 2097152], // 2MB
-    ],
-];
-
-$manager = new ArchiveManager($performanceConfig);
 ```

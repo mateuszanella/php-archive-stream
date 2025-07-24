@@ -21,26 +21,49 @@ composer require mateuszanella/php-archive-stream
 
 ### Basic Usage
 
+To get started, include the library and create an `ArchiveManager` instance:
+
 ```php
 <?php
 
 use PhpArchiveStream\ArchiveManager;
 
-$manager = new ArchiveManager();
+// Create a manager instance
+$manager = new ArchiveManager;
+```
 
-// Create a ZIP archive
+### Creating Archives
+
+You can create different types of archives (ZIP, TAR, TAR.GZ) using the `create` method:
+
+```php
 $zip = $manager->create('./archive.zip');
-$zip->addFileFromPath('readme.txt', './README.md');
-$zip->addFileFromContentString('hello.txt', 'Hello World!');
-$zip->finish();
+$tar = $manager->create('./archive.tar');
+$tarGz = $manager->create('./archive.tar.gz');
+$tarGz = $manager->create('./archive.tgz');
+```
 
-// Create a TAR.GZ archive
-$tarGz = $manager->create('./archive.tar.gz'); // Can also be .tgz
-$tarGz->addFileFromPath('composer.json', './composer.json');
-$tarGz->finish();
+### Adding Files
+
+You can add files to the archive using various methods:
+
+```php
+$archive->addFileFromPath('report.pdf', './reports/monthly.pdf');
+$archive->addFileFromStream('data.json', fopen('./data.json', 'rb'));
+$archive->addFileFromContentString('notes.txt', 'Important notes about the project.');
+```
+
+### Finishing the Archive
+
+To finalize the archive and write it to the destination, call the `finish` method:
+
+```php
+$archive->finish();
 ```
 
 ### HTTP Download
+
+To stream the archive directly to the browser, you can create the archive with `php://output` as the destination:
 
 ```php
 // Stream directly to browser
@@ -50,6 +73,8 @@ $zip->finish();
 ```
 
 ### Multiple Destinations
+
+You can specify multiple destinations for the archive by passing an array to the `create` method:
 
 ```php
 // Stream to be browser and save a backup on disk
@@ -62,6 +87,10 @@ $zip->finish();
 ```
 
 ## Configuration
+
+You can customize the behavior of the archive manager using a configuration array. This allows you to set options like chunk sizes, compression methods, and more.
+
+> See more in the [Configuration Reference](./docs/CONFIGURATION.md).
 
 ```php
 $config = [
@@ -79,17 +108,21 @@ $manager = new ArchiveManager($config);
 
 ## Documentation
 
-For detailed documentation, configuration options, and advanced usage, see the [docs/](./docs/) folder:
+For detailed documentation, configuration options, and advanced usage, see the [documentation](./docs/) folder:
 
-- [Configuration Reference](./docs/configuration.md)
-- [Advanced Usage](./docs/advanced-usage.md)
-- [Extending the Library](./docs/extending.md)
-- [Architecture Overview](./docs/architecture.md)
+- [Configuration Reference](./docs/CONFIGURATION.md)
+- [Advanced Usage](./docs/USAGE.md)
+- [Extending the Library](./docs/EXTENDING.md)
+- [Architecture Overview](./docs/ARCHITECTURE.md)
 
 ## Requirements
 
-- PHP 8.1 or higher
+- PHP 8.3 or higher
 
 ## License
 
 MIT License. See [LICENSE](LICENSE) for details.
+
+## Contact
+
+For questions, issues, or contributions, please open an issue on the [GitHub repository](https://github.com/mateuszanella/php-archive-stream), or email me at [mateusblk1@gmail.com](mailto:mateusblk1@gmail.com).
