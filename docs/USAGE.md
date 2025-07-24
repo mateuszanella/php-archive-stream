@@ -147,3 +147,80 @@ $manager->create([
     'php://output',
     'archive.tar'
 ]);
+```
+
+## Registering an Alias for an Extension
+
+You can register an alias for an archive format by using the `alias` method. This allows you to use a custom name for an existing format.
+
+```php
+/**
+ * Register a new driver alias.
+ */
+public function alias(string $alias, string $extension): void
+```
+
+For example, there may be many naming conventions for gunzipped TAR files, such as `tar.gz`, `tgz`, or `tar.gzip`.
+
+In this case, the library register an alias as follows:
+
+```php
+$manager->alias('tgz', 'tar.gz');
+```
+
+You may use this function to register any aliases you wish.
+
+## Retrieving the Configuration Instance
+
+You can retrieve the configuration instance from the `ArchiveManager` using the `config` method.
+
+```php
+$manager->config();
+```
+
+> If you wish to see all available configuration options, see the [Configuration Reference](./CONFIGURATION.md).
+
+## Registering New Archive Formats
+
+You can register new archive formats by using the `register` method. This allows you to extend the library with custom archive formats, or override existing ones.
+
+```php
+/**
+ * Register a new driver.
+ *
+ * @param  callable(string|array<string>, \PhpArchiveStream\Config): Archive  $factory
+ */
+public function register(string $extension, callable $factory): void
+```
+
+The `register` method accepts the extension of the archive format and a factory function that returns an instance of the `Archive` class.
+
+The Closure should accept the destination path and the current configuration instance as parameters, and return an instance that implements the `Archive` interface.
+
+Example of how the library registers the `zip` archive format:
+
+```php
+use PhpArchiveStream\ArchiveManager;
+
+$manager = new ArchiveManager;
+
+$manager->register('zip', function (string|array $destination, Config $config) {
+    $useZip64 = $config->get('zip.enableZip64', true);
+    $defaultChunkSize = $config->get('zip.input.chunkSize', 1048576);
+
+    $headers = $config->get('zip.headers');
+
+    $outputStream = $this->destination->getStream($destination, 'zip', $headers);
+
+    return new Zip(
+        $useZip64
+            ? new Zip64Writer($outputStream)
+            : new ZipWriter($outputStream),
+        $defaultChunkSize
+    );
+});
+```
+
+This approach allows for a high degree of flexibility, enabling you to create custom archive formats that suit your specific needs. Feel free to share new implementations with the community, as they may be useful to others as well.
+
+> If you wish to see how the library works with more detail, see the [Extending the Library](./EXTENDING.md) document.
