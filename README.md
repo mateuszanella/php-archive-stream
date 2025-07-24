@@ -67,7 +67,7 @@ To stream the archive directly to the browser, you can create the archive with `
 
 ```php
 // Stream directly to browser
-$zip = $manager->create('php://output');
+$zip = $manager->create('php://output', 'zip');
 $zip->addFileFromPath('report.pdf', './reports/monthly.pdf');
 $zip->finish();
 ```
@@ -85,6 +85,8 @@ $zip = $manager->create([
 $zip->addFileFromPath('data.json', './data.json');
 $zip->finish();
 ```
+
+> See more in the [Usage Documentation](./docs/USAGE.md).
 
 ## Configuration
 
