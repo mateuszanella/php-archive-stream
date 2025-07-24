@@ -2,6 +2,8 @@
 
 This guide shows you how to extend PHP Archive Stream with custom archive formats, stream types, and other functionality.
 
+> It is recommended to read the [Configuration Reference](./CONFIGURATION.md) and the [Architecture Overview](./ARCHITECTURE.md) before diving into extensions.
+
 ## Custom Archive Formats
 
 ### Creating a Custom Archive Type

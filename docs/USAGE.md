@@ -162,7 +162,7 @@ public function alias(string $alias, string $extension): void
 
 For example, there may be many naming conventions for gunzipped TAR files, such as `tar.gz`, `tgz`, or `tar.gzip`.
 
-In this case, the library register an alias as follows:
+In this case, the library registers an alias as follows:
 
 ```php
 $manager->alias('tgz', 'tar.gz');
@@ -223,4 +223,4 @@ $manager->register('zip', function (string|array $destination, Config $config) {
 
 This approach allows for a high degree of flexibility, enabling you to create custom archive formats that suit your specific needs. Feel free to share new implementations with the community, as they may be useful to others as well.
 
-> If you wish to see how the library works with more detail, see the [Extending the Library](./EXTENDING.md) document.
+> If you want a more comprehensive guide on how to extend these modules, see the [Extending the Library](./EXTENDING.md) reference.

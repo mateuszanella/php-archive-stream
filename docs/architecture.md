@@ -1,8 +1,12 @@
 # Architecture Overview
 
-This document provides an overview of the PHP Archive Stream library architecture and its core components.
+This document provides an overview of the **PHP Archive Stream** library architecture and its core components.
 
 ## High-Level Architecture
+
+As a general overview, the architecture can be visualized as follows:
+
+> This should become an image in the future, but for now just text is fine.
 
 ```
 ┌─────────────────┐    ┌────────────────────┐    ┌─────────────────┐
@@ -25,200 +29,102 @@ This document provides an overview of the PHP Archive Stream library architectur
                                                 └─────────┘ └─────────┘
 ```
 
-## Core Components
+## The Archive Manager Class
 
-### 1. ArchiveManager
+As seen in the [Usage Reference](./USAGE.md), the `ArchiveManager` is the central component that manages archive formats and their configurations. It interacts with the `DestinationManager` to handle file destinations.
 
-The main entry point and factory for creating archives.
+When extending library functionality, you can register new archive formats or aliases using the `ArchiveManager`. The `Archive` interface is implemented by the archive classes such as `Zip` and `Tar`, which handle the specifics of each archive format.
 
-**Responsibilities:**
-- Archive type registration and resolution
-- Configuration management
-- Driver instantiation
-- Extension alias management
+> See the [Extending the Library](./EXTENDING.md) section for more details on how to extend the library with custom archive formats.
 
-**Key Methods:**
-- `create()` - Creates archive instances
-- `register()` - Registers custom archive types
-- `alias()` - Creates extension aliases
+## The Archive Class
 
-### 2. Archive Implementations
+The `Archive` classes implement the `Archive` contract and provide the main interface to interact with different archive formats. For example, the `Zip` class handles ZIP archives, and has more methods specific to ZIP files, while the `Tar` class handles TAR archives, and is more simplistic in nature.
 
-Concrete implementations of the `Archive` interface.
+### Tar
 
-**Current Implementations:**
-- `Zip` - ZIP archive support
-- `Tar` - TAR archive support (including TAR.GZ)
-
-**Responsibilities:**
-- File addition from various sources
-- Chunk size management
-- Writer coordination
-
-### 3. Writer System
-
-Handles the actual archive format writing.
-
-**Writer Types:**
-- `ZipWriter` - Standard ZIP format
-- `Zip64Writer` - ZIP64 format for large archives
-- `TarWriter` - TAR format with optional compression
-
-**Responsibilities:**
-- Format-specific header/footer generation
-- File entry writing
-- Compression handling
-
-### 4. Stream System
-
-Manages input and output streaming.
-
-**Stream Types:**
-- `InputStream` - Reads from files, strings, or streams
-- `OutputStream` - Basic output stream
-- `GzOutputStream` - Gzip-compressed output
-- `ArrayOutputStream` - Multiple destination output
-- `HttpHeaderWriteStream` - HTTP header injection
-
-### 5. Configuration System
-
-Manages library configuration with dot notation support.
-
-**Features:**
-- Hierarchical configuration
-- Runtime modification
-- Default value merging
-- Type-safe access
-
-## Data Flow
-
-### Archive Creation Flow
-
-1. **Request Processing**
-   ```
-   Application → ArchiveManager::create(destination)
-   ```
-
-2. **Extension Resolution**
-   ```
-   DestinationManager::extractCommonExtension()
-   ArchiveManager → resolve driver and aliases
-   ```
-
-3. **Stream Creation**
-   ```
-   DestinationManager::getStream()
-   StreamFactory::make() → create appropriate streams
-   ```
-
-4. **Archive Instantiation**
-   ```
-   Driver factory function → create Archive + Writer
-   ```
-
-### File Addition Flow
-
-1. **Input Stream Creation**
-   ```
-   Archive::addFileFromPath()
-   InputStream::open() → create input stream
-   ```
-
-2. **Data Processing**
-   ```
-   Writer::addFile()
-   Read chunks → Process → Write to output stream
-   ```
-
-3. **Format Writing**
-   ```
-   Writer → generate headers/entries
-   OutputStream → write to destination(s)
-   ```
-
-## Design Patterns
-
-### Factory Pattern
-- `ArchiveManager` acts as a factory for archive instances
-- `StreamFactory` creates appropriate stream types
-- Dynamic driver registration enables extensibility
-
-### Strategy Pattern
-- Different `Writer` implementations for different formats
-- Configurable compression strategies
-- Pluggable stream factories
-
-### Decorator Pattern
-- `HttpHeaderWriteStream` decorates output streams
-- `GzOutputStream` adds compression to base streams
-- Multiple layers of stream processing
-
-### Template Method Pattern
-- Base `Archive` interface defines common operations
-- Concrete implementations customize specific behaviors
-- Writer system follows format-specific templates
-
-## Extension Points
-
-### Custom Archive Types
+The `Tar` class is a basic implementation of the `Archive` interface, providing methods to create and manipulate TAR archives. It does not support advanced features like compression or encryption.
 
 ```php
-// Register new archive format
-$manager->register('custom', function($destination, $config) {
-    $stream = $destinationManager->getStream($destination, 'custom');
-    return new CustomArchive(new CustomWriter($stream));
-});
-```
-
-### Custom Stream Factories
-
-```php
-class CustomStreamFactory implements StreamFactoryContract
+class Tar implements Archive
 {
-    public static function make(string $extension, $stream): WriteStream
-    {
-        // Custom stream creation logic
-    }
+    public function setDefaultReadChunkSize(int $chunkSize): void
+    public function addFileFromPath(string $fileName, string $filePath): void
+    public function addFileFromStream(string $fileName, $stream): void
+    public function addFileFromContentString(string $fileName, string $fileContents): void
+    public function finish(): void
 }
 ```
 
-### Custom Writers
+### Zip
+
+The `Zip` class contains a similar set of methods, but also includes additional functionality for handling ZIP-specific features such as compression:
 
 ```php
-class CustomWriter implements Writer
+class Zip implements Archive
 {
-    public function addFile(InputStream $stream, string $filename): void
-    {
-        // Custom format writing logic
-    }
+    public function setDefaultCompressor(string $compressor): void // Not present in the Archive interface
+    public function setDefaultReadChunkSize(int $chunkSize): void
+    public function addFileFromPath(string $fileName, string $filePath): void
+    public function addFileFromStream(string $fileName, $stream): void
+    public function addFileFromContentString(string $fileName, string $fileContents): void
+    public function finish(): void
 }
 ```
 
-## Error Handling Strategy
+## The Writer Class
 
-### Exception Hierarchy
-- `InvalidArgumentException` - Configuration/parameter errors
-- `RuntimeException` - Stream/IO errors
-- Format-specific exceptions for archive errors
+As a pattern of the library, you may see that all of the `Archive` classes have an implementation of a `Writer` in their constructor. `Writer` classes are responsible for generating the raw archive data and managing `ReadStreams` and `WriteStreams`.
 
-### Recovery Mechanisms
-- Graceful degradation for missing files
-- Stream error handling and cleanup
-- Partial archive recovery options
+With this implementation, the `Archive` classes function as a simple and intuitive interface for the manipulation of archives, allowing for easy swap of archive formats without changing the application logic. Such implementation can be seen in the `Zip` class, where the `ZipWriter` or `Zip64Writer` is used to handle the specifics of ZIP file creation.
 
-## Performance Considerations
+The `Writer` interface is simplistic in nature, and provides only two methods:
 
-### Memory Management
-- Streaming architecture prevents memory exhaustion
-- Configurable chunk sizes for memory/performance tuning
-- Lazy loading of file data
+```php
+interface Writer
+{
+    public function addFile(ReadStream $stream, string $fileName): void;
+    public function finish(): void;
+}
+```
 
-### I/O Optimization
-- Buffered stream operations
-- Minimal file system calls
-- Efficient compression algorithms
+Every writer also has access to the `WriteStream` object, and should send the raw data through that implementation.
 
-### Scalability
-- Support for multiple output destinations
-- Parallel processing capabilities
-- Large file handling (ZIP64, streaming TAR)
+In this fashion, it is the responsability of the `Archive` classes to handle the creation of the `WriteStream` and `ReadStream` objects and pass them to the `Writer` implementation.
+
+## The ReadStream Class
+
+The `ReadStream` class represents a stream of data from a file that will be added to the archive. Note that the reading of the byte stream returns a `Generator` pattern, allowing for efficient memory usage when reading large files, with a configurable chunk size.
+
+```php
+interface ReadStream
+{
+    public static function open(string $path, int $chunkSize): self;
+    public static function fromStream($stream, int $chunkSize): self;
+    public static function fromString(string $contents, int $chunkSize): self;
+    public function close(): void;
+    public function read(): Generator;
+    public function size(): int;
+}
+```
+
+## The WriteStream Class
+
+The `WriteStream` class represents how the raw archive data is written to the destination. It provides methods to write data to the stream, and is used by the `Writer` implementations to output the final archive file.
+
+This interface has more implementations that the ReadStream, which we will see in more detail.
+
+```php
+interface WriteStream
+{
+    public function close(): void;
+    public function write(string $s): int;
+    public function getBytesWritten(): int;
+}
+```
+
+At this stage, there are 4 implementations of the `WriteStream` interface:
+- `OutputStream`: Basic implementation of a stream with `fopen` and `fwrite` methods, used for writing to files or standard output;
+- `GzOutputStream`: An implementation that compresses the data using Gzip, suitable for writing compressed archives (`TarGz`);
+- `ArrayOutputStream`: An implementation that contains an array of `WriteStream` objects, allowing for multiple destinations to be written to simultaneously;
+- `HttpHeaderWriteStream`: A decorator for a `WriteStream` that contains a header array, and outputs the headers before writing the data.
