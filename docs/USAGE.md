@@ -2,9 +2,9 @@
 
 The ArchiveManager provides a flexible way to create and manage archives in various formats. This document outlines the basic usage patterns, including creating archives, adding files, and configuring the manager.
 
-## Creating the ArchiveManager
+## Creating the manager instance
 
-To start using the ArchiveManager, you need to create an instance:
+To start using the library, you need to create an instance of the `ArchiveManager` class.:
 
 ```php
 use PhpArchiveStream\ArchiveManager;
@@ -13,9 +13,9 @@ use PhpArchiveStream\ArchiveManager;
 $manager = new ArchiveManager;
 ```
 
-### Creating the ArchiveManager with Predefined Configuration
+### Creating the `ArchiveManager` with Predefined Configuration
 
-You can also create the ArchiveManager with a predefined configuration:
+You can also create the `ArchiveManager` with a predefined configuration:
 
 ```php
 use PhpArchiveStream\ArchiveManager;
@@ -36,41 +36,59 @@ $manager = new ArchiveManager([
 
 To create an archive, you can use the `create` method of the ArchiveManager. This method accepts the desired destination path, and an optional format string.
 
+```php
+/**
+ * Create a new archive instance.
+ *
+ * @param  string|array<string>  $destination
+ */
+public function create(string|array $destination, ?string $extension = null): Archive
+```
+
 The first argument is the destination path where the archive will be created, this can be either a `string` or an `array` of paths.
 
 > Each destination can be any streamable path, and does accept custom streams such as the default AWS or GCP bucket wrappers (`s3` or `gcs`).
 
 This makes it convenient to create archives in various locations, such as local filesystems, cloud storage, or even directly to the browser.
 
+```php
+// Creating a ZIP archive on an S3 bucket
+$manager->create('s3://path/to/file1.zip');
+```
+
 The second argument is the format of the archive, which is optional. If not provided, the library will attempt to determine the format based on the destination path.
 
 ```php
-$manager->create('/path/to/archive.zip');
-```
-
-```php
-$manager->create([
-    '/path/to/file1.txt', 
-    '/path/to/file2.txt'
-]);
+// Specifying the format explicitly
+$manager->create('php://output', 'zip');
 ```
 
 When creating an archive with an array of paths, the library saves the current state of the archive, and simply sends the data through each stream, making the process lightweight and convenient when dealing with simultaneous streams of multiple files.
+
+```php
+// Creating two ZIP archives, one in the filesystem and one in an S3 bucket
+$manager->create([
+    's3://path/to/file.zip', 
+    'path/to/local/file.zip'
+]);
+```
 
 ### Streaming an archive to the browser
 
 You may also wish to stream an archive directly to the browser. This can be done by passing `php://output` or `php://stdout` as the destination path. Note that in this case, the format **MUST** be specified, as the library cannot determine it from the destination path alone:
 
 ```php
+// Streaming a ZIP archive directly to the browser
 $manager->create('php://output', 'zip');
 ```
 
 You may also want to stream the archive to the browser, and save it somewhere at the same time:
 
 ```php
+// Streaming a ZIP archive to the browser while also saving it to a file
 $manager->create([
     'php://output',
-    '/path/to/archive.zip'
+    's3://path/to/archive.zip'
 ]);
 ```
 
@@ -81,6 +99,11 @@ Note that this time, we don't have to specify the format, as the library is able
 The process is relatively simple: the library checks for the file extension of the path.
 
 If the user provides the extension, the library will use it and apply it to the archive. This allows for the user to possibly create an archive with a custom extension, such as `.myzip` or `.mytar`. The developer is responsible for ensuring that the extension matches the format of the archive being created.
+
+```php
+// `output.something` will be created as a ZIP archive
+$manager->create('output.something', 'zip');
+```
 
 If the user omits the extension string, the library will then guess the extension through the `DestinationManager` class. 
 
