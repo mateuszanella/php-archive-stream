@@ -77,6 +77,10 @@ $manager->create('php://output', 'zip');
 
 You may also wish to stream an archive directly to the browser. This can be done by passing `php://output` or `php://stdout` as the destination path. Note that in this case, the format **MUST** be specified, as the library cannot determine it from the destination path alone:
 
+> Notes on streaming a file to the browser:
+> - Make sure to pay attention to the HTTP headers in the configuration, and ensure they are correctly set for your use case;
+> - In the event that headers have already been sent, the library **WILL NOT** attempt to send them again, and will simply stream the archive data, which may lead to unexpected results in the browser. It is the developer's responsibility to ensure that headers are sent correctly before streaming the archive.
+
 ```php
 // Streaming a ZIP archive directly to the browser
 $manager->create('php://output', 'zip');
