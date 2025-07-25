@@ -224,3 +224,68 @@ $manager->register('zip', function (string|array $destination, Config $config) {
 This approach allows for a high degree of flexibility, enabling you to create custom archive formats that suit your specific needs. Feel free to share new implementations with the community, as they may be useful to others as well.
 
 > If you want a more comprehensive guide on how to extend these modules, see the [Extending the Library](./EXTENDING.md) reference.
+
+## Using Archives
+
+The `create` method returns an instance of the `Archive` class, which provides methods to add files and finish the archive.
+
+The `Archive` class represents a specific archive format, such as ZIP or TAR, and provides methods to manipulate the archive.
+
+### Adding Files to the Archive
+
+The classes provide three methods to add files to the archive:
+
+- `addFileFromPath(string $fileName, string $filePath)`: Adds a file from a streamable valid filepath.
+- `addFileFromStream(string $fileName, resource $stream)`: Adds a file from a stream resource.
+- `addFileFromString(string $fileName, string $content)`: Adds a file from a string.
+
+```php
+// Adding a file from a path
+$archive->addFileFromPath('file.txt', '/path/to/file.txt');
+
+// Adding a file from a stream
+$stream = fopen('/path/to/file.txt', 'r');
+$archive->addFileFromStream('file.txt', $stream);
+fclose($stream);
+
+// Adding a file from a string
+$archive->addFileFromString('file.txt', 'File content goes here.');
+```
+
+### Setting the Default Read Chunk Size at runtime
+
+You can set the default read chunk size for the archive using the `setDefaultReadChunkSize(int $chunkSize)` method. This is useful for dinamically controlling how much data is read from the source files when adding them to the archive.
+
+```php
+$archive->setDefaultReadChunkSize(8192); // Will start reading files in 8KB chunks
+```
+
+### Zip-Specific Features
+
+The `Zip` class provides additional methods for ZIP-specific features, such as setting the active compression algorithm:
+
+```php
+// Setting the default compressor for ZIP archives
+$zipArchive->setDefaultCompressor(PhpArchiveStream\Compressor\DeflateCompressor::class);
+```
+
+This method sets the current compression algorithm being used by the archive.
+
+Currently, the library supports the following compressors:
+
+- `PhpArchiveStream\Compressor\DeflateCompressor`: The default compressor, which uses the DEFLATE algorithm.
+- `PhpArchiveStream\Compressor\StoreCompressor`: Uses the STORE algorithm, which does not compress the data.
+
+The function allows you to set custom compressors as well, as long as they implement the `Compressor` interface.
+
+> If you want a more comprehensive guide on how to extend these modules, see the [Extending the Library](./EXTENDING.md) reference. 
+
+### Finishing the Archive
+
+To finish the archive creation, you must call the `finish()` method on the `Archive` instance. This method finalizes the archive and writes it to the destination stream.
+
+```php
+$archive->finish();
+```
+
+Note that after calling this method, the archive is considered complete, and you cannot add more files to it. Trying to do so will result in an exception being thrown.
