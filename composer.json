@@ -1,6 +1,6 @@
 {
     "name": "mateuszanella/php-archive-stream",
-    "description": "File Stream for Zip and Tar archives",
+    "description": "A modular and lightweight PHP library for creating ZIP and TAR archives on-the-fly with streaming support.",
     "type": "library",
     "license": "MIT",
     "authors": [
