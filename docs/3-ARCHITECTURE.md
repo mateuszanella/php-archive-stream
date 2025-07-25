@@ -35,7 +35,7 @@ As seen in the [Usage Reference](./USAGE.md), the `ArchiveManager` is the centra
 
 When extending library functionality, you can register new archive formats or aliases using the `ArchiveManager`. The `Archive` interface is implemented by the archive classes such as `Zip` and `Tar`, which handle the specifics of each archive format.
 
-> See the [Extending the Library](./EXTENDING.md) section for more details on how to extend the library with custom archive formats.
+> See the [Extending the Library](./4-EXTENDING.md) section for more details on how to extend the library with custom archive formats.
 
 ## The Archive Class
 
@@ -128,3 +128,9 @@ At this stage, there are 4 implementations of the `WriteStream` interface:
 - `GzOutputStream`: An implementation that compresses the data using Gzip, suitable for writing compressed archives (`TarGz`);
 - `ArrayOutputStream`: An implementation that contains an array of `WriteStream` objects, allowing for multiple destinations to be written to simultaneously;
 - `HttpHeaderWriteStream`: A decorator for a `WriteStream` that contains a header array, and outputs the headers before writing the data.
+
+## Benefits of the Architecture
+
+The decision to use the `Writer` and `WriteStream` interfaces provides several benefits, as it allows for easy extension and customization of the library, aswell as a clear separation of concerns.
+
+This way, the means as to which the raw data is created, read and written is completely abstracted from the application logic, allowing for extensive modularity of archive formats without changing the core application code.

@@ -30,7 +30,7 @@ $manager = new ArchiveManager([
 ]);
 ```
 
-> If you wish to see all available configuration options, see the [Configuration Reference](./CONFIGURATION.md).
+> If you wish to see all available configuration options, see the [Configuration Reference](./2-CONFIGURATION.md).
 
 ## Creating Archives
 
@@ -61,7 +61,7 @@ When creating an archive with an array of paths, the library saves the current s
 ```php
 // Creating two ZIP archives, one in the filesystem and one in an S3 bucket
 $manager->create([
-    's3://path/to/file.zip', 
+    's3://path/to/file.zip',
     'path/to/local/file.zip'
 ]);
 ```
@@ -109,7 +109,7 @@ If the user provides the extension, the library will use it and apply it to the 
 $manager->create('output.something', 'zip');
 ```
 
-If the user omits the extension string, the library will then guess the extension through the `DestinationManager` class. 
+If the user omits the extension string, the library will then guess the extension through the `DestinationManager` class.
 
 It starts this process by plucking all of the extensions and compiles them to an array. If there is more than one unique extension, the library will throw an exception. In the same fashion, if the library cannot determine the extension from the path (such as when using `php://output`), it will also throw an exception.
 
@@ -178,7 +178,7 @@ You can retrieve the configuration instance from the `ArchiveManager` using the 
 $manager->config();
 ```
 
-> If you wish to see all available configuration options, see the [Configuration Reference](./CONFIGURATION.md).
+> If you wish to see all available configuration options, see the [Configuration Reference](./2-CONFIGURATION.md).
 
 ## Registering New Archive Formats
 
@@ -223,13 +223,11 @@ $manager->register('zip', function (string|array $destination, Config $config) {
 
 This approach allows for a high degree of flexibility, enabling you to create custom archive formats that suit your specific needs. Feel free to share new implementations with the community, as they may be useful to others as well.
 
-> If you want a more comprehensive guide on how to extend these modules, see the [Extending the Library](./EXTENDING.md) reference.
+> If you want a more comprehensive guide on how to extend these modules, see the [Extending the Library](./4-EXTENDING.md) reference.
 
 ## Using Archives
 
-The `create` method returns an instance of the `Archive` class, which provides methods to add files and finish the archive.
-
-The `Archive` class represents a specific archive format, such as ZIP or TAR, and provides methods to manipulate the archive.
+The `create` method returns an instance of the `Archive` interface, which represents a specific archive format, such as ZIP or TAR, and provides methods to manipulate the archive.
 
 ### Adding Files to the Archive
 
@@ -266,26 +264,26 @@ The `Zip` class provides additional methods for ZIP-specific features, such as s
 
 ```php
 // Setting the default compressor for ZIP archives
-$zipArchive->setDefaultCompressor(PhpArchiveStream\Compressor\DeflateCompressor::class);
+$zipArchive->setDefaultCompressor(PhpArchiveStream\Compressors\DeflateCompressor::class);
 ```
 
 This method sets the current compression algorithm being used by the archive.
 
 Currently, the library supports the following compressors:
 
-- `PhpArchiveStream\Compressor\DeflateCompressor`: The default compressor, which uses the DEFLATE algorithm.
-- `PhpArchiveStream\Compressor\StoreCompressor`: Uses the STORE algorithm, which does not compress the data.
+- `PhpArchiveStream\Compressors\DeflateCompressor`: The default compressor, which uses the DEFLATE algorithm.
+- `PhpArchiveStream\Compressors\StoreCompressor`: Uses the STORE algorithm, which does not compress the data.
 
 The function allows you to set custom compressors as well, as long as they implement the `Compressor` interface.
 
-> If you want a more comprehensive guide on how to extend these modules, see the [Extending the Library](./EXTENDING.md) reference. 
+> If you want a more comprehensive guide on how to extend these modules, see the [Extending the Library](./4-EXTENDING.md) reference.
 
 ### Finishing the Archive
 
-To finish the archive creation, you must call the `finish()` method on the `Archive` instance. This method finalizes the archive and writes it to the destination stream.
+To finish the archive creation, you must call the `finish()` method on the `Archive` instance.
 
 ```php
 $archive->finish();
 ```
 
-Note that after calling this method, the archive is considered complete, and you cannot add more files to it. Trying to do so will result in an exception being thrown.
+Note that after calling this method, the archive is considered complete, and you **cannot** add more files to it. Trying to do so will result in an exception being thrown.

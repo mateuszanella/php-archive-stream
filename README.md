@@ -86,13 +86,13 @@ $zip->addFileFromPath('data.json', './data.json');
 $zip->finish();
 ```
 
-> See more in the [Usage Documentation](./docs/USAGE.md).
+> See more in the [Usage Documentation](./docs/1-USAGE.md).
 
 ## Configuration
 
 You can customize the behavior of the archive manager using a configuration array. This allows you to set options like chunk sizes, compression methods, and more.
 
-> See more in the [Configuration Reference](./docs/CONFIGURATION.md).
+> See more in the [Configuration Reference](./docs/2-CONFIGURATION.md).
 
 ```php
 $config = [
@@ -112,10 +112,10 @@ $manager = new ArchiveManager($config);
 
 For detailed documentation, configuration options, and advanced usage, see the [documentation](./docs/) folder:
 
-- [Configuration Reference](./docs/CONFIGURATION.md)
-- [Advanced Usage](./docs/USAGE.md)
-- [Extending the Library](./docs/EXTENDING.md)
-- [Architecture Overview](./docs/ARCHITECTURE.md)
+- [Configuration Reference](./docs/2-CONFIGURATION.md)
+- [Advanced Usage](./docs/1-USAGE.md)
+- [Architecture Overview](./docs/3-ARCHITECTURE.md)
+- [Extending the Library](./docs/4-EXTENDING.md)
 
 ## Requirements
 
