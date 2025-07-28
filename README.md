@@ -77,7 +77,7 @@ $zip->finish();
 You can specify multiple destinations for the archive by passing an array to the `create` method:
 
 ```php
-// Stream to be browser and save a backup on disk
+// Stream the archive to the browser and save a backup on disk
 $zip = $manager->create([
     'php://output',
     './archive.zip'
