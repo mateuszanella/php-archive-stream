@@ -61,8 +61,10 @@ class HttpHeaderWriteStream implements WriteStream
      */
     protected function sendHeaders(): void
     {
-        foreach ($this->headers as $header) {
-            header($header);
+        foreach ($this->headers as $name => $value) {
+            is_numeric($name)
+                ? header($value)
+                : header("{$name}: {$value}");
         }
 
         $this->hasSentHeaders = true;
