@@ -29,7 +29,7 @@ class EndOfCentralDirectoryRecord
         string $extensibleDataSector
     ): string {
         // Size = (SizeOfFixedFields - 12) + SizeOfVariableData.
-        $sizeOfEndOfCentralDirectoryRecord = 44 + mb_strlen($extensibleDataSector);
+        $sizeOfEndOfCentralDirectoryRecord = 44 + strlen($extensibleDataSector);
 
         return Packer::pack(
             U32Field::create(self::SIGNATURE),

@@ -125,7 +125,7 @@ class Zip64Writer implements Writer
         foreach ($this->centralDirectoryHeaders as $header) {
             $this->outputStream->write($header);
 
-            $sizeOfCentralDirectory += mb_strlen($header);
+            $sizeOfCentralDirectory += strlen($header);
         }
 
         if (
@@ -209,16 +209,16 @@ class Zip64Writer implements Writer
 
         foreach ($stream->read() as $chunk) {
             $crc32->update($chunk);
-            $uncompressedSize += mb_strlen($chunk);
+            $uncompressedSize += strlen($chunk);
 
             $compressedChunk = $compressor->compress($chunk);
-            $compressedSize += mb_strlen($compressedChunk);
+            $compressedSize += strlen($compressedChunk);
 
             $this->outputStream->write($compressedChunk);
         }
 
         $finalCompressedChunk = $compressor->finish();
-        $compressedSize += mb_strlen($finalCompressedChunk);
+        $compressedSize += strlen($finalCompressedChunk);
 
         $this->outputStream->write($finalCompressedChunk);
 

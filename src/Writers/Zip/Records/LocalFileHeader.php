@@ -37,8 +37,8 @@ class LocalFileHeader
             U32Field::create($crc32),
             U32Field::create($compressedSize),
             U32Field::create($uncompressedSize),
-            U16Field::create(mb_strlen($fileName)),
-            U16Field::create(mb_strlen($extraField)),
+            U16Field::create(strlen($fileName)),
+            U16Field::create(strlen($extraField)),
         ).$fileName.$extraField;
     }
 }

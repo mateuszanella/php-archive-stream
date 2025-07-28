@@ -33,7 +33,7 @@ class EndOfCentralDirectoryRecord
             U16Field::create($totalCentralDirectoryRecords),
             U32Field::create($centralDirectorySize),
             U32Field::create($centralDirectoryOffset),
-            U16Field::create(mb_strlen($comment)),
+            U16Field::create(strlen($comment)),
         ).$comment;
     }
 }
