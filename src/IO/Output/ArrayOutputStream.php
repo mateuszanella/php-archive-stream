@@ -52,7 +52,7 @@ class ArrayOutputStream implements WriteStream
 
         // Although this is not the best solution, we must ensure
         // that the bytes written variable contains a correct value.
-        return $this->bytesWritten += $this->streams[0]->getBytesWritten();
+        return $this->bytesWritten = $this->streams[0]->getBytesWritten();
     }
 
     /**
