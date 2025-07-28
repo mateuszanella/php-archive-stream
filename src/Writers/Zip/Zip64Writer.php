@@ -56,8 +56,6 @@ class Zip64Writer implements Writer
     {
         $this->outputStream = $outputPath;
 
-        echo "\nUsing write stream class: " . get_class($this->outputStream) . "\n";
-
         $this->setDefaultCompressor(DeflateCompressor::class);
     }
 
