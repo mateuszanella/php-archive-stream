@@ -24,6 +24,7 @@ class StreamFactory implements StreamFactoryContract
             'zip'    => new OutputStream($stream),
             'tar'    => new OutputStream($stream),
             'tar.gz' => new GzOutputStream($stream),
+            '7z'     => new OutputStream($stream),
             default  => throw new InvalidArgumentException("Unsupported destination type: {$extension}"),
         };
     }

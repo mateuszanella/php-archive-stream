@@ -3,11 +3,13 @@
 namespace PhpArchiveStream;
 
 use Exception;
+use PhpArchiveStream\Archives\SevenZip;
 use PhpArchiveStream\Archives\Tar;
 use PhpArchiveStream\Archives\Zip;
 use PhpArchiveStream\Contracts\Archive;
 use PhpArchiveStream\Support\DestinationManager;
 use PhpArchiveStream\Support\StreamFactory;
+use PhpArchiveStream\Writers\SevenZip\SevenZipWriter;
 use PhpArchiveStream\Writers\Tar\TarWriter;
 use PhpArchiveStream\Writers\Zip\Zip64Writer;
 use PhpArchiveStream\Writers\Zip\ZipWriter;
@@ -148,6 +150,21 @@ class ArchiveManager
 
             return new Tar(
                 new TarWriter($outputStream),
+                $defaultChunkSize
+            );
+        });
+
+        $this->register('7z', function (string|array $destination, Config $config) {
+            $defaultChunkSize = $config->get('7z.input.chunkSize', 1048576);
+
+            $headers = $config->get('7z.headers');
+
+            $outputStream = $this->destination->getStream($destination, '7z', $headers);
+
+            return new SevenZip(
+                new SevenZipWriter($outputStream, [
+                    'compressor' => $config->get('7z.compressor'),
+                ]),
                 $defaultChunkSize
             );
         });

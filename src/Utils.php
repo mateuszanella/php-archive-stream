@@ -37,4 +37,22 @@ class Utils
             | ($minutes << 5)
             | $seconds;
     }
+
+    /**
+     * Convert a Unix timestamp to a Windows FILETIME value.
+     *
+     * FILETIME is the number of 100-nanosecond intervals since 1601-01-01.
+     */
+    public static function toFileTime(int $unixTime): int
+    {
+        return $unixTime * 10000000 + 116444736000000000;
+    }
+
+    /**
+     * Encode a string as UTF-16 little-endian bytes.
+     */
+    public static function toUtf16Le(string $value): string
+    {
+        return mb_convert_encoding($value, 'UTF-16LE', 'UTF-8');
+    }
 }

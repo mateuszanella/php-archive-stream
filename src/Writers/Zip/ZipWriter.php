@@ -4,6 +4,7 @@ namespace PhpArchiveStream\Writers\Zip;
 
 use InvalidArgumentException;
 use PhpArchiveStream\Compressors\DeflateCompressor;
+use PhpArchiveStream\Compressors\StoreCompressor;
 use PhpArchiveStream\Contracts\Compressor;
 use PhpArchiveStream\Contracts\IO\ReadStream;
 use PhpArchiveStream\Contracts\IO\WriteStream;
@@ -44,6 +45,16 @@ class ZipWriter implements Writer
     protected static int $versionMadeBy = 0x603;
 
     /**
+     * The ZIP compression method values for each supported compressor.
+     *
+     * @var array<class-string<Compressor>, int>
+     */
+    protected static array $compressionMethodFlags = [
+        StoreCompressor::class   => 0x00,
+        DeflateCompressor::class => 0x08,
+    ];
+
+    /**
      * Create a new ZipWriter instance, that supports zip version 1.0 and 2.0.
      *
      * @param  WriteStream  $outputStream  The output stream where the ZIP archive will be written.
@@ -82,16 +93,17 @@ class ZipWriter implements Writer
     public function addFile(ReadStream $stream, string $fileName): void
     {
         $compressor = new $this->defaultCompressor;
+        $compressionMethod = static::resolveCompressionMethod($this->defaultCompressor);
 
         $generalPurposeBitFlag = GeneralPurposeBitFlag::create()
             ->setZeroHeader(true)
-            ->setCompressionMethod($compressor);
+            ->setCompressionMethod($compressionMethod);
 
         $lastModificationUnixTime = time();
 
         $localHeaderOffset = $this->outputStream->getBytesWritten();
 
-        $this->writeLocalFileHeader($fileName, $generalPurposeBitFlag, $lastModificationUnixTime, $compressor::zipBitFlag());
+        $this->writeLocalFileHeader($fileName, $generalPurposeBitFlag, $lastModificationUnixTime, $compressionMethod);
 
         [$crc32Value, $compressedSize, $uncompressedSize] = $this->writeFile($stream, $compressor);
 
@@ -105,7 +117,7 @@ class ZipWriter implements Writer
             $compressedSize,
             $uncompressedSize,
             $localHeaderOffset,
-            $compressor::zipBitFlag()
+            $compressionMethod
         );
     }
 
@@ -135,6 +147,19 @@ class ZipWriter implements Writer
         $this->outputStream->write($endOfCentralDirectory);
         $this->outputStream->close();
         $this->outputStream = null;
+    }
+
+    /**
+     * Resolve the ZIP compression method value for a given compressor class.
+     *
+     * @param  string  $compressor  The fully qualified class name of the compressor.
+     *
+     * @throws InvalidArgumentException If the compressor is not supported.
+     */
+    protected static function resolveCompressionMethod(string $compressor): int
+    {
+        return static::$compressionMethodFlags[$compressor]
+            ?? throw new InvalidArgumentException('Unsupported compression method: '.$compressor);
     }
 
     /**

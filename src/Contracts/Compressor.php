@@ -5,13 +5,6 @@ namespace PhpArchiveStream\Contracts;
 interface Compressor
 {
     /**
-     * Get the Zip file format bit flag.
-     *
-     * @return int The bit flag used for Zip file format.
-     */
-    public static function zipBitFlag(): int;
-
-    /**
      * Initialize the compressor instance.
      *
      * @return static A new instance of the compressor.

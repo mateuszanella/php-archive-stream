@@ -31,11 +31,6 @@ class DeflateCompressor implements Compressor
         }
     }
 
-    public static function zipBitFlag(): int
-    {
-        return 0x08;
-    }
-
     public static function init(): static
     {
         return new static;

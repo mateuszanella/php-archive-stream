@@ -45,6 +45,18 @@ class Config
                 'Connection'                => 'Keep-Alive',
             ],
         ],
+        '7z' => [
+            'input'      => ['chunkSize' => 1048576],
+            'compressor' => \PhpArchiveStream\Compressors\Lzma2Compressor::class,
+            'headers'    => [
+                'Content-Type'              => 'application/x-7z-compressed',
+                'Content-Disposition'       => 'attachment; filename="archive.7z"',
+                'Content-Transfer-Encoding' => 'binary',
+                'Pragma'                    => 'public',
+                'Cache-Control'             => 'public, must-revalidate',
+                'Connection'                => 'Keep-Alive',
+            ],
+        ],
     ];
 
     /**

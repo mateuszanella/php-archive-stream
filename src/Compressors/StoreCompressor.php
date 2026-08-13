@@ -6,11 +6,6 @@ use PhpArchiveStream\Contracts\Compressor;
 
 class StoreCompressor implements Compressor
 {
-    public static function zipBitFlag(): int
-    {
-        return 0x00;
-    }
-
     public static function init(): static
     {
         return new static;

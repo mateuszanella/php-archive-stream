@@ -2,8 +2,6 @@
 
 namespace PhpArchiveStream\Writers\Zip\Records\Fields;
 
-use PhpArchiveStream\Contracts\Compressor;
-
 /**
  * A class representing the general purpose bit flag of a ZIP file.
  *
@@ -59,9 +57,9 @@ class GeneralPurposeBitFlag
     /**
      * Set the compression method in the general purpose bit flag.
      */
-    public function setCompressionMethod(Compressor $compressor): static
+    public function setCompressionMethod(int $compressionMethod): static
     {
-        $this->value |= $compressor::zipBitFlag();
+        $this->value |= $compressionMethod;
 
         return $this;
     }

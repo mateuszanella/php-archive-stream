@@ -103,7 +103,6 @@ class TarGzTest extends TestCase
 
         $reflection = new ReflectionClass($tar);
         $property = $reflection->getProperty('writer');
-        $property->setAccessible(true);
         $this->assertNull($property->getValue($tar));
     }
 }
