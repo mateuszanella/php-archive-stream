@@ -3,9 +3,10 @@
 namespace PhpArchiveStream\IO\Output;
 
 use InvalidArgumentException;
+use PhpArchiveStream\Contracts\IO\SeekableWriteStream;
 use PhpArchiveStream\Contracts\IO\WriteStream;
 
-class ArrayOutputStream implements WriteStream
+class ArrayOutputStream implements SeekableWriteStream
 {
     /**
      * The array of streams to write to.
@@ -61,6 +62,26 @@ class ArrayOutputStream implements WriteStream
     public function getBytesWritten(): int
     {
         return $this->bytesWritten;
+    }
+
+    /**
+     * Seek all streams to the given offset.
+     *
+     * @param  int  $offset  The offset to seek to.
+     * @param  int  $whence  The reference point for the offset.
+     * @return int The position of the first stream after seeking.
+     */
+    public function seek(int $offset, int $whence = SEEK_SET): int
+    {
+        $result = 0;
+
+        foreach ($this->streams as $stream) {
+            if ($stream instanceof SeekableWriteStream) {
+                $result = $stream->seek($offset, $whence);
+            }
+        }
+
+        return $result;
     }
 
     /**

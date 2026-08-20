@@ -48,6 +48,7 @@ class Config
         '7z' => [
             'input'      => ['chunkSize' => 1048576],
             'compressor' => \PhpArchiveStream\Compressors\Lzma2Compressor::class,
+            'streaming'  => 'auto',
             'headers'    => [
                 'Content-Type'              => 'application/x-7z-compressed',
                 'Content-Disposition'       => 'attachment; filename="archive.7z"',

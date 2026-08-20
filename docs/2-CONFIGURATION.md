@@ -104,6 +104,24 @@ Controls how much data is read from source files at once. Larger chunks can impr
 
 Defines custom HTTP headers sent when streaming to `php://output` or `php://stdout`.
 
+### 7Z Configuration
+
+#### Streaming Strategy
+
+The 7z format writes a signature header at the start of the archive that references the metadata header written at the end, so it cannot be streamed to a non-seekable destination without buffering. The `7z.streaming` option controls how packed data is written:
+
+```php
+'7z' => [
+    'streaming' => 'auto', // 'auto' | 'seek' | 'spool'
+]
+```
+
+- `auto` (default): streams packed data directly to the output when it is seekable (e.g. a local file), otherwise wraps the destination in a `SpoolWriteStream`.
+- `seek`: forces the streaming path, throwing an exception if the output stream is not seekable.
+- `spool`: forces the spooling path regardless of the output stream.
+
+This option is consumed by the `StreamFactory`, which decides whether to wrap non-seekable destinations in a `SpoolWriteStream`. The `SevenZipWriter` itself is agnostic to this decision, requiring only a seekable output stream. Both strategies produce byte-identical archives; the choice is purely a memory/disk trade-off for the destination in use.
+
 ## Runtime Configuration
 
 You may also modify configuration at runtime:

@@ -76,13 +76,13 @@ class SevenZipArchive implements Archive
 
 ```php
 use PhpArchiveStream\Contracts\Writers\Writer;
-use PhpArchiveStream\Contracts\IO\WriteStream;
+use PhpArchiveStream\Contracts\IO\SeekableWriteStream;
 use PhpArchiveStream\IO\Input\InputStream;
 
 class SevenZipWriter implements Writer
 {
     public function __construct(
-        protected WriteStream $outputStream
+        protected SeekableWriteStream $outputStream
     ) {}
 
     public function addFile(InputStream $inputStream, string $filename): void
@@ -161,6 +161,8 @@ $config = [
 
 $manager = new ArchiveManager($config);
 ```
+
+> **Seekable destinations and 7z:** Writers that need to seek (such as `SevenZipWriter`) type-hint `SeekableWriteStream`. If your custom stream factory serves a `7z` destination, it must return a stream implementing that interface. For non-seekable destinations, wrap them in `PhpArchiveStream\IO\Output\SpoolWriteStream`, which buffers the archive and provides the required seeking capability — this is exactly what the default `StreamFactory` does.
 
 ## Custom Output Streams
 

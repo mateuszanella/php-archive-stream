@@ -2,10 +2,10 @@
 
 namespace PhpArchiveStream\IO\Output;
 
-use PhpArchiveStream\Contracts\IO\WriteStream;
+use PhpArchiveStream\Contracts\IO\SeekableWriteStream;
 use PhpArchiveStream\Exceptions\CouldNotWriteToStreamException;
 
-class OutputStream implements WriteStream
+class OutputStream implements SeekableWriteStream
 {
     protected $stream;
 
@@ -31,6 +31,11 @@ class OutputStream implements WriteStream
         $this->bytesWritten += $bytesWritten;
 
         return $bytesWritten;
+    }
+
+    public function seek(int $offset, int $whence = SEEK_SET): int
+    {
+        return fseek($this->stream, $offset, $whence);
     }
 
     public function getBytesWritten(): int

@@ -2,9 +2,10 @@
 
 namespace PhpArchiveStream\IO\Output;
 
+use PhpArchiveStream\Contracts\IO\SeekableWriteStream;
 use PhpArchiveStream\Contracts\IO\WriteStream;
 
-class HttpHeaderWriteStream implements WriteStream
+class HttpHeaderWriteStream implements SeekableWriteStream
 {
     /**
      * The underlying stream to write to.
@@ -54,6 +55,13 @@ class HttpHeaderWriteStream implements WriteStream
     public function getBytesWritten(): int
     {
         return $this->stream->getBytesWritten();
+    }
+
+    public function seek(int $offset, int $whence = SEEK_SET): int
+    {
+        return $this->stream instanceof SeekableWriteStream
+            ? $this->stream->seek($offset, $whence)
+            : -1;
     }
 
     /**

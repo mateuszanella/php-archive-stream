@@ -79,8 +79,9 @@ class DestinationManager
      *
      * @param  string|array<string>  $destination
      * @param  array<string, string>  $headers
+     * @param  array<string, mixed>  $config  Configuration options forwarded to the stream factory.
      */
-    public function getStream(string|array $destination, string $extension, array $headers = []): WriteStream
+    public function getStream(string|array $destination, string $extension, array $headers = [], array $config = []): WriteStream
     {
         if (is_string($destination)) {
             $destination = [$destination];
@@ -90,7 +91,7 @@ class DestinationManager
         foreach ($destination as $dest) {
             $stream = $this->createStream($dest);
 
-            $writeStream = $this->streamFactoryClass::make($extension, $stream);
+            $writeStream = $this->streamFactoryClass::make($extension, $stream, $config);
 
             if ($this->shouldSendHTTPHeaders($dest)) {
                 $writeStream = new HttpHeaderWriteStream($writeStream, $headers);

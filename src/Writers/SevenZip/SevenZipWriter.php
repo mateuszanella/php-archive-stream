@@ -7,29 +7,44 @@ use PhpArchiveStream\Compressors\Lzma2Compressor;
 use PhpArchiveStream\Contracts\Coder;
 use PhpArchiveStream\Contracts\Compressor;
 use PhpArchiveStream\Contracts\IO\ReadStream;
-use PhpArchiveStream\Contracts\IO\WriteStream;
+use PhpArchiveStream\Contracts\IO\SeekableWriteStream;
 use PhpArchiveStream\Contracts\Writers\Writer;
 use PhpArchiveStream\Hashers\CRC32;
 use PhpArchiveStream\Writers\SevenZip\Records\Folder;
 use PhpArchiveStream\Writers\SevenZip\Records\Header;
 use PhpArchiveStream\Writers\SevenZip\Records\SignatureHeader;
 
+/**
+ * Writes 7z archives in a memory-friendly, streaming fashion.
+ *
+ * The 7z format is not natively streaming-friendly: the 32-byte signature
+ * header lives at the very start of the file and references the total packed
+ * size, the size, and the CRC of the metadata header, while the metadata
+ * header itself is written at the very end. The first bytes of the archive
+ * can therefore only be finalized once every file has been compressed.
+ *
+ * To reconcile this with streaming, this writer:
+ *
+ * 1. Reserves a 32-byte slot at the start of the archive;
+ * 2. Streams each file's compressed data straight to the output;
+ * 3. Appends the metadata header at the end;
+ * 4. Seeks back to the start and patches the signature header.
+ *
+ * This requires a {@see SeekableWriteStream}. The writer itself is agnostic
+ * to how that capability is provided: it may be a naturally seekable
+ * destination (e.g. a local file) or a non-seekable destination wrapped in a
+ * buffering decorator such as `PhpArchiveStream\IO\Output\SpoolWriteStream`.
+ * The stream layer is responsible for supplying an appropriate stream.
+ */
 class SevenZipWriter implements Writer
 {
     /**
-     * The output stream where the archive will be written.
+     * The seekable output stream where the archive will be written.
      */
-    protected ?WriteStream $outputStream;
+    protected ?SeekableWriteStream $outputStream;
 
     /**
-     * The seekable spool where packed streams are buffered until the archive is finished.
-     *
-     * @var resource
-     */
-    protected $spool;
-
-    /**
-     * The total number of packed bytes written to the spool.
+     * The total number of packed bytes written.
      */
     protected int $totalPackedSize = 0;
 
@@ -83,13 +98,16 @@ class SevenZipWriter implements Writer
     /**
      * Create a new SevenZipWriter instance.
      *
-     * @param  WriteStream  $outputStream  The output stream where the archive will be written.
-     * @param  array  $config  Configuration options for the writer.
+     * @param  SeekableWriteStream  $outputStream  The seekable output stream where the archive will be written.
+     * @param  array  $config  Configuration options for the writer. Supports `compressor`.
      */
-    public function __construct(WriteStream $outputStream, array $config = [])
+    public function __construct(SeekableWriteStream $outputStream, array $config = [])
     {
         $this->outputStream = $outputStream;
-        $this->spool = fopen('php://temp', 'w+b');
+
+        // Reserve the 32-byte signature header slot. It is patched with the
+        // real values once the archive is finished.
+        $this->outputStream->write(str_repeat("\0", 32));
 
         $this->setDefaultCompressor($config['compressor'] ?? Lzma2Compressor::class);
     }
@@ -145,13 +163,13 @@ class SevenZipWriter implements Writer
             $compressed = $compressor->compress($chunk);
             $packedSize += strlen($compressed);
 
-            fwrite($this->spool, $compressed);
+            $this->outputStream->write($compressed);
         }
 
         $final = $compressor->finish();
         $packedSize += strlen($final);
 
-        fwrite($this->spool, $final);
+        $this->outputStream->write($final);
 
         $this->totalPackedSize += $packedSize;
         $this->packedSizes[] = $packedSize;
@@ -177,36 +195,19 @@ class SevenZipWriter implements Writer
             emptyStreams: $this->emptyStreams,
         );
 
-        $this->outputStream->write(SignatureHeader::generate(
+        $signature = SignatureHeader::generate(
             nextHeaderOffset: $this->totalPackedSize,
             nextHeaderSize: strlen($header),
             nextHeaderCrc: crc32($header),
-        ));
+        );
 
-        $this->writeSpool();
-
+        // The metadata header is appended last, then the signature header slot
+        // reserved at the start is patched with the real values.
         $this->outputStream->write($header);
+        $this->outputStream->seek(0);
+        $this->outputStream->write($signature);
+
         $this->outputStream->close();
         $this->outputStream = null;
-    }
-
-    /**
-     * Stream the buffered packed data to the output.
-     */
-    protected function writeSpool(): void
-    {
-        rewind($this->spool);
-
-        while (! feof($this->spool)) {
-            $chunk = fread($this->spool, 1048576);
-
-            if ($chunk === false) {
-                break;
-            }
-
-            $this->outputStream->write($chunk);
-        }
-
-        fclose($this->spool);
     }
 }

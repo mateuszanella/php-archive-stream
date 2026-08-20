@@ -159,7 +159,9 @@ class ArchiveManager
 
             $headers = $config->get('7z.headers');
 
-            $outputStream = $this->destination->getStream($destination, '7z', $headers);
+            $outputStream = $this->destination->getStream($destination, '7z', $headers, [
+                'streaming' => $config->get('7z.streaming', 'auto'),
+            ]);
 
             return new SevenZip(
                 new SevenZipWriter($outputStream, [

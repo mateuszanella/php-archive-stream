@@ -123,11 +123,27 @@ interface WriteStream
 }
 ```
 
-At this stage, there are 4 implementations of the `WriteStream` interface:
+At this stage, there are 5 implementations of the `WriteStream` interface:
 - `OutputStream`: Basic implementation of a stream with `fopen` and `fwrite` methods, used for writing to files or standard output;
 - `GzOutputStream`: An implementation that compresses the data using Gzip, suitable for writing compressed archives (`TarGz`);
+- `SpoolWriteStream`: A decorator that buffers all writes in `php://temp` and provides seeking, used to target non-seekable destinations from writers that need to seek;
 - `ArrayOutputStream`: An implementation that contains an array of `WriteStream` objects, allowing for multiple destinations to be written to simultaneously;
 - `HttpHeaderWriteStream`: A decorator for a `WriteStream` that contains a header array, and outputs the headers before writing the data.
+
+### The SeekableWriteStream Interface
+
+Some archive formats (most notably `7z`) need to move the write pointer around the output — for example, to patch a header that was written before the data it describes. Since most destinations are not seekable (`php://output`, cloud wrappers, custom streams), seeking is exposed as an *optional* capability rather than a method on the `WriteStream` contract itself:
+
+```php
+interface SeekableWriteStream extends WriteStream
+{
+    public function seek(int $offset, int $whence = SEEK_SET): int;
+}
+```
+
+`OutputStream`, `SpoolWriteStream`, `ArrayOutputStream`, and `HttpHeaderWriteStream` all implement this interface by delegating to their underlying resources.
+
+Writers that need seeking (such as `SevenZipWriter`) simply type-hint `SeekableWriteStream` and remain agnostic to how that capability is provided. It is the stream layer's responsibility to supply an appropriate stream: the `StreamFactory` inspects the destination, wrapping non-seekable resources in a `SpoolWriteStream` so the capability is always satisfied. Custom stream factories serving `7z` must follow the same convention.
 
 ## Benefits of the Architecture
 
