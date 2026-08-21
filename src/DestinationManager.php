@@ -28,6 +28,14 @@ class DestinationManager
     ) {}
 
     /**
+     * Get the stream manager instance.
+     */
+    public function stream(): StreamManager
+    {
+        return $this->streams;
+    }
+
+    /**
      * Extract a common extension from an array of possible destinations.
      *
      * @param  string|array<string>  $destinations

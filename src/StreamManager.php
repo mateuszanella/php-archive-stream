@@ -127,7 +127,7 @@ class StreamManager
      * Open a destination using the given PHP open function.
      *
      * @param  callable(string, string): resource|false  $opener
-     * @return resource The opened stream resource.
+     * @return resource|bool The opened stream resource.
      *
      * @throws CouldNotOpenStreamException If the stream cannot be opened.
      */

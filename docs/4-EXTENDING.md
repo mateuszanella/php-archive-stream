@@ -130,27 +130,37 @@ $sevenZip->finish();
 
 ## Custom Streams
 
-Register custom stream builders on the `StreamManager` for specialized output handling. A stream builder receives the destination plus any stream configuration, and returns a `WriteStream`. Opening the destination is the builder's responsibility so the low-level open function always matches the stream implementation:
+Register custom stream builders on the `StreamManager` for specialized output handling. A stream builder receives the destination plus any stream configuration, and returns a `WriteStream`. Opening the destination is the builder's responsibility so the low-level open function always matches the stream implementation.
+
+The `StreamManager` is reachable through the `ArchiveManager::stream()` accessor, so you can register builders without rebuilding the manager:
 
 ```php
 use PhpArchiveStream\ArchiveManager;
-use PhpArchiveStream\ConfigManager;
 use PhpArchiveStream\Contracts\IO\WriteStream;
 use PhpArchiveStream\IO\Output\OutputStream;
-use PhpArchiveStream\DestinationManager;
-use PhpArchiveStream\StreamManager;
 
-$streams = new StreamManager;
+$manager = ArchiveManager::make();
 
-$streams->register('zip', function (string $destination, array $config = []): WriteStream {
+$manager->stream()->register('zip', function (string $destination, array $config = []): WriteStream {
     if (str_starts_with($destination, 'encrypt://')) {
         return new EncryptedOutputStream($destination);
     }
 
     return new OutputStream(fopen($destination, 'wb'));
 });
+```
 
-// Inject the stream manager alongside a destination manager
+Alternatively, inject a fully customised `StreamManager` through the constructor:
+
+```php
+use PhpArchiveStream\ConfigManager;
+use PhpArchiveStream\DestinationManager;
+use PhpArchiveStream\StreamManager;
+
+$streams = new StreamManager;
+
+// ...register builders on $streams...
+
 $manager = new ArchiveManager(new ConfigManager, new DestinationManager($streams));
 ```
 

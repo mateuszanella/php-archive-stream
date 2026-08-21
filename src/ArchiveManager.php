@@ -117,6 +117,22 @@ class ArchiveManager
     }
 
     /**
+     * Get the destination manager instance.
+     */
+    public function destination(): DestinationManager
+    {
+        return $this->destination;
+    }
+
+    /**
+     * Get the stream manager instance.
+     */
+    public function stream(): StreamManager
+    {
+        return $this->destination->stream();
+    }
+
+    /**
      * Register the default drivers.
      */
     protected function registerDefaults(): void

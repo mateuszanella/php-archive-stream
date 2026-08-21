@@ -42,6 +42,19 @@ As seen in the [Usage Reference](./USAGE.md), the `ArchiveManager` is the centra
 
 The `ArchiveManager` registers and dispatches archive formats via `register()`/`alias()`/`create()`. Its collaborators — the `ConfigManager` and `DestinationManager` (which in turn depends on the `StreamManager`) — are injected through the constructor, so advanced users can swap any of them out. For the common case, the `ArchiveManager::make()` static factory wires up sane defaults.
 
+Each collaborator is also exposed through an accessor on the `ArchiveManager`, so extensions can reach the underlying structures without rebuilding the manager:
+
+- `config()` — the `ConfigManager`;
+- `destination()` — the `DestinationManager`;
+- `stream()` — the `StreamManager`.
+
+```php
+$manager = ArchiveManager::make();
+
+$manager->stream()->register('tar.bz2', fn (string $destination) => new Bz2OutputStream(bzopen($destination, 'w')));
+$manager->config()->set('7z.streaming', 'spool');
+```
+
 When extending library functionality, you can register new archive formats or aliases using the `ArchiveManager`. The `Archive` interface is implemented by the archive classes such as `Zip` and `Tar`, which handle the specifics of each archive format.
 
 > See the [Extending the Library](./4-EXTENDING.md) section for more details on how to extend the library with custom archive formats.
