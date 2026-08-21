@@ -3,10 +3,11 @@
 namespace PhpArchiveStream\Archives;
 
 use PhpArchiveStream\Contracts\Archive;
+use PhpArchiveStream\Contracts\HasCompressor;
 use PhpArchiveStream\Contracts\Writers\Writer;
 use PhpArchiveStream\IO\Input\InputStream;
 
-class SevenZip implements Archive
+class SevenZip implements Archive, HasCompressor
 {
     /**
      * Create a new SevenZip archive instance.
@@ -23,10 +24,11 @@ class SevenZip implements Archive
      * Set the current compression algorithm for the archive.
      *
      * @param  string  $compressor  The compressor to set as default.
+     * @param  array<string, mixed>  $options  Options forwarded to the compressor's `init()` factory.
      */
-    public function setDefaultCompressor(string $compressor): void
+    public function setDefaultCompressor(string $compressor, array $options = []): void
     {
-        $this->writer->setDefaultCompressor($compressor);
+        $this->writer->setDefaultCompressor($compressor, $options);
     }
 
     /**

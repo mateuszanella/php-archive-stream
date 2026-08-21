@@ -4,11 +4,11 @@ namespace PhpArchiveStream\Writers\Zip;
 
 use InvalidArgumentException;
 use PhpArchiveStream\Compressors\DeflateCompressor;
-use PhpArchiveStream\Compressors\StoreCompressor;
 use PhpArchiveStream\Contracts\Compressor;
 use PhpArchiveStream\Contracts\IO\ReadStream;
 use PhpArchiveStream\Contracts\IO\WriteStream;
 use PhpArchiveStream\Contracts\Writers\Writer;
+use PhpArchiveStream\Contracts\Zip\CompressionMethod;
 use PhpArchiveStream\Hashers\CRC32;
 use PhpArchiveStream\Writers\Zip\Records\CentralDirectoryFileHeader;
 use PhpArchiveStream\Writers\Zip\Records\EndOfCentralDirectoryRecord;
@@ -38,16 +38,6 @@ class Zip64Writer implements Writer
     protected static int $versionMadeBy = 0x603;
 
     /**
-     * The ZIP compression method values for each supported compressor.
-     *
-     * @var array<class-string<Compressor>, int>
-     */
-    protected static array $compressionMethodFlags = [
-        StoreCompressor::class   => 0x00,
-        DeflateCompressor::class => 0x08,
-    ];
-
-    /**
      * The central directory headers collected during the writing process.
      */
     protected array $centralDirectoryHeaders = [];
@@ -58,32 +48,44 @@ class Zip64Writer implements Writer
     protected string $defaultCompressor;
 
     /**
+     * Options forwarded to the default compressor's `init()` factory.
+     *
+     * @var array<string, mixed>
+     */
+    protected array $compressorOptions = [];
+
+    /**
      * Create a new Zip64Writer instance, that supports zip version 4.5.
      *
      * @param  WriteStream  $outputStream  The output stream where the ZIP archive will be written.
-     * @param  array  $config  Configuration options for the writer, unused in this implementation.
+     * @param  array  $config  Configuration options for the writer. Supports `compressor` and `compressorOptions`.
      */
     public function __construct(WriteStream $outputPath, array $config = [])
     {
         $this->outputStream = $outputPath;
 
-        $this->setDefaultCompressor(DeflateCompressor::class);
+        $this->setDefaultCompressor(
+            $config['compressor'] ?? DeflateCompressor::class,
+            $config['compressorOptions'] ?? []
+        );
     }
 
     /**
      * Set the default compressor class to use for compression.
      *
      * @param  string  $compressor  The fully qualified class name of the compressor.
+     * @param  array<string, mixed>  $options  Options forwarded to the compressor's `init()` factory.
      *
      * @throws InvalidArgumentException If the compressor class is not valid.
      */
-    public function setDefaultCompressor(string $compressor): void
+    public function setDefaultCompressor(string $compressor, array $options = []): void
     {
-        if (! is_subclass_of($compressor, Compressor::class)) {
+        if (! is_subclass_of($compressor, Compressor::class) || ! is_subclass_of($compressor, CompressionMethod::class)) {
             throw new InvalidArgumentException('Invalid compressor class: '.$compressor);
         }
 
         $this->defaultCompressor = $compressor;
+        $this->compressorOptions = $options;
     }
 
     /**
@@ -91,8 +93,8 @@ class Zip64Writer implements Writer
      */
     public function addFile(ReadStream $stream, string $fileName): void
     {
-        $compressor = new $this->defaultCompressor;
-        $compressionMethod = static::resolveCompressionMethod($this->defaultCompressor);
+        $compressor = ($this->defaultCompressor)::init($this->compressorOptions);
+        $compressionMethod = $compressor->getCompressionMethod();
 
         $generalPurposeBitFlag = GeneralPurposeBitFlag::create()
             ->setZeroHeader()
@@ -175,19 +177,6 @@ class Zip64Writer implements Writer
 
         $this->outputStream->close();
         $this->outputStream = null;
-    }
-
-    /**
-     * Resolve the ZIP compression method value for a given compressor class.
-     *
-     * @param  string  $compressor  The fully qualified class name of the compressor.
-     *
-     * @throws InvalidArgumentException If the compressor is not supported.
-     */
-    protected static function resolveCompressionMethod(string $compressor): int
-    {
-        return static::$compressionMethodFlags[$compressor]
-            ?? throw new InvalidArgumentException('Unsupported compression method: '.$compressor);
     }
 
     /**

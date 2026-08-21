@@ -90,6 +90,11 @@ class SevenZipWriter implements Writer
         // Write the raw file data
     }
 
+    public function setDefaultCompressor(string $compressor, array $options = []): void
+    {
+        // Store the compressor class + options, or throw if unsupported
+    }
+
     public function finish(): void
     {
         // Write any additional data
@@ -217,36 +222,50 @@ $streams->register('zip', function ($resource) {
 
 ## Custom Compression
 
-Add custom compression algorithms:
+A compressor must implement the generic `Compressor` interface, plus the
+format-specific interface that declares how it is serialized into a given
+archive. For ZIP that is `CompressionMethod` (the `compression method` field
+from APPNOTE 4.4.5); for 7z it is `Coder`.
+
+The `init()` factory is the single entry point writers use to create a fresh
+instance, so constructor arguments are mapped from the options array here.
 
 ```php
-use PhpArchiveStream\Contracts\Writers\Compressor;
+use PhpArchiveStream\Contracts\Compressor;
+use PhpArchiveStream\Contracts\Zip\CompressionMethod;
 
-class LzmaCompressor implements Compressor
+class LzmaCompressor implements Compressor, CompressionMethod
 {
+    public static function init(array $options = []): static
+    {
+        return new static($options['level'] ?? 6);
+    }
+
+    public function __construct(protected int $level = 6) {}
+
     public function compress(string $data): string
     {
         return lzma_compress($data);
     }
 
-    public function getMethod(): int
+    public function finish(): string
     {
-        return 14; // LZMA compression method ID
+        return '';
     }
 
-    public function getLevel(): int
+    public function getCompressionMethod(): int
     {
-        return 6; // Default compression level
+        return 14; // LZMA compression method ID
     }
 }
 ```
 
-Then use it in ZIP archives:
+Then use it in ZIP archives, passing any options through to `init()`:
 
 ```php
 $zip = $manager->create('./archive.zip');
 
-$zip->setCompressor(LzmaCompressor::class);
+$zip->setDefaultCompressor(LzmaCompressor::class, ['level' => 9]);
 ```
 
 ## Configuration Extensions

@@ -2,8 +2,8 @@
 
 namespace PhpArchiveStream\Compressors;
 
-use PhpArchiveStream\Contracts\Coder;
 use PhpArchiveStream\Contracts\Compressor;
+use PhpArchiveStream\Contracts\SevenZip\Coder;
 use RuntimeException;
 use XZEncodeContext;
 
@@ -59,9 +59,15 @@ class LzmaCompressor implements Coder, Compressor
         }
     }
 
-    public static function init(): static
+    public static function init(array $options = []): static
     {
-        return new static;
+        return new static(
+            dictSize: $options['dictSize'] ?? 1 << 20,
+            level: $options['level'] ?? 6,
+            lc: $options['lc'] ?? 3,
+            lp: $options['lp'] ?? 0,
+            pb: $options['pb'] ?? 2,
+        );
     }
 
     public function compress(string $data): string

@@ -83,9 +83,9 @@ class Tar implements Archive
 The `Zip` class contains a similar set of methods, but also includes additional functionality for handling ZIP-specific features such as compression:
 
 ```php
-class Zip implements Archive
+class Zip implements Archive, HasCompressor
 {
-    public function setDefaultCompressor(string $compressor): void // Not present in the Archive interface
+    public function setDefaultCompressor(string $compressor, array $options = []): void // Declared in HasCompressor, not Archive
     public function setDefaultReadChunkSize(int $chunkSize): void
     public function addFileFromPath(string $fileName, string $filePath): void
     public function addFileFromStream(string $fileName, $stream): void
@@ -100,15 +100,20 @@ As a pattern of the library, you may see that all of the `Archive` classes have 
 
 With this implementation, the `Archive` classes function as a simple and intuitive interface for the manipulation of archives, allowing for easy swap of archive formats without changing the application logic. Such implementation can be seen in the `Zip` class, where the `ZipWriter` or `Zip64Writer` is used to handle the specifics of ZIP file creation.
 
-The `Writer` interface is simplistic in nature, and provides only two methods:
+The `Writer` interface is simplistic in nature, and provides three methods:
 
 ```php
 interface Writer
 {
     public function addFile(ReadStream $stream, string $fileName): void;
+    public function setDefaultCompressor(string $compressor, array $options = []): void;
     public function finish(): void;
 }
 ```
+
+`setDefaultCompressor()` is part of the contract, but writers that cannot compress
+(such as `TarWriter`, since TAR has no per-entry compression method) reject it by
+throwing a `BadMethodCallException`.
 
 Every writer also has access to the `WriteStream` object, and should send the raw data through that implementation.
 

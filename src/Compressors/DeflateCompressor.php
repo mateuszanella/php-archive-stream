@@ -4,9 +4,10 @@ namespace PhpArchiveStream\Compressors;
 
 use DeflateContext;
 use PhpArchiveStream\Contracts\Compressor;
+use PhpArchiveStream\Contracts\Zip\CompressionMethod;
 use RuntimeException;
 
-class DeflateCompressor implements Compressor
+class DeflateCompressor implements CompressionMethod, Compressor
 {
     /**
      * @var DeflateContext The deflate context resource.
@@ -31,9 +32,9 @@ class DeflateCompressor implements Compressor
         }
     }
 
-    public static function init(): static
+    public static function init(array $options = []): static
     {
-        return new static;
+        return new static($options['level'] ?? 6);
     }
 
     public function compress(string $data): string
@@ -56,5 +57,10 @@ class DeflateCompressor implements Compressor
         }
 
         return $data;
+    }
+
+    public function getCompressionMethod(): int
+    {
+        return 0x08;
     }
 }

@@ -235,7 +235,7 @@ The classes provide three methods to add files to the archive:
 
 - `addFileFromPath(string $fileName, string $filePath)`: Adds a file from a streamable valid filepath.
 - `addFileFromStream(string $fileName, resource $stream)`: Adds a file from a stream resource.
-- `addFileFromString(string $fileName, string $content)`: Adds a file from a string.
+- `addFileFromContentString(string $fileName, string $content)`: Adds a file from a string.
 
 ```php
 // Adding a file from a path
@@ -247,7 +247,7 @@ $archive->addFileFromStream('file.txt', $stream);
 fclose($stream);
 
 // Adding a file from a string
-$archive->addFileFromString('file.txt', 'File content goes here.');
+$archive->addFileFromContentString('file.txt', 'File content goes here.');
 ```
 
 ### Setting the Default Read Chunk Size at runtime

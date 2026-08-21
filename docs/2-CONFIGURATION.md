@@ -84,6 +84,20 @@ Enables the default usage of the ZIP64 format when creating a ZIP archive.
 
 > This enables the creation of archives larger than 4GB or with more than 65535 files.
 
+#### Compressor
+
+```php
+'zip' => [
+    'compressor' => PhpArchiveStream\Compressors\DeflateCompressor::class, // Default
+    'compressorOptions' => ['level' => 9], // Default: []
+]
+```
+
+Sets the default compressor class used for ZIP entries and the options forwarded
+to its `init()` factory. The class must implement `PhpArchiveStream\Contracts\Compressor`
+and `PhpArchiveStream\Contracts\Zip\CompressionMethod`. The `compressorOptions`
+array is passed verbatim to `init()` (e.g. `DeflateCompressor` accepts a `level`).
+
 #### Input Chunk Size
 
 ```php
@@ -125,6 +139,20 @@ The 7z format writes a signature header at the start of the archive that referen
 - `spool`: forces the spooling path regardless of the output stream.
 
 This option is consumed by the `StreamManager`, which decides whether to wrap non-seekable destinations in a `SpoolWriteStream`. The `SevenZipWriter` itself is agnostic to this decision, requiring only a seekable output stream. Both strategies produce byte-identical archives; the choice is purely a memory/disk trade-off for the destination in use.
+
+#### Compressor
+
+```php
+'7z' => [
+    'compressor' => PhpArchiveStream\Compressors\Lzma2Compressor::class, // Default
+    'compressorOptions' => ['dictSize' => 1 << 20, 'level' => 9], // Default: []
+]
+```
+
+Sets the default compressor class used for 7z entries and the options forwarded to
+its `init()` factory. The class must implement `PhpArchiveStream\Contracts\Compressor`
+and `PhpArchiveStream\Contracts\SevenZip\Coder`. The `compressorOptions` array is
+passed verbatim to `init()`.
 
 ## Runtime Configuration
 

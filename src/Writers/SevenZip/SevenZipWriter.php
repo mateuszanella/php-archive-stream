@@ -4,10 +4,10 @@ namespace PhpArchiveStream\Writers\SevenZip;
 
 use InvalidArgumentException;
 use PhpArchiveStream\Compressors\Lzma2Compressor;
-use PhpArchiveStream\Contracts\Coder;
 use PhpArchiveStream\Contracts\Compressor;
 use PhpArchiveStream\Contracts\IO\ReadStream;
 use PhpArchiveStream\Contracts\IO\SeekableWriteStream;
+use PhpArchiveStream\Contracts\SevenZip\Coder;
 use PhpArchiveStream\Contracts\Writers\Writer;
 use PhpArchiveStream\Hashers\CRC32;
 use PhpArchiveStream\Writers\SevenZip\Records\Folder;
@@ -96,10 +96,17 @@ class SevenZipWriter implements Writer
     protected string $defaultCompressor;
 
     /**
+     * Options forwarded to the default compressor's `init()` factory.
+     *
+     * @var array<string, mixed>
+     */
+    protected array $compressorOptions = [];
+
+    /**
      * Create a new SevenZipWriter instance.
      *
      * @param  SeekableWriteStream  $outputStream  The seekable output stream where the archive will be written.
-     * @param  array  $config  Configuration options for the writer. Supports `compressor`.
+     * @param  array  $config  Configuration options for the writer. Supports `compressor` and `compressorOptions`.
      */
     public function __construct(SeekableWriteStream $outputStream, array $config = [])
     {
@@ -109,23 +116,28 @@ class SevenZipWriter implements Writer
         // real values once the archive is finished.
         $this->outputStream->write(str_repeat("\0", 32));
 
-        $this->setDefaultCompressor($config['compressor'] ?? Lzma2Compressor::class);
+        $this->setDefaultCompressor(
+            $config['compressor'] ?? Lzma2Compressor::class,
+            $config['compressorOptions'] ?? []
+        );
     }
 
     /**
      * Set the default compressor class to use for compression.
      *
      * @param  string  $compressor  The fully qualified class name of the compressor.
+     * @param  array<string, mixed>  $options  Options forwarded to the compressor's `init()` factory.
      *
      * @throws InvalidArgumentException If the provided class is not a valid compressor and coder.
      */
-    public function setDefaultCompressor(string $compressor): void
+    public function setDefaultCompressor(string $compressor, array $options = []): void
     {
         if (! is_subclass_of($compressor, Compressor::class) || ! is_subclass_of($compressor, Coder::class)) {
             throw new InvalidArgumentException('Invalid compressor class: '.$compressor);
         }
 
         $this->defaultCompressor = $compressor;
+        $this->compressorOptions = $options;
     }
 
     /**
@@ -150,7 +162,7 @@ class SevenZipWriter implements Writer
         $this->emptyStreams[] = false;
 
         /** @var Compressor&Coder $compressor */
-        $compressor = new $this->defaultCompressor;
+        $compressor = ($this->defaultCompressor)::init($this->compressorOptions);
 
         $crc32 = CRC32::init();
         $unpackSize = 0;

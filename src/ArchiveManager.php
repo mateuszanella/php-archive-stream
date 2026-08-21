@@ -145,10 +145,15 @@ class ArchiveManager
 
             $outputStream = $this->destination->getStream($destination, 'zip', $headers);
 
+            $writerConfig = [
+                'compressor'        => $config->get('zip.compressor'),
+                'compressorOptions' => $config->get('zip.compressorOptions', []),
+            ];
+
             return new Zip(
                 $useZip64
-                    ? new Zip64Writer($outputStream)
-                    : new ZipWriter($outputStream),
+                    ? new Zip64Writer($outputStream, $writerConfig)
+                    : new ZipWriter($outputStream, $writerConfig),
                 $defaultChunkSize
             );
         });
@@ -190,7 +195,8 @@ class ArchiveManager
 
             return new SevenZip(
                 new SevenZipWriter($outputStream, [
-                    'compressor' => $config->get('7z.compressor'),
+                    'compressor'        => $config->get('7z.compressor'),
+                    'compressorOptions' => $config->get('7z.compressorOptions', []),
                 ]),
                 $defaultChunkSize
             );

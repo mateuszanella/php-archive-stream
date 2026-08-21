@@ -5,11 +5,12 @@ namespace PhpArchiveStream\Contracts;
 interface Compressor
 {
     /**
-     * Initialize the compressor instance.
+     * Create a new compressor instance from the given options.
      *
+     * @param  array<string, mixed>  $options  Compressor-specific options.
      * @return static A new instance of the compressor.
      */
-    public static function init(): static;
+    public static function init(array $options = []): static;
 
     /**
      * Compress the given data.

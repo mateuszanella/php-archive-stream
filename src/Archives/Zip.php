@@ -3,10 +3,11 @@
 namespace PhpArchiveStream\Archives;
 
 use PhpArchiveStream\Contracts\Archive;
+use PhpArchiveStream\Contracts\HasCompressor;
 use PhpArchiveStream\Contracts\Writers\Writer;
 use PhpArchiveStream\IO\Input\InputStream;
 
-class Zip implements Archive
+class Zip implements Archive, HasCompressor
 {
     /**
      * Create a new Zip archive instance.
@@ -28,10 +29,11 @@ class Zip implements Archive
      * ```
      *
      * @param  string  $compressor  The compressor to set as default.
+     * @param  array<string, mixed>  $options  Options forwarded to the compressor's `init()` factory.
      */
-    public function setDefaultCompressor(string $compressor): void
+    public function setDefaultCompressor(string $compressor, array $options = []): void
     {
-        $this->writer->setDefaultCompressor($compressor);
+        $this->writer->setDefaultCompressor($compressor, $options);
     }
 
     /**

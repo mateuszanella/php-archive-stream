@@ -9,9 +9,11 @@ class ConfigManager
      */
     protected const DEFAULTS = [
         'zip' => [
-            'enableZip64' => true,
-            'input'       => ['chunkSize' => 1048576],
-            'headers'     => [
+            'enableZip64'       => true,
+            'compressor'        => \PhpArchiveStream\Compressors\DeflateCompressor::class,
+            'compressorOptions' => [],
+            'input'             => ['chunkSize' => 1048576],
+            'headers'           => [
                 'Content-Type'              => 'application/zip',
                 'Content-Disposition'       => 'attachment; filename="archive.zip"',
                 'Content-Transfer-Encoding' => 'binary',
@@ -43,10 +45,11 @@ class ConfigManager
             ],
         ],
         '7z' => [
-            'input'      => ['chunkSize' => 1048576],
-            'compressor' => \PhpArchiveStream\Compressors\Lzma2Compressor::class,
-            'streaming'  => 'auto',
-            'headers'    => [
+            'input'             => ['chunkSize' => 1048576],
+            'compressor'        => \PhpArchiveStream\Compressors\Lzma2Compressor::class,
+            'compressorOptions' => [],
+            'streaming'         => 'auto',
+            'headers'           => [
                 'Content-Type'              => 'application/x-7z-compressed',
                 'Content-Disposition'       => 'attachment; filename="archive.7z"',
                 'Content-Transfer-Encoding' => 'binary',
