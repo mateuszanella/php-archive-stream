@@ -41,7 +41,7 @@ class ArchiveManager
     /**
      * Create a new ArchiveManager instance.
      *
-     * @param  ConfigManager  $config  The configuration instance.
+     * @param  ConfigManager  $config  The configuration manager instance.
      * @param  DestinationManager  $destination  The destination manager instance.
      */
     public function __construct(ConfigManager $config, DestinationManager $destination)
