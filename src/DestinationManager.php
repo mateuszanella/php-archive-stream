@@ -1,44 +1,31 @@
 <?php
 
-namespace PhpArchiveStream\Support;
+namespace PhpArchiveStream;
 
 use InvalidArgumentException;
-use PhpArchiveStream\Concerns\CreatesStreams;
 use PhpArchiveStream\Concerns\ParsesPaths;
 use PhpArchiveStream\Contracts\IO\WriteStream;
-use PhpArchiveStream\Contracts\StreamFactory as StreamFactoryContract;
 use PhpArchiveStream\IO\Output\ArrayOutputStream;
 use PhpArchiveStream\IO\Output\HttpHeaderWriteStream;
 
+/**
+ * Resolves destinations into write streams.
+ *
+ * `DestinationManager` is responsible for the destination side of the
+ * library: it parses paths, applies context-specific behavior (such as HTTP
+ * headers for web output), and delegates the opening and wrapping of each
+ * destination to the {@see StreamManager}.
+ */
 class DestinationManager
 {
-    use CreatesStreams,
-        ParsesPaths;
-
-    /**
-     * The class used to create streams.
-     */
-    protected string $streamFactoryClass;
+    use ParsesPaths;
 
     /**
      * Create a new DestinationManager instance.
      */
-    public function __construct(string $streamFactoryClass)
-    {
-        $this->useFactory($streamFactoryClass);
-    }
-
-    /**
-     * Set the stream factory class to be used.
-     */
-    public function useFactory(string $class): void
-    {
-        if (! is_subclass_of($class, StreamFactoryContract::class)) {
-            throw new InvalidArgumentException('The class must implement '.StreamFactoryContract::class);
-        }
-
-        $this->streamFactoryClass = $class;
-    }
+    public function __construct(
+        protected StreamManager $streams,
+    ) {}
 
     /**
      * Extract a common extension from an array of possible destinations.
@@ -79,7 +66,7 @@ class DestinationManager
      *
      * @param  string|array<string>  $destination
      * @param  array<string, string>  $headers
-     * @param  array<string, mixed>  $config  Configuration options forwarded to the stream factory.
+     * @param  array<string, mixed>  $config  Configuration options forwarded to the stream manager.
      */
     public function getStream(string|array $destination, string $extension, array $headers = [], array $config = []): WriteStream
     {
@@ -89,9 +76,7 @@ class DestinationManager
 
         $outputStreams = [];
         foreach ($destination as $dest) {
-            $stream = $this->createStream($dest);
-
-            $writeStream = $this->streamFactoryClass::make($extension, $stream, $config);
+            $writeStream = $this->streams->make($extension, $dest, $config);
 
             if ($this->shouldSendHTTPHeaders($dest)) {
                 $writeStream = new HttpHeaderWriteStream($writeStream, $headers);

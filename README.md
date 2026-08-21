@@ -29,7 +29,7 @@ To get started, include the library and create an `ArchiveManager` instance:
 use PhpArchiveStream\ArchiveManager;
 
 // Create a manager instance
-$manager = new ArchiveManager;
+$manager = ArchiveManager::make();
 ```
 
 ### Creating Archives
@@ -105,7 +105,7 @@ $config = [
     ]
 ];
 
-$manager = new ArchiveManager($config);
+$manager = ArchiveManager::make($config);
 ```
 
 ## Documentation

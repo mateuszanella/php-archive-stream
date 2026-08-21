@@ -103,10 +103,10 @@ class SevenZipWriter implements Writer
 #### Registering the Custom Format
 
 ```php
-$manager = new ArchiveManager;
+$manager = ArchiveManager::make();
 
 // Register 7Z support
-$manager->register('7z', function (string|array $destination, Config $config) {
+$manager->register('7z', function (string|array $destination, ConfigManager $config) {
     $defaultChunkSize = $config->get('7z.input.chunkSize', 1048576);
     $headers = $config->get('7z.headers', []);
 
@@ -128,41 +128,33 @@ $sevenZip->addFileFromPath('file.txt', './file.txt');
 $sevenZip->finish();
 ```
 
-## Custom Stream Factories
+## Custom Streams
 
-Create custom stream factories for specialized output handling:
+Register custom stream builders on the `StreamManager` for specialized output handling. A stream builder receives the destination plus any stream configuration, and returns a `WriteStream`. Opening the destination is the builder's responsibility so the low-level open function always matches the stream implementation:
 
 ```php
-use PhpArchiveStream\Contracts\StreamFactory as StreamFactoryContract;
+use PhpArchiveStream\ArchiveManager;
+use PhpArchiveStream\ConfigManager;
 use PhpArchiveStream\Contracts\IO\WriteStream;
+use PhpArchiveStream\IO\Output\OutputStream;
+use PhpArchiveStream\DestinationManager;
+use PhpArchiveStream\StreamManager;
 
-class CustomStreamFactory implements StreamFactoryContract
-{
-    public static function make(string $extension, $stream): WriteStream
-    {
-        if (str_starts_with(stream_get_meta_data($stream)['uri'], 'encrypt://')) {
-            return new EncryptedOutputStream($stream);
-        }
+$streams = new StreamManager;
 
-        // Fall back to default streams
-        return match ($extension) {
-            'zip' => new OutputStream($stream),
-            'tar' => new OutputStream($stream),
-            'tar.gz' => new GzOutputStream($stream),
-            default => throw new InvalidArgumentException("Unsupported: {$extension}"),
-        };
+$streams->register('zip', function (string $destination, array $config = []): WriteStream {
+    if (str_starts_with($destination, 'encrypt://')) {
+        return new EncryptedOutputStream($destination);
     }
-}
 
-// Use custom stream factory for default archive creation
-$config = [
-    'streamFactory' => CustomStreamFactory::class
-];
+    return new OutputStream(fopen($destination, 'wb'));
+});
 
-$manager = new ArchiveManager($config);
+// Inject the stream manager alongside a destination manager
+$manager = new ArchiveManager(new ConfigManager, new DestinationManager($streams));
 ```
 
-> **Seekable destinations and 7z:** Writers that need to seek (such as `SevenZipWriter`) type-hint `SeekableWriteStream`. If your custom stream factory serves a `7z` destination, it must return a stream implementing that interface. For non-seekable destinations, wrap them in `PhpArchiveStream\IO\Output\SpoolWriteStream`, which buffers the archive and provides the required seeking capability — this is exactly what the default `StreamFactory` does.
+> **Seekable destinations and 7z:** Writers that need to seek (such as `SevenZipWriter`) type-hint `SeekableWriteStream`. If a stream builder serves a `7z` destination, it must return a stream implementing that interface. For non-seekable destinations, wrap them in `PhpArchiveStream\IO\Output\SpoolWriteStream`, which buffers the archive and provides the required seeking capability — this is exactly what the default `StreamManager` does.
 
 ## Custom Output Streams
 
@@ -203,19 +195,14 @@ class DatabaseOutputStream implements WriteStream
     }
 }
 
-// Usage with custom stream factory
-class DatabaseStreamFactory implements StreamFactoryContract
-{
-    public static function make(string $extension, $stream): WriteStream
-    {
-        if ($stream instanceof DatabaseOutputStream) {
-            return $stream;
-        }
+// Usage with a custom stream builder
+use PhpArchiveStream\StreamManager;
 
-        // Default handling
-        return StreamFactory::make($extension, $stream);
-    }
-}
+$streams = new StreamManager;
+
+$streams->register('zip', function ($resource) {
+    return new DatabaseOutputStream(/* ... */);
+});
 ```
 
 ## Custom Compression

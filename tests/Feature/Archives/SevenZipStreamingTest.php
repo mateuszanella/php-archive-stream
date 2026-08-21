@@ -39,13 +39,13 @@ class SevenZipStreamingTest extends TestCase
 
     public function test_streaming_and_spool_strategies_produce_identical_archives(): void
     {
-        $streaming = (new ArchiveManager)->create($this->outputPath);
+        $streaming = ArchiveManager::make()->create($this->outputPath);
         $streaming->addFileFromPath('input.txt', $this->inputPath);
         $streaming->finish();
 
-        $spooling = (new ArchiveManager([
+        $spooling = ArchiveManager::make([
             '7z' => ['streaming' => 'spool'],
-        ]))->create($this->spoolPath);
+        ])->create($this->spoolPath);
         $spooling->addFileFromPath('input.txt', $this->inputPath);
         $spooling->finish();
 

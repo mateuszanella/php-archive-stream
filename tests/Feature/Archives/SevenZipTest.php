@@ -41,7 +41,7 @@ class SevenZipTest extends TestCase
 
     public function test_creates_seven_zip_archive_via_manager(): void
     {
-        $manager = new ArchiveManager;
+        $manager = ArchiveManager::make();
 
         $archive = $manager->create($this->outputPath);
 
@@ -50,7 +50,7 @@ class SevenZipTest extends TestCase
 
     public function test_archive_has_valid_signature_and_header(): void
     {
-        $manager = new ArchiveManager;
+        $manager = ArchiveManager::make();
 
         $archive = $manager->create($this->outputPath);
         $archive->addFileFromContentString('hello.txt', 'Hello World 1');

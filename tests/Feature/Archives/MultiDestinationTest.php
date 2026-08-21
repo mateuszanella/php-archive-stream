@@ -22,7 +22,7 @@ class MultiDestinationTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->manager = new ArchiveManager;
+        $this->manager = ArchiveManager::make();
 
         if (file_exists($this->outputPath1)) {
             unlink($this->outputPath1);

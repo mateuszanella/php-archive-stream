@@ -8,12 +8,6 @@ The default configuration is as follows:
 
 ```php
 $defaultConfig = [
-    /**
-     * The factory class used to define which stream is used 
-     * for each output on each archive type with the default
-     * archive implementations.
-     */
-    'streamFactory' => StreamFactory::class,
     'zip' => [
         /**
          * Enables ZIP64 support for large archives.
@@ -56,15 +50,25 @@ $defaultConfig = [
 
 ## Configuration Options
 
-### Stream Factory
+### Stream Manager
+
+Streams are resolved by an injectable `StreamManager` rather than through configuration. To customize how a destination resource is wrapped for a given format, inject a configured `StreamManager` (or register custom stream builders on it) into the `ArchiveManager` constructor.
 
 ```php
-'streamFactory' => CustomStreamFactory::class
+use PhpArchiveStream\ArchiveManager;
+use PhpArchiveStream\ConfigManager;
+use PhpArchiveStream\StreamManager;
+use PhpArchiveStream\DestinationManager;
+
+$streams = new StreamManager;
+
+// Override or add stream builders, e.g.:
+// $streams->register('zip', fn ($destination) => new CustomOutputStream($destination));
+
+$manager = new ArchiveManager(new ConfigManager, new DestinationManager($streams));
 ```
 
-Specifies the class used to identify which `WriteStream` will be used for the given format in the default archive implementations. 
-
-Classes must implement the `PhpArchiveStream\Contracts\StreamFactory.php` interface, and will throw a `RuntimeException` otherwise.
+See the [Extending the Library](./4-EXTENDING.md) reference for registering custom stream builders.
 
 ### ZIP Configuration
 
@@ -120,14 +124,14 @@ The 7z format writes a signature header at the start of the archive that referen
 - `seek`: forces the streaming path, throwing an exception if the output stream is not seekable.
 - `spool`: forces the spooling path regardless of the output stream.
 
-This option is consumed by the `StreamFactory`, which decides whether to wrap non-seekable destinations in a `SpoolWriteStream`. The `SevenZipWriter` itself is agnostic to this decision, requiring only a seekable output stream. Both strategies produce byte-identical archives; the choice is purely a memory/disk trade-off for the destination in use.
+This option is consumed by the `StreamManager`, which decides whether to wrap non-seekable destinations in a `SpoolWriteStream`. The `SevenZipWriter` itself is agnostic to this decision, requiring only a seekable output stream. Both strategies produce byte-identical archives; the choice is purely a memory/disk trade-off for the destination in use.
 
 ## Runtime Configuration
 
 You may also modify configuration at runtime:
 
 ```php
-$manager = new ArchiveManager;
+$manager = ArchiveManager::make();
 
 // Get configuration instance
 $config = $manager->config();

@@ -10,7 +10,7 @@ To start using the library, you need to create an instance of the `ArchiveManage
 use PhpArchiveStream\ArchiveManager;
 
 // Create a manager instance
-$manager = new ArchiveManager;
+$manager = ArchiveManager::make();
 ```
 
 ### Creating the `ArchiveManager` with Predefined Configuration
@@ -21,7 +21,7 @@ You can also create the `ArchiveManager` with a predefined configuration:
 use PhpArchiveStream\ArchiveManager;
 
 // Create a manager instance with predefined configuration
-$manager = new ArchiveManager([
+$manager = ArchiveManager::make([
     'zip' => [
         'enableZip64' => true, // Enable ZIP64 format
         'input' => ['chunkSize' => 2097152] // 2MB chunks
@@ -188,7 +188,7 @@ You can register new archive formats by using the `register` method. This allows
 /**
  * Register a new driver.
  *
- * @param  callable(string|array<string>, \PhpArchiveStream\Config): Archive  $factory
+ * @param  callable(string|array<string>, \PhpArchiveStream\ConfigManager): Archive  $factory
  */
 public function register(string $extension, callable $factory): void
 ```
@@ -202,9 +202,9 @@ Example of how the library registers the `zip` archive format:
 ```php
 use PhpArchiveStream\ArchiveManager;
 
-$manager = new ArchiveManager;
+$manager = ArchiveManager::make();
 
-$manager->register('zip', function (string|array $destination, Config $config) {
+$manager->register('zip', function (string|array $destination, ConfigManager $config) {
     $useZip64 = $config->get('zip.enableZip64', true);
     $defaultChunkSize = $config->get('zip.input.chunkSize', 1048576);
 

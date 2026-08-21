@@ -4,7 +4,7 @@ namespace Tests\Unit;
 
 use PhpArchiveStream\ArchiveManager;
 use PhpArchiveStream\Archives\Tar;
-use PhpArchiveStream\Config;
+use PhpArchiveStream\ConfigManager;
 use PHPUnit\Framework\TestCase;
 
 class ArchiveManagerTest extends TestCase
@@ -18,15 +18,25 @@ class ArchiveManagerTest extends TestCase
 
     public function test_archive_manager_initialization(): void
     {
-        $manager = new ArchiveManager;
+        $manager = ArchiveManager::make();
 
         $this->assertInstanceOf(ArchiveManager::class, $manager);
-        $this->assertInstanceOf(Config::class, $manager->config());
+        $this->assertInstanceOf(ConfigManager::class, $manager->config());
+    }
+
+    public function test_make_returns_a_configured_manager(): void
+    {
+        $manager = ArchiveManager::make([
+            'zip' => ['enableZip64' => false],
+        ]);
+
+        $this->assertInstanceOf(ArchiveManager::class, $manager);
+        $this->assertFalse($manager->config()->get('zip.enableZip64'));
     }
 
     public function test_alias(): void
     {
-        $manager = new ArchiveManager;
+        $manager = ArchiveManager::make();
 
         $manager->alias('tgz', 'tar.gz');
 

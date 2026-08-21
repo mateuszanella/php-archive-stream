@@ -21,17 +21,26 @@ As a general overview, the architecture can be visualized as follows:
                        └────────────────────┘    │   TarWriter)    │
                                  │               └─────────────────┘
                                  ▼                   │           │
-                        ┌──────────────────┐         │           │
-                        │  StreamFactory   │         ▼           ▼
-                        │                  │    ┌─────────┐ ┌─────────┐
-                        └──────────────────┘    │ Input   │ │ Output  │
-                                                │ Stream  │ │ Stream  │
-                                                └─────────┘ └─────────┘
+                       ┌──────────────────┐         ▼           ▼
+                       │  StreamManager   │    ┌─────────┐ ┌─────────┐
+                       │                  │    │ Input   │ │ Output  │
+                       └──────────────────┘    │ Stream  │ │ Stream  │
+                                               └─────────┘ └─────────┘
 ```
+
+The library is organized around three independent, extensible concerns:
+
+- **Archives** (`ArchiveManager`): the archive formats and their output data.
+- **Destinations** (`DestinationManager`): what the user is outputting to and the current context (files, web, CLI, cloud wrappers).
+- **Streams** (`StreamManager`): how data is opened, read/written and transformed (plain, gzip, spool, fan-out).
+
+Any archive format can consume any stream, and each concern can be extended independently.
 
 ## The Archive Manager Class
 
 As seen in the [Usage Reference](./USAGE.md), the `ArchiveManager` is the central component that manages archive formats and their configurations. It interacts with the `DestinationManager` to handle file destinations.
+
+The `ArchiveManager` registers and dispatches archive formats via `register()`/`alias()`/`create()`. Its collaborators — the `ConfigManager` and `DestinationManager` (which in turn depends on the `StreamManager`) — are injected through the constructor, so advanced users can swap any of them out. For the common case, the `ArchiveManager::make()` static factory wires up sane defaults.
 
 When extending library functionality, you can register new archive formats or aliases using the `ArchiveManager`. The `Archive` interface is implemented by the archive classes such as `Zip` and `Tar`, which handle the specifics of each archive format.
 
@@ -143,7 +152,7 @@ interface SeekableWriteStream extends WriteStream
 
 `OutputStream`, `SpoolWriteStream`, `ArrayOutputStream`, and `HttpHeaderWriteStream` all implement this interface by delegating to their underlying resources.
 
-Writers that need seeking (such as `SevenZipWriter`) simply type-hint `SeekableWriteStream` and remain agnostic to how that capability is provided. It is the stream layer's responsibility to supply an appropriate stream: the `StreamFactory` inspects the destination, wrapping non-seekable resources in a `SpoolWriteStream` so the capability is always satisfied. Custom stream factories serving `7z` must follow the same convention.
+Writers that need seeking (such as `SevenZipWriter`) simply type-hint `SeekableWriteStream` and remain agnostic to how that capability is provided. It is the stream layer's responsibility to supply an appropriate stream: the `StreamManager`'s `7z` builder inspects the destination, wrapping non-seekable resources in a `SpoolWriteStream` so the capability is always satisfied. Custom stream builders serving `7z` must follow the same convention.
 
 ## Benefits of the Architecture
 

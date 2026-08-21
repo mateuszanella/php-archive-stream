@@ -2,10 +2,10 @@
 
 namespace Tests\Unit\Config;
 
-use PhpArchiveStream\Config;
+use PhpArchiveStream\ConfigManager;
 use PHPUnit\Framework\TestCase;
 
-class ConfigTest extends TestCase
+class ConfigManagerTest extends TestCase
 {
     public function test_set_items(): void
     {
@@ -26,7 +26,7 @@ class ConfigTest extends TestCase
             ],
         ];
 
-        $config = new Config();
+        $config = new ConfigManager();
         $config->setItems($items);
 
         $this->assertSame($items, $config->all());
@@ -51,7 +51,7 @@ class ConfigTest extends TestCase
             ],
         ];
 
-        $config = new Config($items);
+        $config = new ConfigManager($items);
 
         $this->assertSame('value', $config->get('key'));
         $this->assertSame(1, $config->get('key1'));
@@ -69,7 +69,7 @@ class ConfigTest extends TestCase
 
     public function test_set(): void
     {
-        $config = new Config();
+        $config = new ConfigManager();
 
         $config->set('key', 'value');
         $config->set('key1', 1);
@@ -94,7 +94,7 @@ class ConfigTest extends TestCase
 
     public function test_default_get(): void
     {
-        $config = new Config();
+        $config = new ConfigManager();
 
         $this->assertNull($config->get('key'));
         $this->assertSame('default', $config->get('key', 'default'));
@@ -102,14 +102,14 @@ class ConfigTest extends TestCase
 
     public function test_get_defaults(): void
     {
-        $config = new Config();
+        $config = new ConfigManager();
 
         $this->assertSame($config->getDefaults(), $config->all());
     }
 
     public function test_merges_config_correctly(): void
     {
-        $config = new Config([
+        $config = new ConfigManager([
             'zip' => [
                 'enableZip64' => false,
                 'input'       => [
