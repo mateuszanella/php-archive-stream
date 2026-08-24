@@ -3,12 +3,12 @@
 namespace PhpArchiveStream\Writers\Zip;
 
 use InvalidArgumentException;
-use PhpArchiveStream\Compressors\DeflateCompressor;
+use PhpArchiveStream\Compressors\Zip\DeflateCompressor;
 use PhpArchiveStream\Contracts\Compressor;
 use PhpArchiveStream\Contracts\IO\ReadStream;
 use PhpArchiveStream\Contracts\IO\WriteStream;
 use PhpArchiveStream\Contracts\Writers\Writer;
-use PhpArchiveStream\Contracts\Zip\CompressionMethod;
+use PhpArchiveStream\Contracts\Zip\ZipCompressor;
 use PhpArchiveStream\Hashers\CRC32;
 use PhpArchiveStream\Writers\Zip\Records\CentralDirectoryFileHeader;
 use PhpArchiveStream\Writers\Zip\Records\EndOfCentralDirectoryRecord;
@@ -80,7 +80,7 @@ class Zip64Writer implements Writer
      */
     public function setDefaultCompressor(string $compressor, array $options = []): void
     {
-        if (! is_subclass_of($compressor, Compressor::class) || ! is_subclass_of($compressor, CompressionMethod::class)) {
+        if (! is_subclass_of($compressor, ZipCompressor::class)) {
             throw new InvalidArgumentException('Invalid compressor class: '.$compressor);
         }
 

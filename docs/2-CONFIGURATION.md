@@ -88,14 +88,14 @@ Enables the default usage of the ZIP64 format when creating a ZIP archive.
 
 ```php
 'zip' => [
-    'compressor' => PhpArchiveStream\Compressors\DeflateCompressor::class, // Default
+    'compressor' => PhpArchiveStream\Compressors\Zip\DeflateCompressor::class, // Default
     'compressorOptions' => ['level' => 9], // Default: []
 ]
 ```
 
 Sets the default compressor class used for ZIP entries and the options forwarded
-to its `init()` factory. The class must implement `PhpArchiveStream\Contracts\Compressor`
-and `PhpArchiveStream\Contracts\Zip\CompressionMethod`. The `compressorOptions`
+to its `init()` factory. The class must implement
+`PhpArchiveStream\Contracts\Zip\ZipCompressor`. The `compressorOptions`
 array is passed verbatim to `init()` (e.g. `DeflateCompressor` accepts a `level`).
 
 #### Input Chunk Size
@@ -144,15 +144,15 @@ This option is consumed by the `StreamManager`, which decides whether to wrap no
 
 ```php
 '7z' => [
-    'compressor' => PhpArchiveStream\Compressors\Lzma2Compressor::class, // Default
+    'compressor' => PhpArchiveStream\Compressors\SevenZip\Lzma2Compressor::class, // Default
     'compressorOptions' => ['dictSize' => 1 << 20, 'level' => 9], // Default: []
 ]
 ```
 
 Sets the default compressor class used for 7z entries and the options forwarded to
-its `init()` factory. The class must implement `PhpArchiveStream\Contracts\Compressor`
-and `PhpArchiveStream\Contracts\SevenZip\Coder`. The `compressorOptions` array is
-passed verbatim to `init()`.
+its `init()` factory. The class must implement
+`PhpArchiveStream\Contracts\SevenZip\SevenZipCompressor`. The `compressorOptions`
+array is passed verbatim to `init()`.
 
 ## Runtime Configuration
 

@@ -1,13 +1,12 @@
 <?php
 
-namespace PhpArchiveStream\Compressors;
+namespace PhpArchiveStream\Compressors\SevenZip;
 
-use PhpArchiveStream\Contracts\Compressor;
-use PhpArchiveStream\Contracts\SevenZip\Coder;
+use PhpArchiveStream\Contracts\SevenZip\SevenZipCompressor;
 use RuntimeException;
 use XZEncodeContext;
 
-class Lzma2Compressor implements Coder, Compressor
+class Lzma2Compressor implements SevenZipCompressor
 {
     /**
      * The XZ encode context.

@@ -10,7 +10,7 @@ class ConfigManager
     protected const DEFAULTS = [
         'zip' => [
             'enableZip64'       => true,
-            'compressor'        => \PhpArchiveStream\Compressors\DeflateCompressor::class,
+            'compressor'        => \PhpArchiveStream\Compressors\Zip\DeflateCompressor::class,
             'compressorOptions' => [],
             'input'             => ['chunkSize' => 1048576],
             'headers'           => [
@@ -46,7 +46,7 @@ class ConfigManager
         ],
         '7z' => [
             'input'             => ['chunkSize' => 1048576],
-            'compressor'        => \PhpArchiveStream\Compressors\Lzma2Compressor::class,
+            'compressor'        => \PhpArchiveStream\Compressors\SevenZip\Lzma2Compressor::class,
             'compressorOptions' => [],
             'streaming'         => 'auto',
             'headers'           => [

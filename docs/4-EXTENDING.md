@@ -222,19 +222,19 @@ $streams->register('zip', function ($resource) {
 
 ## Custom Compression
 
-A compressor must implement the generic `Compressor` interface, plus the
-format-specific interface that declares how it is serialized into a given
-archive. For ZIP that is `CompressionMethod` (the `compression method` field
-from APPNOTE 4.4.5); for 7z it is `Coder`.
+A compressor implements the format-specific `ZipCompressor` (ZIP) or
+`SevenZipCompressor` (7z) interface, both of which extend the generic
+`Compressor` interface. The format interface declares how the compressor is
+serialized into that archive (the `compression method` field from APPNOTE 4.4.5
+for ZIP, the method ID and coder properties for 7z).
 
 The `init()` factory is the single entry point writers use to create a fresh
 instance, so constructor arguments are mapped from the options array here.
 
 ```php
-use PhpArchiveStream\Contracts\Compressor;
-use PhpArchiveStream\Contracts\Zip\CompressionMethod;
+use PhpArchiveStream\Contracts\Zip\ZipCompressor;
 
-class LzmaCompressor implements Compressor, CompressionMethod
+class LzmaCompressor implements ZipCompressor
 {
     public static function init(array $options = []): static
     {

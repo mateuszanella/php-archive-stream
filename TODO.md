@@ -11,7 +11,6 @@ A backlog of improvements to bring `php-archive-stream` up to production-library
 - [ ] Fix the type smells PHPStan will surface:
   - [ ] Type the `$stream` param in `Archive::addFileFromStream()` (`src/Archives/Zip.php:64`, `Tar`, `SevenZip`).
   - [ ] Fix `StreamManager::openWith()` `@return resource|bool` (`src/StreamManager.php:134`).
-  - [ ] Remove the `?Writer`-method-call smell (currently papered over with an intersection type in `Zip`/`SevenZip`).
 
 ## 2. Correctness / UX fixes (bugs a reviewer would block on)
 
@@ -19,7 +18,6 @@ A backlog of improvements to bring `php-archive-stream` up to production-library
 - [ ] Fix `InputStream::size()` returning `0` for non-regular streams (pipes/HTTP) → corrupt TAR/7z archives (`src/IO/Input/InputStream.php:84`).
 - [ ] Fix `addFileFromStream()` stream ownership + no-rewind semantics (double-close with the documented `fclose()`).
 - [ ] Make the default `Content-Disposition` filename reflect the real destination name instead of hardcoded `archive.zip` (`src/ConfigManager.php:16`).
-- [ ] Fix `GeneralPurposeBitFlag::setCompressionMethod()` ORing the full method code into the flag byte (collides with bit 3 / data-descriptor bit).
 
 ## 3. Exceptions
 

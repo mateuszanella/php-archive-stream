@@ -2,10 +2,12 @@
 
 namespace PhpArchiveStream\Contracts\SevenZip;
 
-interface Coder
+use PhpArchiveStream\Contracts\Compressor;
+
+interface SevenZipCompressor extends Compressor
 {
     /**
-     * Get the 7z method ID for this coder.
+     * Get the 7z method ID for this compressor.
      *
      * @return int The method ID (e.g. 0x21 for LZMA2, 0x030101 for LZMA1).
      */

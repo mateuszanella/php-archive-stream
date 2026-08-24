@@ -3,11 +3,10 @@
 namespace PhpArchiveStream\Writers\SevenZip;
 
 use InvalidArgumentException;
-use PhpArchiveStream\Compressors\Lzma2Compressor;
-use PhpArchiveStream\Contracts\Compressor;
+use PhpArchiveStream\Compressors\SevenZip\Lzma2Compressor;
 use PhpArchiveStream\Contracts\IO\ReadStream;
 use PhpArchiveStream\Contracts\IO\SeekableWriteStream;
-use PhpArchiveStream\Contracts\SevenZip\Coder;
+use PhpArchiveStream\Contracts\SevenZip\SevenZipCompressor;
 use PhpArchiveStream\Contracts\Writers\Writer;
 use PhpArchiveStream\Hashers\CRC32;
 use PhpArchiveStream\Writers\SevenZip\Records\Folder;
@@ -132,7 +131,7 @@ class SevenZipWriter implements Writer
      */
     public function setDefaultCompressor(string $compressor, array $options = []): void
     {
-        if (! is_subclass_of($compressor, Compressor::class) || ! is_subclass_of($compressor, Coder::class)) {
+        if (! is_subclass_of($compressor, SevenZipCompressor::class)) {
             throw new InvalidArgumentException('Invalid compressor class: '.$compressor);
         }
 
@@ -161,7 +160,7 @@ class SevenZipWriter implements Writer
 
         $this->emptyStreams[] = false;
 
-        /** @var Compressor&Coder $compressor */
+        /** @var SevenZipCompressor $compressor */
         $compressor = ($this->defaultCompressor)::init($this->compressorOptions);
 
         $crc32 = CRC32::init();

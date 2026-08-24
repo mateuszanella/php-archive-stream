@@ -264,15 +264,15 @@ The `Zip` class provides additional methods for ZIP-specific features, such as s
 
 ```php
 // Setting the default compressor for ZIP archives
-$zipArchive->setDefaultCompressor(PhpArchiveStream\Compressors\DeflateCompressor::class);
+$zipArchive->setDefaultCompressor(PhpArchiveStream\Compressors\Zip\DeflateCompressor::class);
 ```
 
 This method sets the current compression algorithm being used by the archive.
 
 Currently, the library supports the following compressors:
 
-- `PhpArchiveStream\Compressors\DeflateCompressor`: The default compressor, which uses the DEFLATE algorithm.
-- `PhpArchiveStream\Compressors\StoreCompressor`: Uses the STORE algorithm, which does not compress the data.
+- `PhpArchiveStream\Compressors\Zip\DeflateCompressor`: The default compressor, which uses the DEFLATE algorithm.
+- `PhpArchiveStream\Compressors\Zip\StoreCompressor`: Uses the STORE algorithm, which does not compress the data.
 
 The function allows you to set custom compressors as well, as long as they implement the `Compressor` interface.
 

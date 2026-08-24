@@ -2,7 +2,9 @@
 
 namespace PhpArchiveStream\Contracts\Zip;
 
-interface CompressionMethod
+use PhpArchiveStream\Contracts\Compressor;
+
+interface ZipCompressor extends Compressor
 {
     /**
      * Get the ZIP compression method code (APPNOTE 4.4.5).

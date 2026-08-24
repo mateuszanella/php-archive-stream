@@ -1,11 +1,10 @@
 <?php
 
-namespace PhpArchiveStream\Compressors;
+namespace PhpArchiveStream\Compressors\Zip;
 
-use PhpArchiveStream\Contracts\Compressor;
-use PhpArchiveStream\Contracts\Zip\CompressionMethod;
+use PhpArchiveStream\Contracts\Zip\ZipCompressor;
 
-class StoreCompressor implements CompressionMethod, Compressor
+class StoreCompressor implements ZipCompressor
 {
     public static function init(array $options = []): static
     {

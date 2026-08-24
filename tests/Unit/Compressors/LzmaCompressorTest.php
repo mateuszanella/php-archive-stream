@@ -2,8 +2,8 @@
 
 namespace Tests\Unit\Compressors;
 
-use PhpArchiveStream\Compressors\Lzma2Compressor;
-use PhpArchiveStream\Compressors\LzmaCompressor;
+use PhpArchiveStream\Compressors\SevenZip\Lzma2Compressor;
+use PhpArchiveStream\Compressors\SevenZip\LzmaCompressor;
 use PHPUnit\Framework\TestCase;
 
 class LzmaCompressorTest extends TestCase

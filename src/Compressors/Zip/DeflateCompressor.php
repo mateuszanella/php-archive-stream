@@ -1,13 +1,12 @@
 <?php
 
-namespace PhpArchiveStream\Compressors;
+namespace PhpArchiveStream\Compressors\Zip;
 
 use DeflateContext;
-use PhpArchiveStream\Contracts\Compressor;
-use PhpArchiveStream\Contracts\Zip\CompressionMethod;
+use PhpArchiveStream\Contracts\Zip\ZipCompressor;
 use RuntimeException;
 
-class DeflateCompressor implements CompressionMethod, Compressor
+class DeflateCompressor implements ZipCompressor
 {
     /**
      * @var DeflateContext The deflate context resource.
