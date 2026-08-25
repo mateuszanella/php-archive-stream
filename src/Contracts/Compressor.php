@@ -5,18 +5,12 @@ namespace PhpArchiveStream\Contracts;
 interface Compressor
 {
     /**
-     * Get the Zip file format bit flag.
+     * Create a new compressor instance from the given options.
      *
-     * @return int The bit flag used for Zip file format.
-     */
-    public static function zipBitFlag(): int;
-
-    /**
-     * Initialize the compressor instance.
-     *
+     * @param  array<string, mixed>  $options  Compressor-specific options.
      * @return static A new instance of the compressor.
      */
-    public static function init(): static;
+    public static function init(array $options = []): static;
 
     /**
      * Compress the given data.

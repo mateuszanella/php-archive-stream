@@ -1,12 +1,12 @@
 <?php
 
-namespace PhpArchiveStream\Compressors;
+namespace PhpArchiveStream\Compressors\Zip;
 
 use DeflateContext;
-use PhpArchiveStream\Contracts\Compressor;
+use PhpArchiveStream\Contracts\Zip\ZipCompressor;
 use RuntimeException;
 
-class DeflateCompressor implements Compressor
+class DeflateCompressor implements ZipCompressor
 {
     /**
      * @var DeflateContext The deflate context resource.
@@ -31,14 +31,9 @@ class DeflateCompressor implements Compressor
         }
     }
 
-    public static function zipBitFlag(): int
+    public static function init(array $options = []): static
     {
-        return 0x08;
-    }
-
-    public static function init(): static
-    {
-        return new static;
+        return new static($options['level'] ?? 6);
     }
 
     public function compress(string $data): string
@@ -61,5 +56,10 @@ class DeflateCompressor implements Compressor
         }
 
         return $data;
+    }
+
+    public function getCompressionMethod(): int
+    {
+        return 0x08;
     }
 }

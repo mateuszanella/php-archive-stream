@@ -7,10 +7,10 @@ use PhpArchiveStream\Contracts\HasCompressor;
 use PhpArchiveStream\Contracts\Writers\Writer;
 use PhpArchiveStream\IO\Input\InputStream;
 
-class Zip implements Archive, HasCompressor
+class SevenZip implements Archive, HasCompressor
 {
     /**
-     * Create a new Zip archive instance.
+     * Create a new SevenZip archive instance.
      *
      * @param  Writer|null  $writer  The writer instance to use for the archive.
      * @param  int  $defaultChunkSize  The default chunk size for reading files.
@@ -22,11 +22,6 @@ class Zip implements Archive, HasCompressor
 
     /**
      * Set the current compression algorithm for the archive.
-     *
-     * Usage:
-     * ```php
-     * $zip->setDefaultCompressor(DeflateCompressor::class);
-     * ```
      *
      * @param  string  $compressor  The compressor to set as default.
      * @param  array<string, mixed>  $options  Options forwarded to the compressor's `init()` factory.
@@ -46,9 +41,6 @@ class Zip implements Archive, HasCompressor
 
     /**
      * Add a file to the archive from a given path.
-     *
-     * @param  string  $fileName  The name of the file in the archive.
-     * @param  string  $filePath  The path to the file to add.
      */
     public function addFileFromPath(string $fileName, string $filePath): void
     {
@@ -60,7 +52,6 @@ class Zip implements Archive, HasCompressor
     /**
      * Add a file to the archive from a given stream.
      *
-     * @param  string  $fileName  The name of the file in the archive.
      * @param  resource  $stream  The stream resource to read from.
      */
     public function addFileFromStream(string $fileName, $stream): void
@@ -72,9 +63,6 @@ class Zip implements Archive, HasCompressor
 
     /**
      * Add a file to the archive from a string content.
-     *
-     * @param  string  $fileName  The name of the file in the archive.
-     * @param  string  $fileContents  The contents of the file to add.
      */
     public function addFileFromContentString(string $fileName, string $fileContents): void
     {
@@ -84,7 +72,7 @@ class Zip implements Archive, HasCompressor
     }
 
     /**
-     * Finish the archive and close the writer. The class should not be used after this call.
+     * Finish the archive and close the writer.
      */
     public function finish(): void
     {

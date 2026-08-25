@@ -10,7 +10,7 @@ To start using the library, you need to create an instance of the `ArchiveManage
 use PhpArchiveStream\ArchiveManager;
 
 // Create a manager instance
-$manager = new ArchiveManager;
+$manager = ArchiveManager::make();
 ```
 
 ### Creating the `ArchiveManager` with Predefined Configuration
@@ -21,7 +21,7 @@ You can also create the `ArchiveManager` with a predefined configuration:
 use PhpArchiveStream\ArchiveManager;
 
 // Create a manager instance with predefined configuration
-$manager = new ArchiveManager([
+$manager = ArchiveManager::make([
     'zip' => [
         'enableZip64' => true, // Enable ZIP64 format
         'input' => ['chunkSize' => 2097152] // 2MB chunks
@@ -188,7 +188,7 @@ You can register new archive formats by using the `register` method. This allows
 /**
  * Register a new driver.
  *
- * @param  callable(string|array<string>, \PhpArchiveStream\Config): Archive  $factory
+ * @param  callable(string|array<string>, \PhpArchiveStream\ConfigManager): Archive  $factory
  */
 public function register(string $extension, callable $factory): void
 ```
@@ -202,9 +202,9 @@ Example of how the library registers the `zip` archive format:
 ```php
 use PhpArchiveStream\ArchiveManager;
 
-$manager = new ArchiveManager;
+$manager = ArchiveManager::make();
 
-$manager->register('zip', function (string|array $destination, Config $config) {
+$manager->register('zip', function (string|array $destination, ConfigManager $config) {
     $useZip64 = $config->get('zip.enableZip64', true);
     $defaultChunkSize = $config->get('zip.input.chunkSize', 1048576);
 
@@ -235,7 +235,7 @@ The classes provide three methods to add files to the archive:
 
 - `addFileFromPath(string $fileName, string $filePath)`: Adds a file from a streamable valid filepath.
 - `addFileFromStream(string $fileName, resource $stream)`: Adds a file from a stream resource.
-- `addFileFromString(string $fileName, string $content)`: Adds a file from a string.
+- `addFileFromContentString(string $fileName, string $content)`: Adds a file from a string.
 
 ```php
 // Adding a file from a path
@@ -247,7 +247,7 @@ $archive->addFileFromStream('file.txt', $stream);
 fclose($stream);
 
 // Adding a file from a string
-$archive->addFileFromString('file.txt', 'File content goes here.');
+$archive->addFileFromContentString('file.txt', 'File content goes here.');
 ```
 
 ### Setting the Default Read Chunk Size at runtime
@@ -264,15 +264,15 @@ The `Zip` class provides additional methods for ZIP-specific features, such as s
 
 ```php
 // Setting the default compressor for ZIP archives
-$zipArchive->setDefaultCompressor(PhpArchiveStream\Compressors\DeflateCompressor::class);
+$zipArchive->setDefaultCompressor(PhpArchiveStream\Compressors\Zip\DeflateCompressor::class);
 ```
 
 This method sets the current compression algorithm being used by the archive.
 
 Currently, the library supports the following compressors:
 
-- `PhpArchiveStream\Compressors\DeflateCompressor`: The default compressor, which uses the DEFLATE algorithm.
-- `PhpArchiveStream\Compressors\StoreCompressor`: Uses the STORE algorithm, which does not compress the data.
+- `PhpArchiveStream\Compressors\Zip\DeflateCompressor`: The default compressor, which uses the DEFLATE algorithm.
+- `PhpArchiveStream\Compressors\Zip\StoreCompressor`: Uses the STORE algorithm, which does not compress the data.
 
 The function allows you to set custom compressors as well, as long as they implement the `Compressor` interface.
 

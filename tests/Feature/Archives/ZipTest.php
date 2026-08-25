@@ -103,7 +103,6 @@ class ZipTest extends TestCase
 
         $reflection = new ReflectionClass($zip);
         $property = $reflection->getProperty('writer');
-        $property->setAccessible(true);
         $this->assertNull($property->getValue($zip));
     }
 }

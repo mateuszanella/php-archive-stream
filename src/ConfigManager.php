@@ -2,19 +2,18 @@
 
 namespace PhpArchiveStream;
 
-use PhpArchiveStream\Support\StreamFactory;
-
-class Config
+class ConfigManager
 {
     /**
      * Default configuration values.
      */
     protected const DEFAULTS = [
-        'streamFactory' => StreamFactory::class,
-        'zip'           => [
-            'enableZip64' => true,
-            'input'       => ['chunkSize' => 1048576],
-            'headers'     => [
+        'zip' => [
+            'enableZip64'       => true,
+            'compressor'        => \PhpArchiveStream\Compressors\Zip\DeflateCompressor::class,
+            'compressorOptions' => [],
+            'input'             => ['chunkSize' => 1048576],
+            'headers'           => [
                 'Content-Type'              => 'application/zip',
                 'Content-Disposition'       => 'attachment; filename="archive.zip"',
                 'Content-Transfer-Encoding' => 'binary',
@@ -39,6 +38,20 @@ class Config
             'headers' => [
                 'Content-Type'              => 'application/x-tar',
                 'Content-Disposition'       => 'attachment; filename="archive.tar.gz"',
+                'Content-Transfer-Encoding' => 'binary',
+                'Pragma'                    => 'public',
+                'Cache-Control'             => 'public, must-revalidate',
+                'Connection'                => 'Keep-Alive',
+            ],
+        ],
+        '7z' => [
+            'input'             => ['chunkSize' => 1048576],
+            'compressor'        => \PhpArchiveStream\Compressors\SevenZip\Lzma2Compressor::class,
+            'compressorOptions' => [],
+            'streaming'         => 'auto',
+            'headers'           => [
+                'Content-Type'              => 'application/x-7z-compressed',
+                'Content-Disposition'       => 'attachment; filename="archive.7z"',
                 'Content-Transfer-Encoding' => 'binary',
                 'Pragma'                    => 'public',
                 'Cache-Control'             => 'public, must-revalidate',

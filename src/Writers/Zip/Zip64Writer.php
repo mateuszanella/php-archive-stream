@@ -3,11 +3,12 @@
 namespace PhpArchiveStream\Writers\Zip;
 
 use InvalidArgumentException;
-use PhpArchiveStream\Compressors\DeflateCompressor;
+use PhpArchiveStream\Compressors\Zip\DeflateCompressor;
 use PhpArchiveStream\Contracts\Compressor;
 use PhpArchiveStream\Contracts\IO\ReadStream;
 use PhpArchiveStream\Contracts\IO\WriteStream;
 use PhpArchiveStream\Contracts\Writers\Writer;
+use PhpArchiveStream\Contracts\Zip\ZipCompressor;
 use PhpArchiveStream\Hashers\CRC32;
 use PhpArchiveStream\Writers\Zip\Records\CentralDirectoryFileHeader;
 use PhpArchiveStream\Writers\Zip\Records\EndOfCentralDirectoryRecord;
@@ -47,32 +48,44 @@ class Zip64Writer implements Writer
     protected string $defaultCompressor;
 
     /**
+     * Options forwarded to the default compressor's `init()` factory.
+     *
+     * @var array<string, mixed>
+     */
+    protected array $compressorOptions = [];
+
+    /**
      * Create a new Zip64Writer instance, that supports zip version 4.5.
      *
      * @param  WriteStream  $outputStream  The output stream where the ZIP archive will be written.
-     * @param  array  $config  Configuration options for the writer, unused in this implementation.
+     * @param  array  $config  Configuration options for the writer. Supports `compressor` and `compressorOptions`.
      */
     public function __construct(WriteStream $outputPath, array $config = [])
     {
         $this->outputStream = $outputPath;
 
-        $this->setDefaultCompressor(DeflateCompressor::class);
+        $this->setDefaultCompressor(
+            $config['compressor'] ?? DeflateCompressor::class,
+            $config['compressorOptions'] ?? []
+        );
     }
 
     /**
      * Set the default compressor class to use for compression.
      *
      * @param  string  $compressor  The fully qualified class name of the compressor.
+     * @param  array<string, mixed>  $options  Options forwarded to the compressor's `init()` factory.
      *
      * @throws InvalidArgumentException If the compressor class is not valid.
      */
-    public function setDefaultCompressor(string $compressor): void
+    public function setDefaultCompressor(string $compressor, array $options = []): void
     {
-        if (! is_subclass_of($compressor, Compressor::class)) {
+        if (! is_subclass_of($compressor, ZipCompressor::class)) {
             throw new InvalidArgumentException('Invalid compressor class: '.$compressor);
         }
 
         $this->defaultCompressor = $compressor;
+        $this->compressorOptions = $options;
     }
 
     /**
@@ -80,11 +93,12 @@ class Zip64Writer implements Writer
      */
     public function addFile(ReadStream $stream, string $fileName): void
     {
-        $compressor = new $this->defaultCompressor;
+        $compressor = ($this->defaultCompressor)::init($this->compressorOptions);
+        $compressionMethod = $compressor->getCompressionMethod();
 
         $generalPurposeBitFlag = GeneralPurposeBitFlag::create()
             ->setZeroHeader()
-            ->setCompressionMethod($compressor);
+            ->setCompressionMethod($compressionMethod);
 
         $lastModificationUnixTime = time();
 
@@ -94,7 +108,7 @@ class Zip64Writer implements Writer
             $fileName,
             $generalPurposeBitFlag,
             $lastModificationUnixTime,
-            $compressor::zipBitFlag(),
+            $compressionMethod,
             $localHeaderOffset
         );
 
@@ -110,7 +124,7 @@ class Zip64Writer implements Writer
             $compressedSize,
             $uncompressedSize,
             $localHeaderOffset,
-            $compressor::zipBitFlag()
+            $compressionMethod
         );
     }
 

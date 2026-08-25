@@ -6,7 +6,7 @@ use Exception;
 use PhpArchiveStream\ArchiveManager;
 use PhpArchiveStream\Archives\Tar;
 use PhpArchiveStream\Archives\Zip;
-use PhpArchiveStream\Config;
+use PhpArchiveStream\ConfigManager;
 use PhpArchiveStream\Contracts\Archive;
 use PHPUnit\Framework\TestCase;
 
@@ -45,7 +45,7 @@ class ArchiveManagerTest extends TestCase
 
     public function test_can_create_zip_archive(): void
     {
-        $manager = new ArchiveManager();
+        $manager = ArchiveManager::make();
         $outputPath = $this->tempDir.'/test.zip';
 
         $archive = $manager->create($outputPath);
@@ -56,7 +56,7 @@ class ArchiveManagerTest extends TestCase
 
     public function test_can_create_tar_archive(): void
     {
-        $manager = new ArchiveManager();
+        $manager = ArchiveManager::make();
         $outputPath = $this->tempDir.'/test.tar';
 
         $archive = $manager->create($outputPath);
@@ -67,7 +67,7 @@ class ArchiveManagerTest extends TestCase
 
     public function test_can_create_tar_gz_archive(): void
     {
-        $manager = new ArchiveManager();
+        $manager = ArchiveManager::make();
         $outputPath = $this->tempDir.'/test.tar.gz';
 
         $archive = $manager->create($outputPath);
@@ -78,7 +78,7 @@ class ArchiveManagerTest extends TestCase
 
     public function test_can_create_archive_with_explicit_extension(): void
     {
-        $manager = new ArchiveManager();
+        $manager = ArchiveManager::make();
         $outputPath = $this->tempDir.'/archive_without_extension';
 
         $archive = $manager->create($outputPath, 'zip');
@@ -88,7 +88,7 @@ class ArchiveManagerTest extends TestCase
 
     public function test_can_use_registered_alias(): void
     {
-        $manager = new ArchiveManager();
+        $manager = ArchiveManager::make();
         $outputPath = $this->tempDir.'/test.tgz';
 
         $archive = $manager->create($outputPath);
@@ -98,9 +98,9 @@ class ArchiveManagerTest extends TestCase
 
     public function test_can_register_custom_driver(): void
     {
-        $manager = new ArchiveManager();
+        $manager = ArchiveManager::make();
 
-        $customDriver = function (string|array $destination, Config $config) {
+        $customDriver = function (string|array $destination, ConfigManager $config) {
             return new class implements Archive
             {
                 public function setDefaultReadChunkSize(int $chunkSize): void {}
@@ -123,7 +123,7 @@ class ArchiveManagerTest extends TestCase
 
     public function test_can_register_custom_alias(): void
     {
-        $manager = new ArchiveManager();
+        $manager = ArchiveManager::make();
 
         $manager->alias('myzip', 'zip');
         $archive = $manager->create($this->tempDir.'/test.myzip');
@@ -133,7 +133,7 @@ class ArchiveManagerTest extends TestCase
 
     public function test_throws_exception_for_unsupported_extension(): void
     {
-        $manager = new ArchiveManager();
+        $manager = ArchiveManager::make();
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Unsupported archive type for extension: unknown');
@@ -143,7 +143,7 @@ class ArchiveManagerTest extends TestCase
 
     public function test_throws_exception_when_aliasing_non_existent_driver(): void
     {
-        $manager = new ArchiveManager();
+        $manager = ArchiveManager::make();
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Unsupported archive type for extension: nonexistent');
@@ -153,11 +153,11 @@ class ArchiveManagerTest extends TestCase
 
     public function test_can_access_configuration_instance(): void
     {
-        $manager = new ArchiveManager();
+        $manager = ArchiveManager::make();
 
         $config = $manager->config();
 
-        $this->assertInstanceOf(Config::class, $config);
+        $this->assertInstanceOf(ConfigManager::class, $config);
     }
 
     public function test_can_create_manager_with_custom_configuration(): void
@@ -169,7 +169,7 @@ class ArchiveManagerTest extends TestCase
             ],
         ];
 
-        $manager = new ArchiveManager($customConfig);
+        $manager = ArchiveManager::make($customConfig);
         $config = $manager->config();
 
         $this->assertFalse($config->get('zip.enableZip64'));
@@ -184,7 +184,7 @@ class ArchiveManagerTest extends TestCase
             ],
         ];
 
-        $manager = new ArchiveManager($customConfig);
+        $manager = ArchiveManager::make($customConfig);
         $config = $manager->config();
 
         // Custom value should override default
@@ -197,7 +197,7 @@ class ArchiveManagerTest extends TestCase
 
     public function test_can_create_multiple_archives_with_same_manager(): void
     {
-        $manager = new ArchiveManager();
+        $manager = ArchiveManager::make();
 
         $zipArchive = $manager->create($this->tempDir.'/test1.zip');
         $tarArchive = $manager->create($this->tempDir.'/test2.tar');
@@ -210,7 +210,7 @@ class ArchiveManagerTest extends TestCase
 
     public function test_can_create_archive_from_array_destination(): void
     {
-        $manager = new ArchiveManager();
+        $manager = ArchiveManager::make();
         $destinations = [
             $this->tempDir.'/copy1.zip',
             $this->tempDir.'/copy2.zip',
@@ -223,8 +223,8 @@ class ArchiveManagerTest extends TestCase
 
     public function test_each_test_gets_new_manager_instance(): void
     {
-        $manager1 = new ArchiveManager();
-        $manager2 = new ArchiveManager();
+        $manager1 = ArchiveManager::make();
+        $manager2 = ArchiveManager::make();
 
         $this->assertNotSame($manager1, $manager2);
         $this->assertNotSame($manager1->config(), $manager2->config());
@@ -232,7 +232,7 @@ class ArchiveManagerTest extends TestCase
 
     public function test_can_modify_configuration_after_creation(): void
     {
-        $manager = new ArchiveManager();
+        $manager = ArchiveManager::make();
         $config = $manager->config();
 
         $originalChunkSize = $config->get('zip.input.chunkSize');
@@ -244,10 +244,10 @@ class ArchiveManagerTest extends TestCase
 
     public function test_drivers_are_isolated_between_instances(): void
     {
-        $manager1 = new ArchiveManager();
-        $manager2 = new ArchiveManager();
+        $manager1 = ArchiveManager::make();
+        $manager2 = ArchiveManager::make();
 
-        $customDriver = function (string|array $destination, Config $config) {
+        $customDriver = function (string|array $destination, ConfigManager $config) {
             return new class implements Archive
             {
                 public function setDefaultReadChunkSize(int $chunkSize): void {}
@@ -273,8 +273,8 @@ class ArchiveManagerTest extends TestCase
 
     public function test_aliases_are_isolated_between_instances(): void
     {
-        $manager1 = new ArchiveManager();
-        $manager2 = new ArchiveManager();
+        $manager1 = ArchiveManager::make();
+        $manager2 = ArchiveManager::make();
 
         $manager1->alias('isolated', 'zip');
 

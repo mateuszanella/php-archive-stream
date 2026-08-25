@@ -76,18 +76,23 @@ class SevenZipArchive implements Archive
 
 ```php
 use PhpArchiveStream\Contracts\Writers\Writer;
-use PhpArchiveStream\Contracts\IO\WriteStream;
+use PhpArchiveStream\Contracts\IO\SeekableWriteStream;
 use PhpArchiveStream\IO\Input\InputStream;
 
 class SevenZipWriter implements Writer
 {
     public function __construct(
-        protected WriteStream $outputStream
+        protected SeekableWriteStream $outputStream
     ) {}
 
     public function addFile(InputStream $inputStream, string $filename): void
     {
         // Write the raw file data
+    }
+
+    public function setDefaultCompressor(string $compressor, array $options = []): void
+    {
+        // Store the compressor class + options, or throw if unsupported
     }
 
     public function finish(): void
@@ -103,10 +108,10 @@ class SevenZipWriter implements Writer
 #### Registering the Custom Format
 
 ```php
-$manager = new ArchiveManager;
+$manager = ArchiveManager::make();
 
 // Register 7Z support
-$manager->register('7z', function (string|array $destination, Config $config) {
+$manager->register('7z', function (string|array $destination, ConfigManager $config) {
     $defaultChunkSize = $config->get('7z.input.chunkSize', 1048576);
     $headers = $config->get('7z.headers', []);
 
@@ -128,39 +133,43 @@ $sevenZip->addFileFromPath('file.txt', './file.txt');
 $sevenZip->finish();
 ```
 
-## Custom Stream Factories
+## Custom Streams
 
-Create custom stream factories for specialized output handling:
+Register custom stream builders on the `StreamManager` for specialized output handling. A stream builder receives the destination plus any stream configuration, and returns a `WriteStream`. Opening the destination is the builder's responsibility so the low-level open function always matches the stream implementation.
+
+The `StreamManager` is reachable through the `ArchiveManager::stream()` accessor, so you can register builders without rebuilding the manager:
 
 ```php
-use PhpArchiveStream\Contracts\StreamFactory as StreamFactoryContract;
+use PhpArchiveStream\ArchiveManager;
 use PhpArchiveStream\Contracts\IO\WriteStream;
+use PhpArchiveStream\IO\Output\OutputStream;
 
-class CustomStreamFactory implements StreamFactoryContract
-{
-    public static function make(string $extension, $stream): WriteStream
-    {
-        if (str_starts_with(stream_get_meta_data($stream)['uri'], 'encrypt://')) {
-            return new EncryptedOutputStream($stream);
-        }
+$manager = ArchiveManager::make();
 
-        // Fall back to default streams
-        return match ($extension) {
-            'zip' => new OutputStream($stream),
-            'tar' => new OutputStream($stream),
-            'tar.gz' => new GzOutputStream($stream),
-            default => throw new InvalidArgumentException("Unsupported: {$extension}"),
-        };
+$manager->stream()->register('zip', function (string $destination, array $config = []): WriteStream {
+    if (str_starts_with($destination, 'encrypt://')) {
+        return new EncryptedOutputStream($destination);
     }
-}
 
-// Use custom stream factory for default archive creation
-$config = [
-    'streamFactory' => CustomStreamFactory::class
-];
-
-$manager = new ArchiveManager($config);
+    return new OutputStream(fopen($destination, 'wb'));
+});
 ```
+
+Alternatively, inject a fully customised `StreamManager` through the constructor:
+
+```php
+use PhpArchiveStream\ConfigManager;
+use PhpArchiveStream\DestinationManager;
+use PhpArchiveStream\StreamManager;
+
+$streams = new StreamManager;
+
+// ...register builders on $streams...
+
+$manager = new ArchiveManager(new ConfigManager, new DestinationManager($streams));
+```
+
+> **Seekable destinations and 7z:** Writers that need to seek (such as `SevenZipWriter`) type-hint `SeekableWriteStream`. If a stream builder serves a `7z` destination, it must return a stream implementing that interface. For non-seekable destinations, wrap them in `PhpArchiveStream\IO\Output\SpoolWriteStream`, which buffers the archive and provides the required seeking capability — this is exactly what the default `StreamManager` does.
 
 ## Custom Output Streams
 
@@ -201,53 +210,62 @@ class DatabaseOutputStream implements WriteStream
     }
 }
 
-// Usage with custom stream factory
-class DatabaseStreamFactory implements StreamFactoryContract
-{
-    public static function make(string $extension, $stream): WriteStream
-    {
-        if ($stream instanceof DatabaseOutputStream) {
-            return $stream;
-        }
+// Usage with a custom stream builder
+use PhpArchiveStream\StreamManager;
 
-        // Default handling
-        return StreamFactory::make($extension, $stream);
-    }
-}
+$streams = new StreamManager;
+
+$streams->register('zip', function ($resource) {
+    return new DatabaseOutputStream(/* ... */);
+});
 ```
 
 ## Custom Compression
 
-Add custom compression algorithms:
+A compressor implements the format-specific `ZipCompressor` (ZIP) or
+`SevenZipCompressor` (7z) interface, both of which extend the generic
+`Compressor` interface. The format interface declares how the compressor is
+serialized into that archive (the `compression method` field from APPNOTE 4.4.5
+for ZIP, the method ID and coder properties for 7z).
+
+The `init()` factory is the single entry point writers use to create a fresh
+instance, so constructor arguments are mapped from the options array here.
 
 ```php
-use PhpArchiveStream\Contracts\Writers\Compressor;
+use PhpArchiveStream\Contracts\Zip\ZipCompressor;
 
-class LzmaCompressor implements Compressor
+class LzmaCompressor implements ZipCompressor
 {
+    public static function init(array $options = []): static
+    {
+        return new static($options['level'] ?? 6);
+    }
+
+    public function __construct(protected int $level = 6) {}
+
     public function compress(string $data): string
     {
         return lzma_compress($data);
     }
 
-    public function getMethod(): int
+    public function finish(): string
     {
-        return 14; // LZMA compression method ID
+        return '';
     }
 
-    public function getLevel(): int
+    public function getCompressionMethod(): int
     {
-        return 6; // Default compression level
+        return 14; // LZMA compression method ID
     }
 }
 ```
 
-Then use it in ZIP archives:
+Then use it in ZIP archives, passing any options through to `init()`:
 
 ```php
 $zip = $manager->create('./archive.zip');
 
-$zip->setCompressor(LzmaCompressor::class);
+$zip->setDefaultCompressor(LzmaCompressor::class, ['level' => 9]);
 ```
 
 ## Configuration Extensions

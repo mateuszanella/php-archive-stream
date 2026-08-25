@@ -3,11 +3,11 @@
 namespace PhpArchiveStream;
 
 use Exception;
+use PhpArchiveStream\Archives\SevenZip;
 use PhpArchiveStream\Archives\Tar;
 use PhpArchiveStream\Archives\Zip;
 use PhpArchiveStream\Contracts\Archive;
-use PhpArchiveStream\Support\DestinationManager;
-use PhpArchiveStream\Support\StreamFactory;
+use PhpArchiveStream\Writers\SevenZip\SevenZipWriter;
 use PhpArchiveStream\Writers\Tar\TarWriter;
 use PhpArchiveStream\Writers\Zip\Zip64Writer;
 use PhpArchiveStream\Writers\Zip\ZipWriter;
@@ -17,7 +17,7 @@ class ArchiveManager
     /**
      * The array of registered driver constructor callbacks.
      *
-     * @var array<string, callable(string, \PhpArchiveStream\Config): Archive>
+     * @var array<string, callable(string|array<string>, \PhpArchiveStream\ConfigManager): Archive>
      */
     protected array $drivers = [];
 
@@ -31,7 +31,7 @@ class ArchiveManager
     /**
      * The configuration instance.
      */
-    protected Config $config;
+    protected ConfigManager $config;
 
     /**
      * The destination parser instance.
@@ -41,24 +41,35 @@ class ArchiveManager
     /**
      * Create a new ArchiveManager instance.
      *
-     * @param  array<string, mixed>  $config
+     * @param  ConfigManager  $config  The configuration manager instance.
+     * @param  DestinationManager  $destination  The destination manager instance.
      */
-    public function __construct(array $config = [])
+    public function __construct(ConfigManager $config, DestinationManager $destination)
     {
-        $this->config = new Config($config);
-
-        $streamFactoryClass = $this->config->get('streamFactory', StreamFactory::class);
-
-        $this->destination = new DestinationManager($streamFactoryClass);
+        $this->config = $config;
+        $this->destination = $destination;
 
         $this->registerDefaults();
         $this->registerAliases();
     }
 
     /**
+     * Convenience entry point to create a new ArchiveManager instance with default values.
+     *
+     * @param  array<string, mixed>  $config
+     */
+    public static function make(array $config = []): static
+    {
+        return new static(
+            new ConfigManager($config),
+            new DestinationManager(new StreamManager),
+        );
+    }
+
+    /**
      * Register a new driver.
      *
-     * @param  callable(string|array<string>, \PhpArchiveStream\Config): Archive  $factory
+     * @param  callable(string|array<string>, \PhpArchiveStream\ConfigManager): Archive  $factory
      */
     public function register(string $extension, callable $factory): void
     {
@@ -100,9 +111,25 @@ class ArchiveManager
     /**
      * Get the configuration instance.
      */
-    public function config(): Config
+    public function config(): ConfigManager
     {
         return $this->config;
+    }
+
+    /**
+     * Get the destination manager instance.
+     */
+    public function destination(): DestinationManager
+    {
+        return $this->destination;
+    }
+
+    /**
+     * Get the stream manager instance.
+     */
+    public function stream(): StreamManager
+    {
+        return $this->destination->stream();
     }
 
     /**
@@ -110,7 +137,7 @@ class ArchiveManager
      */
     protected function registerDefaults(): void
     {
-        $this->register('zip', function (string|array $destination, Config $config) {
+        $this->register('zip', function (string|array $destination, ConfigManager $config) {
             $useZip64 = $config->get('zip.enableZip64', true);
             $defaultChunkSize = $config->get('zip.input.chunkSize', 1048576);
 
@@ -118,15 +145,20 @@ class ArchiveManager
 
             $outputStream = $this->destination->getStream($destination, 'zip', $headers);
 
+            $writerConfig = [
+                'compressor'        => $config->get('zip.compressor'),
+                'compressorOptions' => $config->get('zip.compressorOptions', []),
+            ];
+
             return new Zip(
                 $useZip64
-                    ? new Zip64Writer($outputStream)
-                    : new ZipWriter($outputStream),
+                    ? new Zip64Writer($outputStream, $writerConfig)
+                    : new ZipWriter($outputStream, $writerConfig),
                 $defaultChunkSize
             );
         });
 
-        $this->register('tar', function (string|array $destination, Config $config) {
+        $this->register('tar', function (string|array $destination, ConfigManager $config) {
             $defaultChunkSize = $config->get('tar.input.chunkSize', 1048576);
 
             $headers = $config->get('tar.headers');
@@ -139,7 +171,7 @@ class ArchiveManager
             );
         });
 
-        $this->register('tar.gz', function (string|array $destination, Config $config) {
+        $this->register('tar.gz', function (string|array $destination, ConfigManager $config) {
             $defaultChunkSize = $config->get('targz.input.chunkSize', 1048576);
 
             $headers = $config->get('targz.headers');
@@ -148,6 +180,24 @@ class ArchiveManager
 
             return new Tar(
                 new TarWriter($outputStream),
+                $defaultChunkSize
+            );
+        });
+
+        $this->register('7z', function (string|array $destination, ConfigManager $config) {
+            $defaultChunkSize = $config->get('7z.input.chunkSize', 1048576);
+
+            $headers = $config->get('7z.headers');
+
+            $outputStream = $this->destination->getStream($destination, '7z', $headers, [
+                'streaming' => $config->get('7z.streaming', 'auto'),
+            ]);
+
+            return new SevenZip(
+                new SevenZipWriter($outputStream, [
+                    'compressor'        => $config->get('7z.compressor'),
+                    'compressorOptions' => $config->get('7z.compressorOptions', []),
+                ]),
                 $defaultChunkSize
             );
         });

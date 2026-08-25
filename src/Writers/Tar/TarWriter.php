@@ -2,6 +2,7 @@
 
 namespace PhpArchiveStream\Writers\Tar;
 
+use BadMethodCallException;
 use PhpArchiveStream\Contracts\IO\ReadStream;
 use PhpArchiveStream\Contracts\IO\WriteStream;
 use PhpArchiveStream\Contracts\Writers\Writer;
@@ -19,6 +20,16 @@ class TarWriter implements Writer
     public function __construct(WriteStream $outputStream, array $config = [])
     {
         $this->outputStream = $outputStream;
+    }
+
+    /**
+     * TAR has no per-entry compression method, so this writer cannot compress.
+     *
+     * @throws BadMethodCallException Always, as TAR archives do not support compression.
+     */
+    public function setDefaultCompressor(string $compressor, array $options = []): void
+    {
+        throw new BadMethodCallException('TAR archives do not support compression.');
     }
 
     /**
