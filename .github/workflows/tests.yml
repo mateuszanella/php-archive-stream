@@ -19,7 +19,10 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           coverage: none
-          extensions: xz, bz2
+          extensions: bz2
+
+      - name: Install xz extension (PIE)
+        run: pie install mateuszanella/php-ext-xz
 
       - name: Install dependencies
         run: composer install
