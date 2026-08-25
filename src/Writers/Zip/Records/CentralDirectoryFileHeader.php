@@ -36,8 +36,8 @@ class CentralDirectoryFileHeader
         int $externalFileAttributes,
         int $relativeOffsetOfLocalHeader,
         string $fileName,
-        ?string $extraField = '',
-        ?string $fileComment = ''
+        string $extraField = '',
+        string $fileComment = ''
     ): string {
         return Packer::pack(
             U32Field::create(self::SIGNATURE),

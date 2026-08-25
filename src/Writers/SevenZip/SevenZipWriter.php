@@ -14,6 +14,7 @@ use PhpArchiveStream\Hashers\CRC32;
 use PhpArchiveStream\Writers\SevenZip\Records\Folder;
 use PhpArchiveStream\Writers\SevenZip\Records\Header;
 use PhpArchiveStream\Writers\SevenZip\Records\SignatureHeader;
+use RuntimeException;
 
 /**
  * Writes 7z archives in a memory-friendly, streaming fashion.
@@ -117,7 +118,7 @@ class SevenZipWriter implements Writer
 
         // Reserve the 32-byte signature header slot. It is patched with the
         // real values once the archive is finished.
-        $this->outputStream->write(str_repeat("\0", 32));
+        $this->stream()->write(str_repeat("\0", 32));
 
         $this->setDefaultCompressor(
             $config['compressor'] ?? Lzma2Compressor::class,
@@ -178,13 +179,13 @@ class SevenZipWriter implements Writer
             $compressed = $compressor->compress($chunk);
             $packedSize += strlen($compressed);
 
-            $this->outputStream->write($compressed);
+            $this->stream()->write($compressed);
         }
 
         $final = $compressor->finish();
         $packedSize += strlen($final);
 
-        $this->outputStream->write($final);
+        $this->stream()->write($final);
 
         $this->totalPackedSize += $packedSize;
         $this->packedSizes[] = $packedSize;
@@ -218,11 +219,25 @@ class SevenZipWriter implements Writer
 
         // The metadata header is appended last, then the signature header slot
         // reserved at the start is patched with the real values.
-        $this->outputStream->write($header);
-        $this->outputStream->seek(0);
-        $this->outputStream->write($signature);
+        $this->stream()->write($header);
+        $this->stream()->seek(0);
+        $this->stream()->write($signature);
 
-        $this->outputStream->close();
+        $this->stream()->close();
         $this->outputStream = null;
+    }
+
+    /**
+     * Get the output stream, throwing if the archive has already been finished.
+     *
+     * @throws RuntimeException If {@see finish()} has already been called.
+     */
+    protected function stream(): SeekableWriteStream
+    {
+        if ($this->outputStream === null) {
+            throw new RuntimeException('The archive is already finished and can no longer be written to.');
+        }
+
+        return $this->outputStream;
     }
 }

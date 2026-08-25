@@ -31,7 +31,7 @@ class LocalFileHeader
         int $compressedSize,
         int $uncompressedSize,
         string $fileName,
-        ?string $extraField = ''
+        string $extraField = ''
     ): string {
         return Packer::pack(
             U32Field::create(self::SIGNATURE),

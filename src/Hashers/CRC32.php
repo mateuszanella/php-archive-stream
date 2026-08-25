@@ -53,6 +53,6 @@ class CRC32
      */
     public function finish(): int
     {
-        return hexdec(hash_final($this->context));
+        return (int) hexdec(hash_final($this->context));
     }
 }

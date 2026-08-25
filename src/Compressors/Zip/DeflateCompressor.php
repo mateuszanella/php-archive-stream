@@ -29,13 +29,15 @@ class DeflateCompressor implements ZipCompressor
      */
     public function __construct(int $level = 6)
     {
-        $this->context = deflate_init(ZLIB_ENCODING_RAW, [
+        $context = deflate_init(ZLIB_ENCODING_RAW, [
             'level' => $level,
         ]);
 
-        if ($this->context === false) {
+        if ($context === false) {
             throw new RuntimeException('Failed to initialize deflate context');
         }
+
+        $this->context = $context;
     }
 
     public static function init(array $options = []): static

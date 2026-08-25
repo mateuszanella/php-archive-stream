@@ -8,6 +8,7 @@ use PhpArchiveStream\Contracts\Archive;
 use PhpArchiveStream\Contracts\HasCompressor;
 use PhpArchiveStream\Contracts\Writers\Writer;
 use PhpArchiveStream\IO\Input\InputStream;
+use RuntimeException;
 
 class Zip implements Archive, HasCompressor
 {
@@ -15,7 +16,7 @@ class Zip implements Archive, HasCompressor
      * Create a new Zip archive instance.
      *
      * @param  Writer|null  $writer  The writer instance to use for the archive.
-     * @param  int  $defaultChunkSize  The default chunk size for reading files.
+     * @param  positive-int  $defaultChunkSize  The default chunk size for reading files.
      */
     public function __construct(
         protected ?Writer $writer,
@@ -35,13 +36,15 @@ class Zip implements Archive, HasCompressor
      */
     public function setDefaultCompressor(string $compressor, array $options = []): static
     {
-        $this->writer->setDefaultCompressor($compressor, $options);
+        $this->writer()->setDefaultCompressor($compressor, $options);
 
         return $this;
     }
 
     /**
      * Set the default read chunk size in bytes for files added to the archive.
+     *
+     * @param  positive-int  $chunkSize  The chunk size in bytes.
      */
     public function setDefaultReadChunkSize(int $chunkSize): static
     {
@@ -60,7 +63,7 @@ class Zip implements Archive, HasCompressor
     {
         $stream = InputStream::open($filePath, $this->defaultChunkSize);
 
-        $this->writer->addFile($stream, $fileName);
+        $this->writer()->addFile($stream, $fileName);
 
         return $this;
     }
@@ -79,7 +82,7 @@ class Zip implements Archive, HasCompressor
     {
         $stream = InputStream::fromStream($stream, $this->defaultChunkSize);
 
-        $this->writer->addFile($stream, $fileName);
+        $this->writer()->addFile($stream, $fileName);
 
         return $this;
     }
@@ -94,7 +97,7 @@ class Zip implements Archive, HasCompressor
     {
         $stream = InputStream::fromString($fileContents, $this->defaultChunkSize);
 
-        $this->writer->addFile($stream, $fileName);
+        $this->writer()->addFile($stream, $fileName);
 
         return $this;
     }
@@ -104,9 +107,23 @@ class Zip implements Archive, HasCompressor
      */
     public function finish(): static
     {
-        $this->writer->finish();
+        $this->writer()->finish();
         $this->writer = null;
 
         return $this;
+    }
+
+    /**
+     * Get the writer, throwing if the archive has already been finished.
+     *
+     * @throws RuntimeException If {@see finish()} has already been called.
+     */
+    protected function writer(): Writer
+    {
+        if ($this->writer === null) {
+            throw new RuntimeException('The archive has already been finished and can no longer be written to.');
+        }
+
+        return $this->writer;
     }
 }

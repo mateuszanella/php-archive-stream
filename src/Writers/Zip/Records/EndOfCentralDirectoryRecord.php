@@ -28,7 +28,7 @@ class EndOfCentralDirectoryRecord
         int $totalCentralDirectoryRecords,
         int $centralDirectorySize,
         int $centralDirectoryOffset,
-        ?string $comment = ''
+        string $comment = ''
     ): string {
         return Packer::pack(
             U32Field::create(self::SIGNATURE),

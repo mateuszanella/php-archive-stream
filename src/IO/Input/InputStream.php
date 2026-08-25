@@ -19,6 +19,9 @@ class InputStream implements ReadStream
      */
     protected $stream;
 
+    /**
+     * @var positive-int
+     */
     protected int $chunkSize;
 
     /**
@@ -28,6 +31,10 @@ class InputStream implements ReadStream
     {
         if (! is_resource($stream)) {
             throw new InvalidArgumentException('Argument must be a valid resource');
+        }
+
+        if ($chunkSize < 1) {
+            throw new InvalidArgumentException('Chunk size must be a positive integer');
         }
 
         $this->chunkSize = $chunkSize;
@@ -41,6 +48,9 @@ class InputStream implements ReadStream
         }
     }
 
+    /**
+     * @param  positive-int  $chunkSize  The number of bytes to read per chunk.
+     */
     public static function open(string $path, int $chunkSize): self
     {
         $stream = fopen($path, 'rb');
@@ -52,6 +62,9 @@ class InputStream implements ReadStream
         return new self($stream, $chunkSize);
     }
 
+    /**
+     * @param  positive-int  $chunkSize  The number of bytes to read per chunk.
+     */
     public static function fromStream($stream, int $chunkSize): self
     {
         if (! is_resource($stream)) {
@@ -61,9 +74,16 @@ class InputStream implements ReadStream
         return new self($stream, $chunkSize);
     }
 
+    /**
+     * @param  positive-int  $chunkSize  The number of bytes to read per chunk.
+     */
     public static function fromString(string $contents, int $chunkSize): self
     {
         $stream = fopen('php://memory', 'r+');
+
+        if ($stream === false) {
+            throw new CouldNotOpenStreamException('php://memory');
+        }
 
         fwrite($stream, $contents);
 

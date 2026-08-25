@@ -6,6 +6,7 @@ namespace PhpArchiveStream\IO\Output;
 
 use PhpArchiveStream\Contracts\IO\SeekableWriteStream;
 use PhpArchiveStream\Contracts\IO\WriteStream;
+use PhpArchiveStream\Exceptions\CouldNotOpenStreamException;
 use PhpArchiveStream\Exceptions\CouldNotWriteToStreamException;
 
 /**
@@ -49,7 +50,14 @@ class SpoolWriteStream implements SeekableWriteStream
     public function __construct(WriteStream $stream)
     {
         $this->stream = $stream;
-        $this->spool = fopen('php://temp', 'w+b');
+
+        $spool = fopen('php://temp', 'w+b');
+
+        if ($spool === false) {
+            throw new CouldNotOpenStreamException('php://temp');
+        }
+
+        $this->spool = $spool;
     }
 
     public function write(string $s): int

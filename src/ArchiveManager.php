@@ -160,12 +160,16 @@ class ArchiveManager
 
         $filename = 'filename="'.$fileName.'"';
 
-        $headers['Content-Disposition'] = preg_replace(
+        $replaced = preg_replace(
             '/filename="[^"]*"/',
             $filename,
             $headers['Content-Disposition'],
             1
         );
+
+        if ($replaced !== null) {
+            $headers['Content-Disposition'] = $replaced;
+        }
 
         return $headers;
     }

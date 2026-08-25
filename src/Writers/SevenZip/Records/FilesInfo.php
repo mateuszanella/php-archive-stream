@@ -120,13 +120,13 @@ class FilesInfo
             $index++;
 
             if ($index % 8 === 0) {
-                $result .= chr($byte);
+                $result .= chr($byte & 0xFF);
                 $byte = 0;
             }
         }
 
         if ($index % 8 !== 0) {
-            $result .= chr($byte);
+            $result .= chr($byte & 0xFF);
         }
 
         return $result;
