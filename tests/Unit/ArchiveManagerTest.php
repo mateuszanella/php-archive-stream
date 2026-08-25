@@ -13,8 +13,10 @@ class ArchiveManagerTest extends TestCase
 {
     protected function tearDown(): void
     {
-        if (file_exists('test.tgz')) {
-            unlink('test.tgz');
+        foreach (['test.tgz', 'test.tbz2', 'test.txz'] as $file) {
+            if (file_exists($file)) {
+                unlink($file);
+            }
         }
     }
 
@@ -56,6 +58,38 @@ class ArchiveManagerTest extends TestCase
 
         $this->assertInstanceOf(Tar::class, $archive);
         $this->assertFileExists('test.tgz');
+
+        $archive->finish();
+    }
+
+    public function test_tbz2_alias(): void
+    {
+        if (! function_exists('bzopen')) {
+            $this->markTestSkipped('The bz2 extension is required for this test');
+        }
+
+        $manager = ArchiveManager::make();
+
+        $archive = $manager->create('test.tbz2');
+
+        $this->assertInstanceOf(Tar::class, $archive);
+        $this->assertFileExists('test.tbz2');
+
+        $archive->finish();
+    }
+
+    public function test_txz_alias(): void
+    {
+        if (! in_array('compress.lzma', stream_get_wrappers(), true)) {
+            $this->markTestSkipped('The compress.lzma:// stream wrapper is required for this test');
+        }
+
+        $manager = ArchiveManager::make();
+
+        $archive = $manager->create('test.txz');
+
+        $this->assertInstanceOf(Tar::class, $archive);
+        $this->assertFileExists('test.txz');
 
         $archive->finish();
     }

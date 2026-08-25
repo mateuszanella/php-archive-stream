@@ -37,25 +37,24 @@ trait ParsesPaths
 
         $extension = pathinfo($path, PATHINFO_EXTENSION);
 
-        // If the file is gzipped, we must get the previous
-        // extension and append the gz extension to it.
-        if ($extension === 'gz') {
+        $compoundExtensions = ['gz', 'bz2', 'xz'];
+
+        if (in_array($extension, $compoundExtensions, true)) {
+            $compoundExtension = $extension;
+
             $parts = explode('.', $path);
 
-            // Remove the .gz extension from the end of the array
             array_pop($parts);
 
             $newPath = implode('.', $parts);
 
             $extension = pathinfo($newPath, PATHINFO_EXTENSION);
 
-            // Anything beyond this point should be ignored and fail
-            // if the extension does not exist or is something bizarre.
             if (empty($extension)) {
                 throw new InvalidArgumentException("Could not determine the extension for the path: {$path}");
             }
 
-            $extension .= '.gz';
+            $extension .= '.'.$compoundExtension;
         }
 
         return $extension;

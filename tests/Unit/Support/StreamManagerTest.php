@@ -3,9 +3,11 @@
 namespace Tests\Unit\Support;
 
 use InvalidArgumentException;
+use PhpArchiveStream\IO\Output\Bz2OutputStream;
 use PhpArchiveStream\IO\Output\GzOutputStream;
 use PhpArchiveStream\IO\Output\OutputStream;
 use PhpArchiveStream\IO\Output\SpoolWriteStream;
+use PhpArchiveStream\IO\Output\XzOutputStream;
 use PhpArchiveStream\StreamManager;
 use PHPUnit\Framework\TestCase;
 
@@ -60,6 +62,28 @@ class StreamManagerTest extends TestCase
         $stream = (new StreamManager)->make('tar.gz', 'php://temp');
 
         $this->assertInstanceOf(GzOutputStream::class, $stream);
+    }
+
+    public function test_uses_bz2_stream_for_tar_bz2(): void
+    {
+        if (! function_exists('bzopen')) {
+            $this->markTestSkipped('The bz2 extension is required for this test');
+        }
+
+        $stream = (new StreamManager)->make('tar.bz2', $this->path);
+
+        $this->assertInstanceOf(Bz2OutputStream::class, $stream);
+    }
+
+    public function test_uses_xz_stream_for_tar_xz(): void
+    {
+        if (! in_array('compress.lzma', stream_get_wrappers(), true)) {
+            $this->markTestSkipped('The compress.lzma:// stream wrapper is required for this test');
+        }
+
+        $stream = (new StreamManager)->make('tar.xz', $this->path);
+
+        $this->assertInstanceOf(XzOutputStream::class, $stream);
     }
 
     public function test_throws_on_unknown_extension(): void
