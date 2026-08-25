@@ -76,6 +76,36 @@ class ArchiveManagerTest extends TestCase
         $this->assertInstanceOf(Archive::class, $archive);
     }
 
+    public function test_can_create_tar_bz2_archive(): void
+    {
+        if (! function_exists('bzopen')) {
+            $this->markTestSkipped('The bz2 extension is required for this test');
+        }
+
+        $manager = ArchiveManager::make();
+        $outputPath = $this->tempDir.'/test.tar.bz2';
+
+        $archive = $manager->create($outputPath);
+
+        $this->assertInstanceOf(Tar::class, $archive);
+        $this->assertInstanceOf(Archive::class, $archive);
+    }
+
+    public function test_can_create_tar_xz_archive(): void
+    {
+        if (! in_array('compress.lzma', stream_get_wrappers(), true)) {
+            $this->markTestSkipped('The compress.lzma:// stream wrapper is required for this test');
+        }
+
+        $manager = ArchiveManager::make();
+        $outputPath = $this->tempDir.'/test.tar.xz';
+
+        $archive = $manager->create($outputPath);
+
+        $this->assertInstanceOf(Tar::class, $archive);
+        $this->assertInstanceOf(Archive::class, $archive);
+    }
+
     public function test_can_create_archive_with_explicit_extension(): void
     {
         $manager = ArchiveManager::make();
@@ -90,6 +120,34 @@ class ArchiveManagerTest extends TestCase
     {
         $manager = ArchiveManager::make();
         $outputPath = $this->tempDir.'/test.tgz';
+
+        $archive = $manager->create($outputPath);
+
+        $this->assertInstanceOf(Tar::class, $archive);
+    }
+
+    public function test_can_use_tbz2_alias(): void
+    {
+        if (! function_exists('bzopen')) {
+            $this->markTestSkipped('The bz2 extension is required for this test');
+        }
+
+        $manager = ArchiveManager::make();
+        $outputPath = $this->tempDir.'/test.tbz2';
+
+        $archive = $manager->create($outputPath);
+
+        $this->assertInstanceOf(Tar::class, $archive);
+    }
+
+    public function test_can_use_txz_alias(): void
+    {
+        if (! in_array('compress.lzma', stream_get_wrappers(), true)) {
+            $this->markTestSkipped('The compress.lzma:// stream wrapper is required for this test');
+        }
+
+        $manager = ArchiveManager::make();
+        $outputPath = $this->tempDir.'/test.txz';
 
         $archive = $manager->create($outputPath);
 

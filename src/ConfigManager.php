@@ -44,6 +44,28 @@ class ConfigManager
                 'Connection'                => 'Keep-Alive',
             ],
         ],
+        'tarbz2' => [
+            'input'   => ['chunkSize' => 1048576],
+            'headers' => [
+                'Content-Type'              => 'application/x-tar',
+                'Content-Disposition'       => 'attachment; filename="archive.tar.bz2"',
+                'Content-Transfer-Encoding' => 'binary',
+                'Pragma'                    => 'public',
+                'Cache-Control'             => 'public, must-revalidate',
+                'Connection'                => 'Keep-Alive',
+            ],
+        ],
+        'tarxz' => [
+            'input'   => ['chunkSize' => 1048576],
+            'headers' => [
+                'Content-Type'              => 'application/x-tar',
+                'Content-Disposition'       => 'attachment; filename="archive.tar.xz"',
+                'Content-Transfer-Encoding' => 'binary',
+                'Pragma'                    => 'public',
+                'Cache-Control'             => 'public, must-revalidate',
+                'Connection'                => 'Keep-Alive',
+            ],
+        ],
         '7z' => [
             'input'             => ['chunkSize' => 1048576],
             'compressor'        => \PhpArchiveStream\Compressors\SevenZip\Lzma2Compressor::class,

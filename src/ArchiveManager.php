@@ -184,6 +184,32 @@ class ArchiveManager
             );
         });
 
+        $this->register('tar.bz2', function (string|array $destination, ConfigManager $config) {
+            $defaultChunkSize = $config->get('tarbz2.input.chunkSize', 1048576);
+
+            $headers = $config->get('tarbz2.headers');
+
+            $outputStream = $this->destination->getStream($destination, 'tar.bz2', $headers);
+
+            return new Tar(
+                new TarWriter($outputStream),
+                $defaultChunkSize
+            );
+        });
+
+        $this->register('tar.xz', function (string|array $destination, ConfigManager $config) {
+            $defaultChunkSize = $config->get('tarxz.input.chunkSize', 1048576);
+
+            $headers = $config->get('tarxz.headers');
+
+            $outputStream = $this->destination->getStream($destination, 'tar.xz', $headers);
+
+            return new Tar(
+                new TarWriter($outputStream),
+                $defaultChunkSize
+            );
+        });
+
         $this->register('7z', function (string|array $destination, ConfigManager $config) {
             $defaultChunkSize = $config->get('7z.input.chunkSize', 1048576);
 
@@ -209,5 +235,7 @@ class ArchiveManager
     protected function registerAliases(): void
     {
         $this->alias('tgz', 'tar.gz');
+        $this->alias('tbz2', 'tar.bz2');
+        $this->alias('txz', 'tar.xz');
     }
 }

@@ -5,9 +5,11 @@ namespace PhpArchiveStream;
 use InvalidArgumentException;
 use PhpArchiveStream\Contracts\IO\WriteStream;
 use PhpArchiveStream\Exceptions\CouldNotOpenStreamException;
+use PhpArchiveStream\IO\Output\Bz2OutputStream;
 use PhpArchiveStream\IO\Output\GzOutputStream;
 use PhpArchiveStream\IO\Output\OutputStream;
 use PhpArchiveStream\IO\Output\SpoolWriteStream;
+use PhpArchiveStream\IO\Output\XzOutputStream;
 
 /**
  * Registers and resolves the output streams used by archive formats.
@@ -82,6 +84,14 @@ class StreamManager
 
         $this->register('tar.gz', function (string $destination) {
             return new GzOutputStream($this->openWith($destination, 'wb9', 'gzopen'));
+        });
+
+        $this->register('tar.bz2', function (string $destination) {
+            return new Bz2OutputStream($this->openWith($destination, 'w', 'bzopen'));
+        });
+
+        $this->register('tar.xz', function (string $destination) {
+            return new XzOutputStream($this->openWith('compress.lzma://'.$destination, 'wb', 'fopen'));
         });
 
         $this->register('7z', function (string $destination, array $config = []) {
