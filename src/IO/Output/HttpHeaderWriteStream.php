@@ -84,7 +84,6 @@ class HttpHeaderWriteStream implements SeekableWriteStream
     protected function shouldSendHeaders(): bool
     {
         return ! $this->hasSentHeaders
-            && ! headers_sent()
-            && php_sapi_name() !== 'cli';
+            && ! headers_sent();
     }
 }
