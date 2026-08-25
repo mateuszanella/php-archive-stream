@@ -1,9 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PhpArchiveStream\Writers\Tar;
 
-use PhpArchiveStream\Utils;
+use PhpArchiveStream\Support\Checksum;
 
+/**
+ * @internal
+ */
 class Header
 {
     /**
@@ -47,7 +52,7 @@ class Header
             .$_prefix
             .$_padding;
 
-        $checksum = Utils::checksum($header, 512);
+        $checksum = Checksum::tar($header, 512);
 
         $header = substr_replace($header, sprintf("%06o\0 ", $checksum), 148, 8);
 

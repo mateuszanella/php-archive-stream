@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PhpArchiveStream\Contracts\Writers;
 
 use PhpArchiveStream\Contracts\IO\ReadStream;

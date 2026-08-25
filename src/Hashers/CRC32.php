@@ -1,9 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PhpArchiveStream\Hashers;
 
 use HashContext;
 
+/**
+ * @internal
+ *
+ * @phpstan-consistent-constructor
+ */
 class CRC32
 {
     /**

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Unit\Writers\SevenZip;
 
 use PhpArchiveStream\Writers\SevenZip\Records\Folder;

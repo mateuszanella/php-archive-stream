@@ -1,9 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PhpArchiveStream\Binary;
 
 use InvalidArgumentException;
 
+/**
+ * @internal
+ *
+ * @phpstan-consistent-constructor
+ */
 abstract class Field
 {
     /**
@@ -18,6 +25,16 @@ abstract class Field
 
     /**
      * Constructor for the Field class.
+     *
+     * @param  int|string  $value  The value of the field.
+     */
+    public function __construct(int|string $value)
+    {
+        $this->value = $value;
+    }
+
+    /**
+     * Create a new field instance from the given value.
      *
      * @param  int|string  $value  The value of the field.
      */

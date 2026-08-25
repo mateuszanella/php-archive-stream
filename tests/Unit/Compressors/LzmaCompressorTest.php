@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Unit\Compressors;
 
 use PhpArchiveStream\Compressors\SevenZip\Lzma2Compressor;

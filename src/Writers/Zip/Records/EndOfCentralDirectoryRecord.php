@@ -1,11 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PhpArchiveStream\Writers\Zip\Records;
 
 use PhpArchiveStream\Binary\Packer;
 use PhpArchiveStream\Binary\U16Field;
 use PhpArchiveStream\Binary\U32Field;
 
+/**
+ * @internal
+ */
 class EndOfCentralDirectoryRecord
 {
     /**

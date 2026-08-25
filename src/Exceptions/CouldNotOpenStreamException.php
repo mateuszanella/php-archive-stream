@@ -1,10 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PhpArchiveStream\Exceptions;
 
-use Exception;
-
-class CouldNotOpenStreamException extends Exception
+class CouldNotOpenStreamException extends ArchiveStreamException
 {
     public function __construct(string $path)
     {

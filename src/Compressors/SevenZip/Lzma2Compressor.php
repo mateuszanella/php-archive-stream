@@ -1,11 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PhpArchiveStream\Compressors\SevenZip;
 
 use PhpArchiveStream\Contracts\SevenZip\SevenZipCompressor;
 use RuntimeException;
 use XZEncodeContext;
 
+/**
+ * @internal
+ *
+ * @phpstan-consistent-constructor
+ */
 class Lzma2Compressor implements SevenZipCompressor
 {
     /**

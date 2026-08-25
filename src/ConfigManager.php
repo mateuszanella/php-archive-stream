@@ -1,7 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PhpArchiveStream;
 
+/**
+ * Stores and resolves the configuration for archive creation.
+ *
+ * @api
+ */
 class ConfigManager
 {
     /**
@@ -84,9 +91,14 @@ class ConfigManager
 
     /**
      * All of the configuration items.
+     *
+     * @var array<string, mixed>
      */
     private array $items = [];
 
+    /**
+     * @param  array<string, mixed>  $items
+     */
     public function __construct(array $items = [])
     {
         $this->items = $this->mergeConfigRecursive(static::DEFAULTS, $items);
@@ -94,6 +106,8 @@ class ConfigManager
 
     /**
      * Set the entire configuration array.
+     *
+     * @param  array<string, mixed>  $items
      */
     public function setItems(array $items): void
     {
@@ -138,6 +152,8 @@ class ConfigManager
 
     /**
      * Get the entire configuration array.
+     *
+     * @return array<string, mixed>
      */
     public function all(): array
     {
@@ -164,6 +180,10 @@ class ConfigManager
 
     /**
      * Recursively merge configuration arrays, properly overriding scalar values.
+     *
+     * @param  array<string, mixed>  $defaults
+     * @param  array<string, mixed>  $custom
+     * @return array<string, mixed>
      */
     protected function mergeConfigRecursive(array $defaults, array $custom): array
     {

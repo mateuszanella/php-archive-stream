@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PhpArchiveStream;
 
 use InvalidArgumentException;
@@ -13,6 +15,8 @@ use PhpArchiveStream\IO\Output\XzOutputStream;
 
 /**
  * Registers and resolves the output streams used by archive formats.
+ *
+ * @api
  *
  * `StreamManager` is the stream counterpart to {@see ArchiveManager}: it maps
  * an archive extension to a builder that opens a destination and wraps it in
@@ -120,7 +124,7 @@ class StreamManager
         $stream = $this->openWith($destination, 'wb', 'fopen');
 
         $strategy = $config['streaming'] ?? 'auto';
-        $seekable = (bool) (stream_get_meta_data($stream)['seekable'] ?? false);
+        $seekable = (bool) stream_get_meta_data($stream)['seekable'];
 
         if ($strategy === 'seek' && ! $seekable) {
             throw new InvalidArgumentException('Cannot stream 7z archive: the destination stream is not seekable.');
@@ -136,8 +140,8 @@ class StreamManager
     /**
      * Open a destination using the given PHP open function.
      *
-     * @param  callable(string, string): resource|false  $opener
-     * @return resource|bool The opened stream resource.
+     * @param  callable(string, string): (resource|false)  $opener
+     * @return resource The opened stream resource.
      *
      * @throws CouldNotOpenStreamException If the stream cannot be opened.
      */

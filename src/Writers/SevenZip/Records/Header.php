@@ -1,7 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PhpArchiveStream\Writers\SevenZip\Records;
 
+/**
+ * @internal
+ */
 class Header
 {
     /**

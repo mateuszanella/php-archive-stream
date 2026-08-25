@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PhpArchiveStream\Writers\Zip;
 
 use InvalidArgumentException;
@@ -17,6 +19,9 @@ use PhpArchiveStream\Writers\Zip\Records\Fields\GeneralPurposeBitFlag;
 use PhpArchiveStream\Writers\Zip\Records\Fields\Version;
 use PhpArchiveStream\Writers\Zip\Records\LocalFileHeader;
 
+/**
+ * @internal
+ */
 class ZipWriter implements Writer
 {
     /**
@@ -26,6 +31,8 @@ class ZipWriter implements Writer
 
     /**
      * The headers for the central directory.
+     *
+     * @var array<int, string>
      */
     protected array $centralDirectoryHeaders = [];
 
@@ -55,7 +62,7 @@ class ZipWriter implements Writer
      * Create a new ZipWriter instance, that supports zip version 1.0 and 2.0.
      *
      * @param  WriteStream  $outputStream  The output stream where the ZIP archive will be written.
-     * @param  array  $config  Configuration options for the writer. Supports `compressor` and `compressorOptions`.
+     * @param  array<string, mixed>  $config  Configuration options for the writer. Supports `compressor` and `compressorOptions`.
      */
     public function __construct(WriteStream $outputStream, array $config = [])
     {
@@ -96,7 +103,7 @@ class ZipWriter implements Writer
         $this->version = $compressionMethod === 0x00 ? Version::BASE : Version::DEFLATE;
 
         $generalPurposeBitFlag = GeneralPurposeBitFlag::create()
-            ->setZeroHeader(true)
+            ->setZeroHeader()
             ->setCompressionMethod($compressionMethod);
 
         $lastModificationUnixTime = time();
@@ -173,7 +180,7 @@ class ZipWriter implements Writer
     /**
      * Write the file data to the ZIP archive and return the CRC32, compressed size, and uncompressed size.
      *
-     * @return array<int, int, int> An array containing the CRC32 value, compressed size, and uncompressed size.
+     * @return array{int, int, int} The CRC32 value, compressed size, and uncompressed size.
      */
     protected function writeFile(ReadStream $stream, Compressor $compressor): array
     {

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Feature\Archives;
 
 use PhpArchiveStream\Archives\Tar;

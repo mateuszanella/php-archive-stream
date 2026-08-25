@@ -1,11 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PhpArchiveStream\Compressors\Zip;
 
 use DeflateContext;
 use PhpArchiveStream\Contracts\Zip\ZipCompressor;
 use RuntimeException;
 
+/**
+ * @internal
+ *
+ * @phpstan-consistent-constructor
+ */
 class DeflateCompressor implements ZipCompressor
 {
     /**

@@ -1,17 +1,26 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PhpArchiveStream;
 
-use Exception;
 use PhpArchiveStream\Archives\SevenZip;
 use PhpArchiveStream\Archives\Tar;
 use PhpArchiveStream\Archives\Zip;
 use PhpArchiveStream\Contracts\Archive;
+use PhpArchiveStream\Exceptions\UnsupportedArchiveTypeException;
 use PhpArchiveStream\Writers\SevenZip\SevenZipWriter;
 use PhpArchiveStream\Writers\Tar\TarWriter;
 use PhpArchiveStream\Writers\Zip\Zip64Writer;
 use PhpArchiveStream\Writers\Zip\ZipWriter;
 
+/**
+ * The primary entry point for creating archives.
+ *
+ * @api
+ *
+ * @phpstan-consistent-constructor
+ */
 class ArchiveManager
 {
     /**
@@ -82,7 +91,7 @@ class ArchiveManager
     public function alias(string $alias, string $extension): void
     {
         if (! isset($this->drivers[$extension])) {
-            throw new Exception("Unsupported archive type for extension: {$extension}");
+            throw new UnsupportedArchiveTypeException($extension);
         }
 
         $this->aliases[$alias] = $extension;
@@ -96,13 +105,14 @@ class ArchiveManager
     public function create(string|array $destination, ?string $extension = null): Archive
     {
         $extension ??= $this->destination->extractCommonExtension($destination);
+        $extension = strtolower($extension);
 
         if (isset($this->aliases[$extension])) {
             $extension = $this->aliases[$extension];
         }
 
         if (! isset($this->drivers[$extension])) {
-            throw new Exception("Unsupported archive type for extension: {$extension}");
+            throw new UnsupportedArchiveTypeException($extension);
         }
 
         return ($this->drivers[$extension])($destination, $this->config);
@@ -133,6 +143,53 @@ class ArchiveManager
     }
 
     /**
+     * Replace the default `Content-Disposition` filename with the real
+     * destination basename, if one can be determined.
+     *
+     * @param  string|array<string>  $destination
+     * @param  array<string, string>  $headers
+     * @return array<string, string>
+     */
+    protected function headersFor(string|array $destination, array $headers): array
+    {
+        $fileName = $this->fileNameFor($destination);
+
+        if ($fileName === null || ! isset($headers['Content-Disposition'])) {
+            return $headers;
+        }
+
+        $filename = 'filename="'.$fileName.'"';
+
+        $headers['Content-Disposition'] = preg_replace(
+            '/filename="[^"]*"/',
+            $filename,
+            $headers['Content-Disposition'],
+            1
+        );
+
+        return $headers;
+    }
+
+    /**
+     * Resolve a downloadable filename for the given destination.
+     *
+     * Non-file destinations such as `php://output` have no usable name and
+     * yield `null`, keeping the configured default.
+     *
+     * @param  string|array<string>  $destination
+     */
+    protected function fileNameFor(string|array $destination): ?string
+    {
+        foreach ((array) $destination as $dest) {
+            if (! str_starts_with($dest, 'php://')) {
+                return basename($dest);
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Register the default drivers.
      */
     protected function registerDefaults(): void
@@ -141,7 +198,7 @@ class ArchiveManager
             $useZip64 = $config->get('zip.enableZip64', true);
             $defaultChunkSize = $config->get('zip.input.chunkSize', 1048576);
 
-            $headers = $config->get('zip.headers');
+            $headers = $this->headersFor($destination, $config->get('zip.headers'));
 
             $outputStream = $this->destination->getStream($destination, 'zip', $headers);
 
@@ -161,7 +218,7 @@ class ArchiveManager
         $this->register('tar', function (string|array $destination, ConfigManager $config) {
             $defaultChunkSize = $config->get('tar.input.chunkSize', 1048576);
 
-            $headers = $config->get('tar.headers');
+            $headers = $this->headersFor($destination, $config->get('tar.headers'));
 
             $outputStream = $this->destination->getStream($destination, 'tar', $headers);
 
@@ -174,7 +231,7 @@ class ArchiveManager
         $this->register('tar.gz', function (string|array $destination, ConfigManager $config) {
             $defaultChunkSize = $config->get('targz.input.chunkSize', 1048576);
 
-            $headers = $config->get('targz.headers');
+            $headers = $this->headersFor($destination, $config->get('targz.headers'));
 
             $outputStream = $this->destination->getStream($destination, 'tar.gz', $headers);
 
@@ -187,7 +244,7 @@ class ArchiveManager
         $this->register('tar.bz2', function (string|array $destination, ConfigManager $config) {
             $defaultChunkSize = $config->get('tarbz2.input.chunkSize', 1048576);
 
-            $headers = $config->get('tarbz2.headers');
+            $headers = $this->headersFor($destination, $config->get('tarbz2.headers'));
 
             $outputStream = $this->destination->getStream($destination, 'tar.bz2', $headers);
 
@@ -200,7 +257,7 @@ class ArchiveManager
         $this->register('tar.xz', function (string|array $destination, ConfigManager $config) {
             $defaultChunkSize = $config->get('tarxz.input.chunkSize', 1048576);
 
-            $headers = $config->get('tarxz.headers');
+            $headers = $this->headersFor($destination, $config->get('tarxz.headers'));
 
             $outputStream = $this->destination->getStream($destination, 'tar.xz', $headers);
 
@@ -213,7 +270,7 @@ class ArchiveManager
         $this->register('7z', function (string|array $destination, ConfigManager $config) {
             $defaultChunkSize = $config->get('7z.input.chunkSize', 1048576);
 
-            $headers = $config->get('7z.headers');
+            $headers = $this->headersFor($destination, $config->get('7z.headers'));
 
             $outputStream = $this->destination->getStream($destination, '7z', $headers, [
                 'streaming' => $config->get('7z.streaming', 'auto'),

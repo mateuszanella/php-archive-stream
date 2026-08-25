@@ -1,9 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PhpArchiveStream\Binary;
 
 use InvalidArgumentException;
 
+/**
+ * @internal
+ */
 class VariableUInt64
 {
     /**

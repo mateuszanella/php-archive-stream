@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PhpArchiveStream\Writers\SevenZip;
 
 use InvalidArgumentException;
@@ -34,6 +36,8 @@ use PhpArchiveStream\Writers\SevenZip\Records\SignatureHeader;
  * destination (e.g. a local file) or a non-seekable destination wrapped in a
  * buffering decorator such as `PhpArchiveStream\IO\Output\SpoolWriteStream`.
  * The stream layer is responsible for supplying an appropriate stream.
+ *
+ * @internal
  */
 class SevenZipWriter implements Writer
 {
@@ -105,7 +109,7 @@ class SevenZipWriter implements Writer
      * Create a new SevenZipWriter instance.
      *
      * @param  SeekableWriteStream  $outputStream  The seekable output stream where the archive will be written.
-     * @param  array  $config  Configuration options for the writer. Supports `compressor` and `compressorOptions`.
+     * @param  array<string, mixed>  $config  Configuration options for the writer. Supports `compressor` and `compressorOptions`.
      */
     public function __construct(SeekableWriteStream $outputStream, array $config = [])
     {

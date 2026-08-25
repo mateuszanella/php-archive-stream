@@ -1,9 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PhpArchiveStream\Compressors\Zip;
 
 use PhpArchiveStream\Contracts\Zip\ZipCompressor;
 
+/**
+ * @internal
+ *
+ * @phpstan-consistent-constructor
+ */
 class StoreCompressor implements ZipCompressor
 {
     public static function init(array $options = []): static

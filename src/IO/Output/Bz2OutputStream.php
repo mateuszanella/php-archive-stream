@@ -1,18 +1,26 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PhpArchiveStream\IO\Output;
 
 use PhpArchiveStream\Contracts\IO\WriteStream;
 use PhpArchiveStream\Exceptions\CouldNotWriteToStreamException;
 
+/**
+ * @internal
+ */
 class Bz2OutputStream implements WriteStream
 {
+    /**
+     * @var resource
+     */
     protected $stream;
 
     protected int $bytesWritten = 0;
 
     /**
-     * @param  resource  $stream  The stream resource to write to.
+     * @param  resource  $stream  A bzip2 stream opened with `bzopen()`.
      */
     public function __construct($stream)
     {

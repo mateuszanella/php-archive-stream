@@ -1,12 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PhpArchiveStream\Binary;
 
+/**
+ * @internal
+ */
 class U64Field extends Field
 {
     public static string $format = 'P';
-
-    public readonly int|string $value;
 
     /**
      * Constructor for the U64Field class.
@@ -15,7 +18,7 @@ class U64Field extends Field
      */
     public function __construct(int|string $value)
     {
-        $this->value = $value;
+        parent::__construct($value);
     }
 
     public static function create($value): static

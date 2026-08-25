@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PhpArchiveStream\Writers\Tar;
 
 use BadMethodCallException;
@@ -7,6 +9,9 @@ use PhpArchiveStream\Contracts\IO\ReadStream;
 use PhpArchiveStream\Contracts\IO\WriteStream;
 use PhpArchiveStream\Contracts\Writers\Writer;
 
+/**
+ * @internal
+ */
 class TarWriter implements Writer
 {
     /**
@@ -17,7 +22,7 @@ class TarWriter implements Writer
     /**
      * Create a new TarWriter instance.
      */
-    public function __construct(WriteStream $outputStream, array $config = [])
+    public function __construct(WriteStream $outputStream)
     {
         $this->outputStream = $outputStream;
     }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PhpArchiveStream\Writers\Zip;
 
 use InvalidArgumentException;
@@ -20,6 +22,9 @@ use PhpArchiveStream\Writers\Zip\Zip64Records\EndOfCentralDirectoryLocator;
 use PhpArchiveStream\Writers\Zip\Zip64Records\EndOfCentralDirectoryRecord as Zip64EndOfCentralDirectoryRecord;
 use PhpArchiveStream\Writers\Zip\Zip64Records\ExtraField;
 
+/**
+ * @internal
+ */
 class Zip64Writer implements Writer
 {
     /**
@@ -39,6 +44,8 @@ class Zip64Writer implements Writer
 
     /**
      * The central directory headers collected during the writing process.
+     *
+     * @var array<int, string>
      */
     protected array $centralDirectoryHeaders = [];
 
@@ -57,8 +64,8 @@ class Zip64Writer implements Writer
     /**
      * Create a new Zip64Writer instance, that supports zip version 4.5.
      *
-     * @param  WriteStream  $outputStream  The output stream where the ZIP archive will be written.
-     * @param  array  $config  Configuration options for the writer. Supports `compressor` and `compressorOptions`.
+     * @param  WriteStream  $outputPath  The output stream where the ZIP archive will be written.
+     * @param  array<string, mixed>  $config  Configuration options for the writer. Supports `compressor` and `compressorOptions`.
      */
     public function __construct(WriteStream $outputPath, array $config = [])
     {
@@ -213,7 +220,7 @@ class Zip64Writer implements Writer
     /**
      * Write the file data to the ZIP archive and return the CRC32, compressed size, and uncompressed size.
      *
-     * @return array<int, int, int> An array containing the CRC32 value, compressed size, and uncompressed size.
+     * @return array{int, int, int} The CRC32 value, compressed size, and uncompressed size.
      */
     protected function writeFile(ReadStream $stream, Compressor $compressor): array
     {
