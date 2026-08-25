@@ -131,7 +131,7 @@ For detailed documentation, configuration options, and advanced usage, see the [
 composer install
 composer test     # run PHPUnit
 composer analyse  # run PHPStan (static analysis)
-composer lint     # run Pint (code style)
+composer format   # run Pint (code style)
 ```
 
 ## Security
@@ -150,4 +150,4 @@ MIT License. See [LICENSE](LICENSE) for details.
 
 ## Contact
 
-For questions, issues, or contributions, please open an issue on the [GitHub repository](https://github.com/mateuszanella/php-archive-stream), or email me at [mateusblk1@gmail.com](mailto:mateusblk1@gmail.com).
+For questions, issues, or contributions, please open an issue on the [GitHub repository](https://github.com/mateuszanella/php-archive-stream).
