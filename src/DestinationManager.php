@@ -98,7 +98,19 @@ class DestinationManager
 
     public function shouldSendHTTPHeaders(string $destination): bool
     {
+        if ($this->isCLI()) {
+            return false;
+        }
+
         return $destination === 'php://output'
             || $destination === 'php://stdout';
+    }
+
+    /**
+     * Whether PHP is currently running in a command-line interface.
+     */
+    protected function isCLI(): bool
+    {
+        return php_sapi_name() === 'cli';
     }
 }
