@@ -26,7 +26,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y liblzma-dev
 
       - name: Install xz extension (PIE)
-        run: pie install mateuszanella/php-ext-xz
+        run: sudo pie install mateuszanella/php-ext-xz
 
       - name: Install dependencies
         run: composer install
