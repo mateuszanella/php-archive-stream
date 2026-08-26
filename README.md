@@ -1,6 +1,6 @@
 # PHP Archive Stream
 
-A modular and lightweight PHP library for creating ZIP and TAR archives on-the-fly with streaming support. Perfect for generating large archives without consuming excessive memory.
+A modular and lightweight PHP library for creating ZIP, TAR and 7z archives on-the-fly with streaming support. Perfect for generating large archives without consuming excessive memory.
 
 ## Features
 
