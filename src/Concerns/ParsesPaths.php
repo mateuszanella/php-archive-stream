@@ -1,13 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PhpArchiveStream\Concerns;
 
 use InvalidArgumentException;
 
+/**
+ * @internal
+ */
 trait ParsesPaths
 {
     /**
      * List of wrappers that should be ignored when extracting the extension.
+     *
+     * @var array<int, string>
      */
     protected static array $ignoredWrappers = [
         'php',
@@ -35,7 +42,7 @@ trait ParsesPaths
             return null;
         }
 
-        $extension = pathinfo($path, PATHINFO_EXTENSION);
+        $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
 
         $compoundExtensions = ['gz', 'bz2', 'xz'];
 
@@ -48,7 +55,7 @@ trait ParsesPaths
 
             $newPath = implode('.', $parts);
 
-            $extension = pathinfo($newPath, PATHINFO_EXTENSION);
+            $extension = strtolower(pathinfo($newPath, PATHINFO_EXTENSION));
 
             if (empty($extension)) {
                 throw new InvalidArgumentException("Could not determine the extension for the path: {$path}");

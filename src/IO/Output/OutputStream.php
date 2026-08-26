@@ -1,16 +1,27 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PhpArchiveStream\IO\Output;
 
 use PhpArchiveStream\Contracts\IO\SeekableWriteStream;
 use PhpArchiveStream\Exceptions\CouldNotWriteToStreamException;
 
+/**
+ * @internal
+ */
 class OutputStream implements SeekableWriteStream
 {
+    /**
+     * @var resource
+     */
     protected $stream;
 
     protected int $bytesWritten = 0;
 
+    /**
+     * @param  resource  $stream  A readable and seekable stream resource.
+     */
     public function __construct($stream)
     {
         $this->stream = $stream;

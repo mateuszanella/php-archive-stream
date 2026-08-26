@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PhpArchiveStream\Writers\Zip\Records\Fields;
 
 /**
@@ -23,6 +25,10 @@ namespace PhpArchiveStream\Writers\Zip\Records\Fields;
  * - Bit 13: Indicates header encryption.
  * - Bit 14: Reserved.
  * - Bit 15: Reserved.
+ *
+ * @internal
+ *
+ * @phpstan-consistent-constructor
  */
 class GeneralPurposeBitFlag
 {

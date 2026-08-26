@@ -1,11 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PhpArchiveStream\Writers\SevenZip\Records;
 
 use PhpArchiveStream\Binary\Packer;
 use PhpArchiveStream\Binary\U32Field;
 use PhpArchiveStream\Binary\U64Field;
 
+/**
+ * @internal
+ */
 class SignatureHeader
 {
     /**

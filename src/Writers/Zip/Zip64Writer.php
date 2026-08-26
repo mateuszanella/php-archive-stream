@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PhpArchiveStream\Writers\Zip;
 
 use InvalidArgumentException;
@@ -19,7 +21,11 @@ use PhpArchiveStream\Writers\Zip\Zip64Records\DataDescriptor;
 use PhpArchiveStream\Writers\Zip\Zip64Records\EndOfCentralDirectoryLocator;
 use PhpArchiveStream\Writers\Zip\Zip64Records\EndOfCentralDirectoryRecord as Zip64EndOfCentralDirectoryRecord;
 use PhpArchiveStream\Writers\Zip\Zip64Records\ExtraField;
+use RuntimeException;
 
+/**
+ * @internal
+ */
 class Zip64Writer implements Writer
 {
     /**
@@ -39,6 +45,8 @@ class Zip64Writer implements Writer
 
     /**
      * The central directory headers collected during the writing process.
+     *
+     * @var array<int, string>
      */
     protected array $centralDirectoryHeaders = [];
 
@@ -57,8 +65,8 @@ class Zip64Writer implements Writer
     /**
      * Create a new Zip64Writer instance, that supports zip version 4.5.
      *
-     * @param  WriteStream  $outputStream  The output stream where the ZIP archive will be written.
-     * @param  array  $config  Configuration options for the writer. Supports `compressor` and `compressorOptions`.
+     * @param  WriteStream  $outputPath  The output stream where the ZIP archive will be written.
+     * @param  array<string, mixed>  $config  Configuration options for the writer. Supports `compressor` and `compressorOptions`.
      */
     public function __construct(WriteStream $outputPath, array $config = [])
     {
@@ -102,7 +110,7 @@ class Zip64Writer implements Writer
 
         $lastModificationUnixTime = time();
 
-        $localHeaderOffset = $this->outputStream->getBytesWritten();
+        $localHeaderOffset = $this->stream()->getBytesWritten();
 
         $this->writeLocalFileHeader(
             $fileName,
@@ -133,11 +141,11 @@ class Zip64Writer implements Writer
      */
     public function finish(): void
     {
-        $centralDirectoryOffset = $this->outputStream->getBytesWritten();
+        $centralDirectoryOffset = $this->stream()->getBytesWritten();
         $sizeOfCentralDirectory = 0;
 
         foreach ($this->centralDirectoryHeaders as $header) {
-            $this->outputStream->write($header);
+            $this->stream()->write($header);
 
             $sizeOfCentralDirectory += strlen($header);
         }
@@ -147,7 +155,7 @@ class Zip64Writer implements Writer
             || $centralDirectoryOffset > 0xFFFFFFFF
             || $sizeOfCentralDirectory > 0xFFFFFFFF
         ) {
-            $this->outputStream->write(Zip64EndOfCentralDirectoryRecord::generate(
+            $this->stream()->write(Zip64EndOfCentralDirectoryRecord::generate(
                 versionMadeBy: static::$versionMadeBy,
                 versionNeededToExtract: $this->version,
                 numberOfThisDisk: 0,
@@ -159,14 +167,14 @@ class Zip64Writer implements Writer
                 extensibleDataSector: ''
             ));
 
-            $this->outputStream->write(EndOfCentralDirectoryLocator::generate(
+            $this->stream()->write(EndOfCentralDirectoryLocator::generate(
                 numberOfTheDiskWithZip64CentralDirectoryStart: 0,
                 zip64centralDirectoryStartOffsetOnDisk: $centralDirectoryOffset + $sizeOfCentralDirectory,
                 totalNumberOfDisks: 1
             ));
         }
 
-        $this->outputStream->write(EndOfCentralDirectoryRecord::generate(
+        $this->stream()->write(EndOfCentralDirectoryRecord::generate(
             diskNumber: 0,
             diskStart: 0,
             numberOfCentralDirectoryRecords: min(count($this->centralDirectoryHeaders), 0xFFFF),
@@ -175,8 +183,22 @@ class Zip64Writer implements Writer
             centralDirectoryOffset: min($centralDirectoryOffset, 0xFFFFFFFF),
         ));
 
-        $this->outputStream->close();
+        $this->stream()->close();
         $this->outputStream = null;
+    }
+
+    /**
+     * Get the output stream, throwing if the archive has already been finished.
+     *
+     * @throws RuntimeException If {@see finish()} has already been called.
+     */
+    protected function stream(): WriteStream
+    {
+        if ($this->outputStream === null) {
+            throw new RuntimeException('The archive is already finished and can no longer be written to.');
+        }
+
+        return $this->outputStream;
     }
 
     /**
@@ -197,7 +219,7 @@ class Zip64Writer implements Writer
                 : null,
         );
 
-        $this->outputStream->write(LocalFileHeader::generate(
+        $this->stream()->write(LocalFileHeader::generate(
             minimumVersion: $this->version,
             generalPurposeBitFlag: $generalPurposeBitFlag->getValue(),
             compressionMethod: $compressionMethod,
@@ -213,7 +235,7 @@ class Zip64Writer implements Writer
     /**
      * Write the file data to the ZIP archive and return the CRC32, compressed size, and uncompressed size.
      *
-     * @return array<int, int, int> An array containing the CRC32 value, compressed size, and uncompressed size.
+     * @return array{int, int, int} The CRC32 value, compressed size, and uncompressed size.
      */
     protected function writeFile(ReadStream $stream, Compressor $compressor): array
     {
@@ -228,13 +250,13 @@ class Zip64Writer implements Writer
             $compressedChunk = $compressor->compress($chunk);
             $compressedSize += strlen($compressedChunk);
 
-            $this->outputStream->write($compressedChunk);
+            $this->stream()->write($compressedChunk);
         }
 
         $finalCompressedChunk = $compressor->finish();
         $compressedSize += strlen($finalCompressedChunk);
 
-        $this->outputStream->write($finalCompressedChunk);
+        $this->stream()->write($finalCompressedChunk);
 
         $crc32Value = $crc32->finish();
 
@@ -255,7 +277,7 @@ class Zip64Writer implements Writer
             $uncompressedSize
         );
 
-        $this->outputStream->write($dataDescriptor);
+        $this->stream()->write($dataDescriptor);
     }
 
     /**

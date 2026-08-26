@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PhpArchiveStream\Contracts;
 
 interface HasCompressor
@@ -10,5 +12,5 @@ interface HasCompressor
      * @param  string  $compressor  The fully qualified class name of the compressor.
      * @param  array<string, mixed>  $options  Options forwarded to the compressor's `init()` factory.
      */
-    public function setDefaultCompressor(string $compressor, array $options = []): void;
+    public function setDefaultCompressor(string $compressor, array $options = []): static;
 }

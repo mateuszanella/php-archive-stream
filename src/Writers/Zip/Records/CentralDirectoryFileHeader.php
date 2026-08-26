@@ -1,12 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PhpArchiveStream\Writers\Zip\Records;
 
 use PhpArchiveStream\Binary\Packer;
 use PhpArchiveStream\Binary\U16Field;
 use PhpArchiveStream\Binary\U32Field;
-use PhpArchiveStream\Utils;
+use PhpArchiveStream\Support\TimeConverter;
 
+/**
+ * @internal
+ */
 class CentralDirectoryFileHeader
 {
     /**
@@ -31,8 +36,8 @@ class CentralDirectoryFileHeader
         int $externalFileAttributes,
         int $relativeOffsetOfLocalHeader,
         string $fileName,
-        ?string $extraField = '',
-        ?string $fileComment = ''
+        string $extraField = '',
+        string $fileComment = ''
     ): string {
         return Packer::pack(
             U32Field::create(self::SIGNATURE),
@@ -40,7 +45,7 @@ class CentralDirectoryFileHeader
             U16Field::create($minimumVersion),
             U16Field::create($generalPurposeBitFlag),
             U16Field::create($compressionMethod),
-            U32Field::create(Utils::convertUnixToDosTime($lastModificationUnixTime)),
+            U32Field::create(TimeConverter::toDosTime($lastModificationUnixTime)),
             U32Field::create($crc32),
             U32Field::create($compressedSize),
             U32Field::create($uncompressedSize),

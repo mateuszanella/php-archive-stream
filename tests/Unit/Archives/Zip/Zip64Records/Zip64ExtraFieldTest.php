@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Unit\Archives\Zip\Zip64Records;
 
 use PhpArchiveStream\Writers\Zip\Zip64Records\ExtraField;

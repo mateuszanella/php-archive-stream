@@ -1,10 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PhpArchiveStream\Exceptions;
 
-use Exception;
-
-class CouldNotWriteToStreamException extends Exception
+class CouldNotWriteToStreamException extends ArchiveStreamException
 {
     public function __construct()
     {

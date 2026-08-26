@@ -1,9 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PhpArchiveStream\Writers\SevenZip\Records;
 
 use PhpArchiveStream\Binary\VariableUInt64;
 
+/**
+ * @internal
+ */
 class PackInfo
 {
     /**

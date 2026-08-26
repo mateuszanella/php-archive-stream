@@ -1,10 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PhpArchiveStream\IO\Output;
 
 use PhpArchiveStream\Contracts\IO\SeekableWriteStream;
 use PhpArchiveStream\Contracts\IO\WriteStream;
 
+/**
+ * @internal
+ */
 class HttpHeaderWriteStream implements SeekableWriteStream
 {
     /**

@@ -1,9 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PhpArchiveStream\Hashers;
 
 use HashContext;
 
+/**
+ * @internal
+ *
+ * @phpstan-consistent-constructor
+ */
 class CRC32
 {
     /**
@@ -46,6 +53,6 @@ class CRC32
      */
     public function finish(): int
     {
-        return hexdec(hash_final($this->context));
+        return (int) hexdec(hash_final($this->context));
     }
 }

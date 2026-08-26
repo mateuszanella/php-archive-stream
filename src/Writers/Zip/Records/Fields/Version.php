@@ -1,7 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PhpArchiveStream\Writers\Zip\Records\Fields;
 
+/**
+ * @internal
+ */
 class Version
 {
     /**

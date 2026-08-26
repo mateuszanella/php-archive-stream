@@ -1,11 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PhpArchiveStream\Compressors\SevenZip;
 
 use PhpArchiveStream\Contracts\SevenZip\SevenZipCompressor;
 use RuntimeException;
 use XZEncodeContext;
 
+/**
+ * @internal
+ *
+ * @phpstan-consistent-constructor
+ */
 class Lzma2Compressor implements SevenZipCompressor
 {
     /**
@@ -36,15 +43,17 @@ class Lzma2Compressor implements SevenZipCompressor
 
         $this->dictSize = $dictSize;
 
-        $this->context = xz_encode_init(XZ_FORMAT_RAW, [
+        $context = xz_encode_init(XZ_FORMAT_RAW, [
             'filter'    => XZ_FILTER_LZMA2,
             'dict_size' => $dictSize,
             'level'     => $level,
         ]);
 
-        if ($this->context === false) {
+        if ($context === false) {
             throw new RuntimeException('Failed to initialize LZMA2 encoder');
         }
+
+        $this->context = $context;
     }
 
     public static function init(array $options = []): static

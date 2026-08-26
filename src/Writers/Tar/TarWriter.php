@@ -1,12 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PhpArchiveStream\Writers\Tar;
 
 use BadMethodCallException;
 use PhpArchiveStream\Contracts\IO\ReadStream;
 use PhpArchiveStream\Contracts\IO\WriteStream;
 use PhpArchiveStream\Contracts\Writers\Writer;
+use RuntimeException;
 
+/**
+ * @internal
+ */
 class TarWriter implements Writer
 {
     /**
@@ -17,7 +23,7 @@ class TarWriter implements Writer
     /**
      * Create a new TarWriter instance.
      */
-    public function __construct(WriteStream $outputStream, array $config = [])
+    public function __construct(WriteStream $outputStream)
     {
         $this->outputStream = $outputStream;
     }
@@ -51,8 +57,22 @@ class TarWriter implements Writer
     {
         $this->writeTrailerBlock();
 
-        $this->outputStream->close();
+        $this->stream()->close();
         $this->outputStream = null;
+    }
+
+    /**
+     * Get the output stream, throwing if the archive has already been finished.
+     *
+     * @throws RuntimeException If {@see finish()} has already been called.
+     */
+    protected function stream(): WriteStream
+    {
+        if ($this->outputStream === null) {
+            throw new RuntimeException('The archive is already finished and can no longer be written to.');
+        }
+
+        return $this->outputStream;
     }
 
     /**
@@ -63,13 +83,13 @@ class TarWriter implements Writer
         $bytesWritten = 0;
 
         foreach ($inputStream->read() as $chunk) {
-            $bytesWritten += $this->outputStream->write($chunk);
+            $bytesWritten += $this->stream()->write($chunk);
         }
 
         if ($bytesWritten % 512 !== 0) {
             $paddingSize = 512 - ($bytesWritten % 512);
 
-            $this->outputStream->write(str_repeat("\0", $paddingSize));
+            $this->stream()->write(str_repeat("\0", $paddingSize));
         }
     }
 
@@ -87,7 +107,7 @@ class TarWriter implements Writer
             $sourceFileSize
         );
 
-        $this->outputStream->write($header);
+        $this->stream()->write($header);
     }
 
     /**
@@ -95,6 +115,6 @@ class TarWriter implements Writer
      */
     protected function writeTrailerBlock(): void
     {
-        $this->outputStream->write(str_repeat("\0", 1024));
+        $this->stream()->write(str_repeat("\0", 1024));
     }
 }

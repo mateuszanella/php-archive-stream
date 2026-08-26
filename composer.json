@@ -1,20 +1,40 @@
 {
     "name": "mateuszanella/php-archive-stream",
-    "description": "A modular and lightweight PHP library for creating ZIP and TAR archives on-the-fly with streaming support.",
+    "description": "A modular and lightweight PHP library for creating ZIP, TAR, TAR.GZ, TAR.BZ2 and 7z archives on-the-fly with streaming support.",
     "type": "library",
     "license": "MIT",
+    "keywords": [
+        "archive",
+        "zip",
+        "tar",
+        "7z",
+        "gzip",
+        "bzip2",
+        "xz",
+        "streaming"
+    ],
     "authors": [
         {
             "name": "mateuszanella",
             "email": "mateusblk1@gmail.com"
         }
     ],
+    "support": {
+        "issues": "https://github.com/mateuszanella/php-archive-stream/issues",
+        "source": "https://github.com/mateuszanella/php-archive-stream"
+    },
     "require": {
         "php": "^8.3"
     },
     "require-dev": {
         "phpunit/phpunit": "^12.0",
-        "laravel/pint": "^1.24"
+        "laravel/pint": "^1.24",
+        "phpstan/phpstan": "^2.0"
+    },
+    "suggest": {
+        "ext-zlib": "Required for gzip (.gz) and ZIP deflate compression",
+        "ext-bz2": "Required for bzip2 (.bz2) compressed archives",
+        "ext-xz": "Required for LZMA/XZ (.xz) compressed archives and 7z archives"
     },
     "autoload": {
         "psr-4": {
@@ -27,8 +47,8 @@
         }
     },
     "scripts": {
-        "lint": [
-            "pint"
-        ]
+        "test": "phpunit",
+        "analyse": "phpstan analyse --memory-limit=512M",
+        "format": "pint"
     }
 }

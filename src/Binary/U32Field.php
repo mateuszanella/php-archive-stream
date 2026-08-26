@@ -1,25 +1,28 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PhpArchiveStream\Binary;
 
+/**
+ * @internal
+ */
 class U32Field extends Field
 {
     public const MAX_UNSIGNED_LONG = 0xFFFFFFFF;
 
     public static string $format = 'V';
 
-    public readonly int|string $value;
-
     /**
      * Constructor for the U32Field class.
      *
-     * @param  int  $value  The value of the field, must be between 0 and 0xFFFFFFFF.
+     * @param  int|string  $value  The value of the field, must be between 0 and 0xFFFFFFFF.
      */
-    public function __construct(int $value)
+    public function __construct(int|string $value)
     {
         static::validate($value);
 
-        $this->value = $value;
+        parent::__construct($value);
     }
 
     public static function create($value): static

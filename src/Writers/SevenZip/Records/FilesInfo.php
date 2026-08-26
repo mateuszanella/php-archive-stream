@@ -1,13 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PhpArchiveStream\Writers\SevenZip\Records;
 
 use PhpArchiveStream\Binary\Packer;
 use PhpArchiveStream\Binary\U32Field;
 use PhpArchiveStream\Binary\U64Field;
 use PhpArchiveStream\Binary\VariableUInt64;
-use PhpArchiveStream\Utils;
+use PhpArchiveStream\Support\TimeConverter;
+use PhpArchiveStream\Support\Utf16;
 
+/**
+ * @internal
+ */
 class FilesInfo
 {
     /**
@@ -48,7 +54,7 @@ class FilesInfo
         $names = '';
 
         foreach ($files as $file) {
-            $names .= Utils::toUtf16Le($file['name'])."\x00\x00";
+            $names .= Utf16::toUtf16Le($file['name'])."\x00\x00";
         }
 
         return "\x11" // kName
@@ -70,7 +76,7 @@ class FilesInfo
             ."\x00"; // External = 0
 
         foreach ($files as $file) {
-            $result .= Packer::pack(U64Field::create(Utils::toFileTime($file['mtime'])));
+            $result .= Packer::pack(U64Field::create(TimeConverter::toFileTime($file['mtime'])));
         }
 
         return $result;
@@ -114,13 +120,13 @@ class FilesInfo
             $index++;
 
             if ($index % 8 === 0) {
-                $result .= chr($byte);
+                $result .= chr($byte & 0xFF);
                 $byte = 0;
             }
         }
 
         if ($index % 8 !== 0) {
-            $result .= chr($byte);
+            $result .= chr($byte & 0xFF);
         }
 
         return $result;

@@ -1,25 +1,28 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PhpArchiveStream\Binary;
 
+/**
+ * @internal
+ */
 class U16Field extends Field
 {
     public const MAX_UNSIGNED_SHORT = 0xFFFF;
 
     public static string $format = 'v';
 
-    public readonly int|string $value;
-
     /**
      * Constructor for the U16Field class.
      *
-     * @param  int  $value  The value of the field, must be between 0 and 0xFFFF.
+     * @param  int|string  $value  The value of the field, must be between 0 and 0xFFFF.
      */
-    public function __construct(int $value)
+    public function __construct(int|string $value)
     {
         static::validate($value);
 
-        $this->value = $value;
+        parent::__construct($value);
     }
 
     public static function create($value): static

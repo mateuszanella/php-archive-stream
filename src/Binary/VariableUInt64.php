@@ -1,9 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PhpArchiveStream\Binary;
 
 use InvalidArgumentException;
 
+/**
+ * @internal
+ */
 class VariableUInt64
 {
     /**
@@ -32,7 +37,7 @@ class VariableUInt64
 
             if ($value < (1 << $bits)) {
                 $marker = (0xFF << (8 - $extraBytes)) & 0xFF;
-                $first = $marker | ($value >> (8 * $extraBytes));
+                $first = ($marker | ($value >> (8 * $extraBytes))) & 0xFF;
 
                 $result = chr($first);
                 $low = $value & ((1 << (8 * $extraBytes)) - 1);

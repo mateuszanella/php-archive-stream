@@ -1,11 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PhpArchiveStream\IO\Output;
 
 use InvalidArgumentException;
 use PhpArchiveStream\Contracts\IO\SeekableWriteStream;
 use PhpArchiveStream\Contracts\IO\WriteStream;
 
+/**
+ * @internal
+ */
 class ArrayOutputStream implements SeekableWriteStream
 {
     /**
@@ -87,7 +92,7 @@ class ArrayOutputStream implements SeekableWriteStream
     /**
      * Validate the passed objects to ensure they are instances of WriteStream.
      *
-     * @param  array<\PhpArchiveStream\Contracts\IO\WriteStream>  $streams
+     * @param  array<int, mixed>  $streams
      */
     protected function validate(array $streams): void
     {

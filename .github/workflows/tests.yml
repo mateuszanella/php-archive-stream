@@ -9,22 +9,52 @@ jobs:
 
     strategy:
       matrix:
-        php: [ '8.3' ]
+        php: [ '8.3', '8.4', '8.5' ]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
           coverage: none
+          extensions: bz2
+          tools: pie
+
+      - name: Install xz build dependencies
+        run: sudo apt-get update && sudo apt-get install -y liblzma-dev
+
+      - name: Install xz extension (PIE)
+        run: sudo pie install mateuszanella/php-ext-xz
 
       - name: Install dependencies
         run: composer install
 
-      - name: Run pint
+      - name: Run Pint (lint)
         run: vendor/bin/pint --test
+
+      - name: Run PHPStan (static analysis)
+        run: vendor/bin/phpstan analyse --no-progress
 
       - name: Run tests
         run: vendor/bin/phpunit
+
+  normalize:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+
+      - name: Install dependencies
+        run: composer install
+
+      - name: Normalize composer.json
+        run: composer validate --strict

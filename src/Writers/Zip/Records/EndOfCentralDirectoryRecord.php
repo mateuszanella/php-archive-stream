@@ -1,11 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PhpArchiveStream\Writers\Zip\Records;
 
 use PhpArchiveStream\Binary\Packer;
 use PhpArchiveStream\Binary\U16Field;
 use PhpArchiveStream\Binary\U32Field;
 
+/**
+ * @internal
+ */
 class EndOfCentralDirectoryRecord
 {
     /**
@@ -23,7 +28,7 @@ class EndOfCentralDirectoryRecord
         int $totalCentralDirectoryRecords,
         int $centralDirectorySize,
         int $centralDirectoryOffset,
-        ?string $comment = ''
+        string $comment = ''
     ): string {
         return Packer::pack(
             U32Field::create(self::SIGNATURE),

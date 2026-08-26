@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Feature;
 
 use Exception;
@@ -161,15 +163,30 @@ class ArchiveManagerTest extends TestCase
         $customDriver = function (string|array $destination, ConfigManager $config) {
             return new class implements Archive
             {
-                public function setDefaultReadChunkSize(int $chunkSize): void {}
+                public function setDefaultReadChunkSize(int $chunkSize): static
+                {
+                    return $this;
+                }
 
-                public function addFileFromPath(string $fileName, string $filePath): void {}
+                public function addFileFromPath(string $fileName, string $filePath): static
+                {
+                    return $this;
+                }
 
-                public function addFileFromStream(string $fileName, $stream): void {}
+                public function addFileFromStream(string $fileName, $stream): static
+                {
+                    return $this;
+                }
 
-                public function addFileFromContentString(string $fileName, string $fileContents): void {}
+                public function addFileFromContentString(string $fileName, string $fileContents): static
+                {
+                    return $this;
+                }
 
-                public function finish(): void {}
+                public function finish(): static
+                {
+                    return $this;
+                }
             };
         };
 
@@ -308,15 +325,30 @@ class ArchiveManagerTest extends TestCase
         $customDriver = function (string|array $destination, ConfigManager $config) {
             return new class implements Archive
             {
-                public function setDefaultReadChunkSize(int $chunkSize): void {}
+                public function setDefaultReadChunkSize(int $chunkSize): static
+                {
+                    return $this;
+                }
 
-                public function addFileFromPath(string $fileName, string $filePath): void {}
+                public function addFileFromPath(string $fileName, string $filePath): static
+                {
+                    return $this;
+                }
 
-                public function addFileFromStream(string $fileName, $stream): void {}
+                public function addFileFromStream(string $fileName, $stream): static
+                {
+                    return $this;
+                }
 
-                public function addFileFromContentString(string $fileName, string $fileContents): void {}
+                public function addFileFromContentString(string $fileName, string $fileContents): static
+                {
+                    return $this;
+                }
 
-                public function finish(): void {}
+                public function finish(): static
+                {
+                    return $this;
+                }
             };
         };
 

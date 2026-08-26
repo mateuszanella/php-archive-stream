@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PhpArchiveStream\IO\Output;
 
 use PhpArchiveStream\Contracts\IO\SeekableWriteStream;
 use PhpArchiveStream\Contracts\IO\WriteStream;
+use PhpArchiveStream\Exceptions\CouldNotOpenStreamException;
 use PhpArchiveStream\Exceptions\CouldNotWriteToStreamException;
 
 /**
@@ -17,6 +20,8 @@ use PhpArchiveStream\Exceptions\CouldNotWriteToStreamException;
  * This allows writers that require seeking (such as the 7z writer, which
  * patches a signature header written before the archive payload) to target
  * non-seekable destinations like `php://output` or cloud wrappers.
+ *
+ * @internal
  */
 class SpoolWriteStream implements SeekableWriteStream
 {
@@ -45,7 +50,14 @@ class SpoolWriteStream implements SeekableWriteStream
     public function __construct(WriteStream $stream)
     {
         $this->stream = $stream;
-        $this->spool = fopen('php://temp', 'w+b');
+
+        $spool = fopen('php://temp', 'w+b');
+
+        if ($spool === false) {
+            throw new CouldNotOpenStreamException('php://temp');
+        }
+
+        $this->spool = $spool;
     }
 
     public function write(string $s): int

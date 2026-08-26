@@ -1,12 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PhpArchiveStream\Writers\Zip\Records;
 
 use PhpArchiveStream\Binary\Packer;
 use PhpArchiveStream\Binary\U16Field;
 use PhpArchiveStream\Binary\U32Field;
-use PhpArchiveStream\Utils;
+use PhpArchiveStream\Support\TimeConverter;
 
+/**
+ * @internal
+ */
 class LocalFileHeader
 {
     /**
@@ -26,14 +31,14 @@ class LocalFileHeader
         int $compressedSize,
         int $uncompressedSize,
         string $fileName,
-        ?string $extraField = ''
+        string $extraField = ''
     ): string {
         return Packer::pack(
             U32Field::create(self::SIGNATURE),
             U16Field::create($minimumVersion),
             U16Field::create($generalPurposeBitFlag),
             U16Field::create($compressionMethod),
-            U32Field::create(Utils::convertUnixToDosTime($lastModificationUnixTime)),
+            U32Field::create(TimeConverter::toDosTime($lastModificationUnixTime)),
             U32Field::create($crc32),
             U32Field::create($compressedSize),
             U32Field::create($uncompressedSize),

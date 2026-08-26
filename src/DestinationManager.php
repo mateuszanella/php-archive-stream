@@ -1,15 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PhpArchiveStream;
 
 use InvalidArgumentException;
 use PhpArchiveStream\Concerns\ParsesPaths;
-use PhpArchiveStream\Contracts\IO\WriteStream;
+use PhpArchiveStream\Contracts\IO\SeekableWriteStream;
 use PhpArchiveStream\IO\Output\ArrayOutputStream;
 use PhpArchiveStream\IO\Output\HttpHeaderWriteStream;
 
 /**
  * Resolves destinations into write streams.
+ *
+ * @api
  *
  * `DestinationManager` is responsible for the destination side of the
  * library: it parses paths, applies context-specific behavior (such as HTTP
@@ -76,7 +80,7 @@ class DestinationManager
      * @param  array<string, string>  $headers
      * @param  array<string, mixed>  $config  Configuration options forwarded to the stream manager.
      */
-    public function getStream(string|array $destination, string $extension, array $headers = [], array $config = []): WriteStream
+    public function getStream(string|array $destination, string $extension, array $headers = [], array $config = []): SeekableWriteStream
     {
         if (is_string($destination)) {
             $destination = [$destination];
