@@ -22,6 +22,9 @@ jobs:
           extensions: bz2
           tools: pie
 
+      - name: Install xz build dependencies
+        run: sudo apt-get update && sudo apt-get install -y liblzma-dev
+
       - name: Install xz extension (PIE)
         run: pie install mateuszanella/php-ext-xz
 
