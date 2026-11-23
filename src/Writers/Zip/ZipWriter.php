@@ -105,6 +105,7 @@ class ZipWriter implements Writer
 
         $generalPurposeBitFlag = GeneralPurposeBitFlag::create()
             ->setZeroHeader()
+            ->setLanguageEncoding()
             ->setCompressionMethod($compressionMethod);
 
         $lastModificationUnixTime = time();
