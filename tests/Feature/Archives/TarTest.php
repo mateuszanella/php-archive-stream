@@ -94,6 +94,24 @@ class TarTest extends TestCase
         $this->assertFileExists($this->outputPath);
     }
 
+    public function test_multibyte_file_name_produces_a_valid_header()
+    {
+        $fileName = 'Orçamento – Ação [assinado].pdf';
+
+        $stream = fopen($this->outputPath, 'w');
+        $outputStream = new OutputStream($stream);
+        $tarWriter = new TarWriter($outputStream);
+        $tar = new Tar($tarWriter);
+
+        $tar->addFileFromContentString($fileName, 'Hello World 1');
+        $tar->finish();
+
+        $archive = file_get_contents($this->outputPath);
+        $this->assertIsString($archive);
+        $this->assertSame(0, strlen($archive) % 512);
+        $this->assertSame($fileName, rtrim(substr($archive, 0, 100), "\0"));
+    }
+
     public function test_finish()
     {
         $stream = fopen($this->outputPath, 'w');

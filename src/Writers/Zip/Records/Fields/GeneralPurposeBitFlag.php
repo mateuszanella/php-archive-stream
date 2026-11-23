@@ -38,6 +38,11 @@ class GeneralPurposeBitFlag
     public const ZERO_HEADER = 0b0000000000001000;
 
     /**
+     * Bit flag for the language encoding flag (EFS).
+     */
+    public const EFS = 0b0000100000000000;
+
+    /**
      * The value of the general purpose bit flag.
      */
     protected int $value = 0b0000000000000000;
@@ -56,6 +61,16 @@ class GeneralPurposeBitFlag
     public function setZeroHeader(): static
     {
         $this->value |= static::ZERO_HEADER;
+
+        return $this;
+    }
+
+    /**
+     * Set the language encoding flag (EFS) in the general purpose bit flag.
+     */
+    public function setLanguageEncoding(): static
+    {
+        $this->value |= static::EFS;
 
         return $this;
     }

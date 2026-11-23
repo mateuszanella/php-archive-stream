@@ -94,6 +94,49 @@ class Zip64Test extends TestCase
         $this->assertFileExists($this->outputPath);
     }
 
+    public function test_language_encoding_flag_is_set_for_utf8_file_names()
+    {
+        $fileNames = [
+            'input1.txt',
+            'Orçamento – Ação [assinado].pdf',
+        ];
+
+        foreach ($fileNames as $fileName) {
+            $stream = fopen($this->outputPath, 'w');
+            $outputStream = new OutputStream($stream);
+            $zipWriter = new Zip64Writer($outputStream);
+            $zip = new Zip($zipWriter);
+
+            $zip->addFileFromContentString($fileName, 'Hello World 1');
+            $zip->finish();
+
+            $archive = file_get_contents($this->outputPath);
+            $this->assertIsString($archive);
+
+            $endOfCentralDirectoryOffset = strlen($archive) - 22;
+            $this->assertSame("PK\x05\x06", substr($archive, $endOfCentralDirectoryOffset, 4));
+
+            $centralDirectoryOffset = unpack('V', $archive, $endOfCentralDirectoryOffset + 16)[1];
+
+            $localFlags = unpack('v', $archive, 6)[1];
+            $centralDirectoryFlags = unpack('v', $archive, $centralDirectoryOffset + 8)[1];
+
+            $this->assertSame(0x0808, $localFlags);
+            $this->assertSame(0x0808, $centralDirectoryFlags);
+
+            $localNameLength = unpack('v', $archive, 26)[1];
+            $this->assertSame($fileName, substr($archive, 30, $localNameLength));
+            $this->assertSame(strlen($fileName), $localNameLength);
+
+            $centralDirectoryNameLength = unpack('v', $archive, $centralDirectoryOffset + 28)[1];
+            $this->assertSame(
+                $fileName,
+                substr($archive, $centralDirectoryOffset + 46, $centralDirectoryNameLength)
+            );
+            $this->assertSame(strlen($fileName), $centralDirectoryNameLength);
+        }
+    }
+
     public function test_finish()
     {
         $stream = fopen($this->outputPath, 'w');
